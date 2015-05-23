@@ -16,6 +16,7 @@ Qemu maybe works too, but I will explain it here for Bochs.
 `sudo apt-get install bochs`
 
 You maybe also need 'bochs-sdl' since the contained configuration file 'bochsrc' implicates this.
+
 `sudo apt-get install bochs-sdl`
 
 ##Testing
