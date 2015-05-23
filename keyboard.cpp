@@ -18,7 +18,7 @@ namespace keyboard
 	uint8_t get_key(bool& pressed)
 	{
 		while (!(asm_inb(0x64) & 1)) { }
-		uint8_t code = asm_inb(0x60), key = code & 0x7f;
+		uint8_t code = asm_inb(0x60), key = code & B(01111111);
 
 		uchar_t port_value = asm_inb(0x61);	//Let the keyboard know, that we got it
 		asm_outb(0x61, port_value | 0x80);	// 0->1
@@ -35,7 +35,7 @@ namespace keyboard
 		return key;
 	};
 
-	char getc()
+	uchar_t getc()
 	{
 		bool was_pressed;
 		uint8_t c = get_key(was_pressed);

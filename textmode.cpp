@@ -85,7 +85,7 @@ void tm_backspace()
 		{
 			text_mode.row--;
 			text_mode.col = text_mode.columns - 1;
-			putchar(' ');
+			video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
 			text_mode.row--;
 			text_mode.col = text_mode.columns - 1;
 		}
@@ -93,7 +93,7 @@ void tm_backspace()
 	else
 	{
 		text_mode.col--;
-		putchar(' ');
+		video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
 		text_mode.col--;
 	}
 };
@@ -409,8 +409,8 @@ void putchar(const char c)
 		switch(c)
 		{
 			case ' ':
-				if (text_mode.font)		//overdraw the space
-					video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+				//if (text_mode.font)		//overdraw the space
+				//	video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
 
 				text_mode.col++;
 				update();
@@ -429,7 +429,7 @@ void putchar(const char c)
 					tm_backspace();
 				} break;
 			default:
-				video::draw_char(text_mode.col++ * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, 30);	//30 = '?'
+				video::draw_char(text_mode.col++ * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, 64);	//30 = '?'
 				update();
 				break;
 		}

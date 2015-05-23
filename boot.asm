@@ -5,7 +5,6 @@ org 0x7C00  ; set up start address of bootloader
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	mov ax, 0x1112	;set text-mode 80*50
-	
 	;mov ax, 0x13	;320x200 256 color
 
 	int 0x10 

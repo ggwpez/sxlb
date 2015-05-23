@@ -1,7 +1,6 @@
 #include "idt.hpp"
 namespace idt
 {
-	cc
 	const uchar_t* idt_isr_messages[32] =
 	{
 		"Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint",
@@ -24,6 +23,7 @@ namespace idt
 	extern "C" void isr_fault_handler(struct task::cpu_state_t* state)
 	{
 		if (state->int_no < 32)	//ensure that the fired ISR is valid
+			//hlt
 			syshlt((char_t*)idt_isr_messages[state->int_no]);	//halts the system
 	};
 
@@ -175,4 +175,3 @@ namespace idt
 		irq_functions[event_number] = NULL;
 	};
 }
-kk

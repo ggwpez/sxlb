@@ -15,9 +15,14 @@ namespace task
 		uint32_t   ebx;
 		uint32_t   ecx;
 		uint32_t   edx;
+		uint32_t   ebp;
 		uint32_t   esi;
 		uint32_t   edi;
-		uint32_t   ebp;
+		
+		uint32_t   ds;
+		uint32_t   es;
+		uint32_t   fs;
+		uint32_t   gs;
 
 		uint32_t   int_no;
 		uint32_t   error;
@@ -29,6 +34,11 @@ namespace task
 		uint32_t   esp;
 		uint32_t   ss;
 	}__attribute__((packed));
+/*
+	unsigned int gs, fs, es, ds;
+    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    unsigned int int_no, err_code;
+    unsigned int eip, cs, eflags, useresp, ss;*/
 
 	//cc
 	void multitasking_set_enabled(bool value);

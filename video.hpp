@@ -33,6 +33,7 @@ namespace video
 	/*Only supports 1 byte per pixel*/
 	void init(uint16_t width, uint16_t heigth, ubyte_t background_color, LPTR zBuffer, bool v_sync);
 	void update();
+	void get_size(uint16_t& width, uint16_t& heigth);
 	void clear_screen(uint16_t color);
 	void draw_pixel(uint16_t x, uint16_t y, ubyte_t color);
 	void draw_char(uint16_t x, uint16_t y, Font::Font_info* font, ubyte_t color, char c);

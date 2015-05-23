@@ -7,7 +7,7 @@ namespace keyboard
 {
 	uint8_t get_key(bool& pressed);
 	void init();
-	char getc();
+	uchar_t getc();
 	
 	enum Keys : unsigned char
 	{
@@ -89,6 +89,5 @@ namespace keyboard
 		'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, 0, 0, ' ', 0,
 		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, 0, 0,
 		HOME, UP, PGUP, '-', LEFT, '5', RIGHT, '+', END, DOWN, PGDN, INS, DEL, 0, 0, 0, F11, F12 };
-
 }
 }

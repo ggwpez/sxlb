@@ -24,6 +24,12 @@ namespace video
 		clear_screen(bg_color);
 	};
 
+	void get_size(uint16_t& width, uint16_t& heigth)
+	{
+		width = screen_width;
+		heigth = screen_heigth;
+	};
+
 	/*Waits for v_sync and overrides VRAM with zBuffer*/
 	void update()
 	{

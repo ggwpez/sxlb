@@ -71,7 +71,6 @@ uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys)
 	if (kheap_p)
 	{
 		//kernel-heap enabled
-		//printlf("\r\nonce");
 		void* ret = kheap.malloc(size);
 		if (phys)
 		{

@@ -1,29 +1,35 @@
 #include "timer.hpp"
 
-cc
-void sxlb_timer_install()
+namespace time
 {
-	sxlb_timer_set_frequenze(100);
-	sxlb_timer_install_event_handler();
+void install()
+{
+	set_frequenze(100);
+	install_event_handler();
 };
 
-void sxlb_timer_uninstall()
+void uninstall()
 {
-	sxlb_timer_uninstall_event_handler();
+	uninstall_event_handler();
 };
 
 uint32_t ticks = 0;
-uint32_t sxlb_timer_get_time_seconds()
+uint32_t get_ticks()
 {
-	return ticks /100;
+	return ticks;
 };
 
-void sxlb_timer_event_handler(struct task::cpu_state_t* state)
+uint32_t get_seconds()
+{
+	return ticks /1000;
+};
+
+void event_handler(struct task::cpu_state_t* state)
 {
 	ticks++;
 };
 
-void sxlb_timer_set_frequenze(int32_t hz)
+void set_frequenze(int32_t hz)
 {
 	if (!hz)
 		hz++;	//div zero
@@ -35,13 +41,13 @@ void sxlb_timer_set_frequenze(int32_t hz)
 	asm_outb(0x40, divisor >> 8);     /* Set high byte of divisor */
 };
 
-void sxlb_timer_install_event_handler()
+void install_event_handler()
 {
-	idt::irq_register_event_handler(0, sxlb_timer_event_handler);
+	idt::irq_register_event_handler(0, event_handler);
 };
 
-void sxlb_timer_uninstall_event_handler()
+void uninstall_event_handler()
 {
 	idt::irq_del_event_handler(0);
 };
-kk
+}

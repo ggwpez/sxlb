@@ -7,8 +7,6 @@
 #include "video.hpp"
 
 
-#define wrl(x) 			(ui::text::writeline(x))
-#define wr(x) 			(ui::text::write(x))
 #define printf 			(ui::text::write_f)
 #define putc 			(ui::text::putchar)
 #define vprintf 		(ui::text::v_write_f)

@@ -1,4 +1,8 @@
 #pragma once
 
 #include "types.hpp"
-#include "video.hpp"
+
+namespace user
+{
+	void start();
+}

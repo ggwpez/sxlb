@@ -10,20 +10,21 @@
 #include "sprintf.hpp"
 #include "font.hpp"
 #include "keyboard.hpp"
+#include "test.hpp"
 
 #define VIDEO_MODE 0
 
 void one()
 {
 	while (true)
-		printf("%b", task::get_pid());
+		printf("%u", task::get_pid());
 		//sxlb_text_putchar(hw::keyboard::getc());
 }
 
 void two()
 {
 	while (true)
-		printf("%b", task::get_pid());
+		printf("%u", task::get_pid());
 }
 
 void update()
@@ -43,40 +44,25 @@ int32_t main()
 	
 #if VIDEO_MODE == 1
 	LPTR zBuffer = k_malloc(64000, 0, nullptr);
-	ui::video::init(320, 200, video::VC_DARKGRAY, zBuffer, true);
+	ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, true);
 	ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
 #else
 	ui::text::init(80, 50, FC_GREEN | BC_BLACK);
 #endif
 
-	//video::draw_line(10,15, 150, 60, video::video_color::VC_BLUE);
+	ui::video::draw_line(10,15, 150, 60, ui::video::video_color::VC_BLUE);
 	
-	hw::keyboard::init();
-	
-	int arr[2000];
-	for (int i = 0; i < 15; i++)
-		if ((arr[i] = k_malloc(1024*1024)) == nullptr)
-			{ printlf("error"); hlt }
-	
-	sxlb_memory_dump_info(nullptr);
-	
-	/*for (int i = 0; i < 1500; i++)
-		if (!k_free(arr[i]))
-			printlf("error");
-	
-	sxlb_memory_dump_info(nullptr);*/
-	//test::run();
-	/*sxlb_timer_install();
+	//user::start();
+	time::install();
 	sti
-
+	
 	task::task_create(one);
 	task::task_create(two);
 	task::task_create(update);
 
-	task::multitasking_set_enabled(true);*/
-	
+	task::multitasking_set_enabled(true);
+	while (true) putc('g');
 	//printf("\n\nEnd");
 	ui::video::update();
-	hlt
 	return 0;
 };

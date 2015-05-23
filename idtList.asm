@@ -230,24 +230,43 @@ extern _isr_fault_handler
 ; Common ISR stub saves processor state, sets up for kernel mode segments,
 ; calls the C-level fault handler, and finally restores the stack frame.
 isr_common_stub:
-    pusha
+    push eax
+	push ebx
+	push ecx
+	push edx
+	push ebp
+	push esi
+	push edi
+	
     push ds
     push es
     push fs
     push gs
+    
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+    
     push esp
-    mov eax, _isr_fault_handler
-    call eax
+   	call _isr_fault_handler	
+   	pop esp
+    
     pop gs
     pop fs
     pop es
     pop ds
-    popa
+   
+   
+   	pop edi
+	pop esi
+	pop ebp
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	
     add esp, 8
     iret
 
@@ -369,38 +388,48 @@ extern _irq_event_handler
 irq_common_stub:
  ; CPU-Zustand sichern
 
-    push ebp
-    push edi
-    push esi
-    push edx
-    push ecx
-    push ebx
     push eax
- 
-	mov ax, 0x10
+	push ebx
+	push ecx
+	push edx
+	push ebp
+	push esi
+	push edi
+	
+    push ds
+    push es
+    push fs
+    push gs
+    
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
-
-  ;  // Handler aufrufen
+    ;mov fs, ax
+    ;mov gs, ax
+    
     push esp
-    call _irq_event_handler
+   	call _irq_event_handler	
     mov esp, eax
-
-	mov ax, 0x23
+    
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    
+    mov ax, 0x23
     mov ds, ax
     mov es, ax
 
-   ; // CPU-Zustand wiederherstellen
-    pop eax
-    pop ebx
-    pop ecx
-    pop edx
-    pop esi
-    pop edi
-    pop ebp
- 
-    ;// Fehlercode und Interruptnummer vom Stack nehmen
+    
+   	pop edi
+	pop esi
+	pop ebp
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	
     add esp, 8
- 
+
 ;    // Ruecksprung zum unterbrochenen Code
     iret
