@@ -4,6 +4,9 @@ Using this is very easy (on GNU/Linux), you only need the Assembler NASM and the
 
 Qemu maybe works too, but I will explain it here for Bochs.
 
+Attention! You are using this guide on own risk.
+I'm not to blame, if this harms your system.
+
 ##Downloading
 
 ###sxlb
