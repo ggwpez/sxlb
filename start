@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+./make
+
+echo "Starting Bochs..."
+bochs
+echo "Bochs terminated."
+
+exit 0
