@@ -10,7 +10,7 @@ nasm -O32 -f elf32 flush.asm -o flush.o
 
 echo "OK"
 echo "Compiling..."
-g++ -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w -c ckernel.cpp
+g++ -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w -c @files.txt
 echo "OK"
 echo "linking"
 ld -m elf_i386 -T kernel.ld @linker.txt
