@@ -19,6 +19,7 @@ static struct gdt_ptr gdt;
 extern "C"
 {
 	extern void gdt_flush(uint32_t gdt);
+	extern void tss_flush();
 }
 tss_entry tss;
 
@@ -30,14 +31,15 @@ void sxlb_gdt_load()
 	sxlb_gdt_gate_set_data(0, 0, 0, 0, 0);	//null desc
 	sxlb_gdt_gate_set_data(1, 0, 0xffffffff, 0x9a, 0xcf);
 	sxlb_gdt_gate_set_data(2, 0, 0xffffffff, 0x92, 0xcf);
-	sxlb_gdt_gate_set_data(3, 0, 0xffffffff, 0xfa, 0xcf);
-	sxlb_gdt_gate_set_data(4, 0, 0xffffffff, 0xf2, 0xcf);
+	//sxlb_gdt_gate_set_data(3, 0, 0xffffffff, 0xfa, 0xcf);
+	//sxlb_gdt_gate_set_data(4, 0, 0xffffffff, 0xf2, 0xcf);
 	//sxlb_gdt_gate_set_data(5, tss, 4, 0xf2, 0xcf);
-	write_tss(5, 0x10, 0x0);
+	write_tss(3, 0x10, 0x0);
 
-	//gdt_flush(&gdt);
-	sxlb_gdt_reload();
-	asm volatile("ltr %%ax" : : "a" (0x2B));
+	gdt_flush(&gdt);
+	tss_flush();
+	//sxlb_gdt_reload();
+	//asm volatile("ltr %%ax" : : "a" (0x2B));
 };
 
 void sxlb_gdt_reload()

@@ -4,7 +4,6 @@
 #include "types.hpp"
 #include "memory.hpp"
 
-cc
 struct gdt_entry
 {
 	uint16_t limit_low;
@@ -82,4 +81,3 @@ void sxlb_gdt_load();
 void sxlb_gdt_reload();
 void write_tss(int num, uint16_t ss0, uint32_t esp0);
 void sxlb_gdt_gate_set_data(uint32_t index, uint32_t base_address, uint32_t limit, uint8_t access, uint8_t granularity);
-kk

@@ -387,7 +387,6 @@ extern _irq_event_handler
 
 irq_common_stub:
  ; CPU-Zustand sichern
-
     push eax
 	push ebx
 	push ecx
@@ -404,22 +403,17 @@ irq_common_stub:
     mov ax, 0x10
     mov ds, ax
     mov es, ax
-    ;mov fs, ax
-    ;mov gs, ax
+    mov fs, ax
+    mov gs, ax
     
     push esp
    	call _irq_event_handler	
-    mov esp, eax
+    mov esp, eax    
     
     pop gs
     pop fs
     pop es
     pop ds
-    
-    mov ax, 0x23
-    mov ds, ax
-    mov es, ax
-
     
    	pop edi
 	pop esi

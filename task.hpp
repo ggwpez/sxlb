@@ -10,6 +10,11 @@ namespace task
 {
 	struct cpu_state_t
 	{
+		uint32_t   ds;
+		uint32_t   es;
+		uint32_t   fs;
+		uint32_t   gs;
+		
 		// Von Hand gesicherte Register
 		uint32_t   eax;
 		uint32_t   ebx;
@@ -18,11 +23,6 @@ namespace task
 		uint32_t   ebp;
 		uint32_t   esi;
 		uint32_t   edi;
-		
-		uint32_t   ds;
-		uint32_t   es;
-		uint32_t   fs;
-		uint32_t   gs;
 
 		uint32_t   int_no;
 		uint32_t   error;
@@ -31,7 +31,7 @@ namespace task
 		uint32_t   eip;
 		uint32_t   cs;
 		uint32_t   eflags;
-		uint32_t   esp;
+		uint32_t   user_esp;
 		uint32_t   ss;
 	}__attribute__((packed));
 /*

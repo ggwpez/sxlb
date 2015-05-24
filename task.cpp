@@ -51,18 +51,25 @@ namespace task
 		new_state.esi = 0;
 		new_state.edi = 0;
 		new_state.ebp = 0;
+		
+		new_state.error = 0;
+		new_state.int_no = 0;
 
-		new_state.esp = user_stack +4096;
+		new_state.user_esp = user_stack +4096;
 		new_state.eip = entry;
 
-		new_state.cs = 0x8;
+		new_state.cs = 0x08;
+		new_state.ds = 0x10;
+		new_state.es = 0x10;
+		new_state.fs = 0x10;
+		new_state.gs = 0x10;
 		//new_state.ss = 0x23;
 
 		/*tss.ss0 = 0x10;
 		tss.esp0 = kernel_stack + 4096 - sizeof(new_state);
 		tss.ss = 0x23;*/
 
-		new_state.eflags = 0x202;
+		new_state.eflags = 0x200;
 
 		struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(new_state);
 		*state = new_state;

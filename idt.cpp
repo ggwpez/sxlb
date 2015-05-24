@@ -35,7 +35,7 @@ namespace idt
 		if (task::multitasking_set_enabled && state->int_no == 32)
 		{
 			state_new = task::schedule(state);
-			tss.esp0 = (uint32_t)(state_new + 1);
+			//tss.esp0 = (uint32_t)(state_new + 1);
 		}
 		//thats a delegate with one argument (struct task::cpu_state_t*)
 		void(*handler)(struct task::cpu_state_t* state);
