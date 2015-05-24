@@ -18,6 +18,7 @@ void one()
 {
 	while (true)
 		printf("%u", task::get_pid());
+		//sxlb_text_putchar(hw::keyboard::getc());
 }
 
 void two()
@@ -51,15 +52,15 @@ int32_t main()
 
 	//ui::video::draw_line(10,15, 150, 60, ui::video::video_color::VC_BLUE);
 	
-	//user::start();
-	time::install();
+	user::start();
+	/*time::install();
 	sti
 	
 	task::task_create(one);
 	task::task_create(two);
 	task::task_create(update);
 
-	task::multitasking_set_enabled(true);
+	task::multitasking_set_enabled(true);*/
 	
 	while (true);
 	return 0;

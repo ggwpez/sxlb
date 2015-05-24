@@ -17,3 +17,4 @@ paging_h.cpp
 gdt.cpp
 heap.cpp
 heap_he.cpp
+syscall.cpp

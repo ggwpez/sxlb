@@ -8,7 +8,7 @@
 
 
 #define printf 			(ui::text::write_f)
-#define putc 			(ui::text::putchar)
+#define putc 			(ui::text::put_char)
 #define vprintf 		(ui::text::v_write_f)
 #define printlf 		(ui::text::write_line_f)
 #define printf_arr32 	(ui::text::write_f_array32)
@@ -45,8 +45,8 @@ namespace text
 {
 void		write						(const char_t* text);
 void		update					();
-void		putchar					(const char c);
-void		putchar					(const char c, ubyte_t color);
+void		put_char					(const char c);
+void		put_char					(const char c, ubyte_t color);
 void 		get_size				(uint16_t& cols, uint16_t& rows);
 void		writeline					(const char_t* text);
 void		v_write_f					(const char* args, va_list ap);

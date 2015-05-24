@@ -70,7 +70,7 @@ void tm_tab()
 
 	uint16_t _col = (text_mode.col/text_mode.tab_size+1)*text_mode.tab_size;
 	while(text_mode.col != _col)
-		putchar(' ');
+		put_char(' ');
 };
 
 void tm_backspace()
@@ -138,9 +138,9 @@ void dump_alphabet()
 	uint8_t i = 255;
 	
 	while (i--)
-		putchar(i);
+		put_char(i);
 
-	putchar('\n');
+	put_char('\n');
 };
 
 void new_line()
@@ -210,7 +210,7 @@ void write_f_array32(const char* format, char_t* data, uint32_t length, uint32_t
 	for (uint32_t i = 0; i < length; i++)
 	{
 		write_f(format, data[struct_size*i + struct_offset]);
-		putchar(' ');
+		put_char(' ');
 	}
 };
 
@@ -344,13 +344,13 @@ void v_write_f(const char* args, va_list ap)
 				}
 			} break;
 			default:
-				putchar('%');
-				putchar('?');
+				put_char('%');
+				put_char('?');
 				break;
 			}
 		}
 		else
-			putchar(args[i]);
+			put_char(args[i]);
 	}
 };
 
@@ -365,7 +365,7 @@ void write(const char_t* text)
 
 	char c;
 	while(c = *text++)
-		putchar(c);
+		put_char(c);
 };
 
 void writeline(const char_t* text)
@@ -374,21 +374,21 @@ void writeline(const char_t* text)
 	
 	//no __CHECKS_NLPTR
 	write(text);
-	putchar('\n');
+	put_char('\n');
 };
 
-void putchar(const char c, ubyte_t color)
+void put_char(const char c, ubyte_t color)
 {
 	CHECK_INIT
 	
 	ubyte_t tmp = text_mode.text_color;
 	text_mode.text_color = color;
 
-	putchar(c);
+	put_char(c);
 	text_mode.text_color = tmp;
 };
 
-void putchar(const char c)
+void put_char(const char c)
 {
 	CHECK_INIT
 	

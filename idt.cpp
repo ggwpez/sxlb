@@ -6,7 +6,7 @@ namespace idt
 		"Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint",
 		"Into Detected Overflow", "Out of Bounds", "Invalid Opcode", "No Coprocessor",
 		"Double Fault", "Coprocessor Segment Overrun", "Bad TSS", "Segment Not Present",
-		"Stack Fault", "General Protection Fault - you better check you privilegs", "Page Fault", "Unknown Interrupt",
+		"Stack Fault", "General Protection Fault - check your privileg", "Page Fault", "Unknown Interrupt",
 		"Coprocessor Fault", "Alignment Check", "Machine Check", "Reserved",
 		"Reserved", "Reserved", "Reserved", "Reserved",
 		"Reserved", "Reserved", "Reserved", "Reserved",

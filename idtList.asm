@@ -31,6 +31,7 @@
 [global _isr29]
 [global _isr30]
 [global _isr31]
+[global _isr127]
 
 ;  0: Divide By Zero Exception
 _isr0:
@@ -222,6 +223,13 @@ _isr31:
     cli
     push byte 0
     push byte 31
+    jmp isr_common_stub
+
+;syscall
+_isr127:
+    cli
+    push byte 0
+    push byte 127
     jmp isr_common_stub
 
 ; Call of the C function fault_handler(...)

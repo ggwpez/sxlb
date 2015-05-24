@@ -5,4 +5,5 @@
 namespace user
 {
 	void start();
+	uint32_t test();
 }

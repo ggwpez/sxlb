@@ -21,3 +21,4 @@ sprintf.o
 heap.o
 heap_he.o
 test.o
+syscall.o
