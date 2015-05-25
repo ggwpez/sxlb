@@ -10,6 +10,9 @@ Use these commands only, if you are an advanced user and know what they do.
 
 ##Downloading
 
+###git
+`sudo apt-get install git`
+
 ###sxlb
 `git clone https://github.com/ggwpez/sxlb.git`
 
