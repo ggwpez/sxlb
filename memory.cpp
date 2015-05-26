@@ -33,10 +33,10 @@ void sxlb_memory_dump_info(heap* heape)
 	return dest;
 };*/
 
-void* memcpy(__restrict__ byte_t* dest, __restrict__ const byte_t* source, size_t count)
+void* memcpy(void* dest, void* source, size_t count)
 {
 	while (count--)
-		*dest++ = *source++;
+        *(byte_t*)dest++ = *(byte_t*)source++;
 
 	return dest;
 };
@@ -61,17 +61,12 @@ uint32_t k_free(void* ptr)
 		return 0;
 };
 
-uint32_t k_malloc(uint32_t size)
-{
-	return k_malloc(size, 0, nullptr);
-};
-
 uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys)
 {
 	if (kheap_p)
 	{
 		//kernel-heap enabled
-		void* ret = kheap.malloc(size);
+        void* ret = kheap.malloc(size, align);
 		if (phys)
 		{
 			struct page* page = get_page((uint32_t)ret, 0, kernel_directory);

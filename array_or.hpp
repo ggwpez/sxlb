@@ -16,7 +16,7 @@ public:
 	/*Use if the array is not sorted at all.*/
 	void worst_case_order();
 
-	heap_header_info* find_fitting_block(uint32_t size, uint32_t* index_out);
+    heap_header_info* find_fitting_block(uint32_t size, bool page_aligned, uint32_t* index_out);
 	heap_header_info* find_by_address(uint32_t address);
 
 	bool add(heap_header_info value);

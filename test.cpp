@@ -10,9 +10,9 @@ namespace user
 	{
 		//((void(*)(const char))system::calls[0])('f');
 		
-		system::syscall(0, 'p', 'h', 'i', 'j', 'k');
+        system::syscall(system::call_number::PUTC, 'p', 'h', 'i', 'j', 'k');
 		printf(" n ist: %i", system::syscall(system::call_number::TEST, 0,0,0,0,0));
 	};
 	
-	uint32_t test () { return 987; };
+    uint32_t test () { return 564; };
 }

@@ -89,10 +89,15 @@ void heap::install_header(uint32_t address, bool is_hole, heap_footer* footer)
 }
 
 void* heap::malloc(uint32_t size)
+{ return malloc(size, false); }
+
+void* heap::malloc(uint32_t size, bool page_aligned)
 {
+    if (page_aligned) syshlt("Aligned allocations not allowed.");
+
 	//printlf("Allocating: %M", size);
 	uint32_t index = 0;
-	heap_header_info* found = this->list.find_fitting_block(size, &index);
+    heap_header_info* found = this->list.find_fitting_block(size, page_aligned, &index);
 	
 	heap_footer* eie = this->end_address - sizeof(heap_footer);
 	if (eie->magic != MAGIC || !eie->header)
@@ -112,9 +117,9 @@ void* heap::malloc(uint32_t size)
 		syshlt("HEAP internal overflow!");
 #endif
 	
-	if (!found)
+    if (!found) //no block found? check if we can expand the last block, or have to expand and create a new one
 	{
-		if ((this->end_address +size +OVERHEAD) > this->max_address)
+        if ((this->end_address +size +OVERHEAD) >= this->max_address)
 			syshlt("HEAP out of memory! 0");
 
 		heap_footer* found_footer = this->end_address - sizeof(heap_footer);
@@ -124,7 +129,6 @@ void* heap::malloc(uint32_t size)
 			syshlt("HEAP magic error. 0");
 
 		heap_header_info* found_info = list.find_by_address(found_header);
-
 
 		if (found_header->is_hole)	//nice, we can easily expand this block
 		{
@@ -270,13 +274,16 @@ void heap::expand(uint32_t to)
 
 void heap::contract(uint32_t until)
 {
-	if (until < this->min_address)
-		until = this->min_address;
+    if (until < this->min_address)
+        until = this->min_address;
+
+    if (until == this->min_address)     //already small enougth
+        return;
 
 	uint32_t old = until;
 	unmap_heap(this->end_address, until);
 
-	printlf("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
+    printlf("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
 	this->end_address = old;
 }
 

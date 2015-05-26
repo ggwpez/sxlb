@@ -1,4 +1,5 @@
 #include "paging_h.hpp"
+#include "memory.hpp"
 
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
@@ -8,8 +9,13 @@ uint32_t   NFRAMES = (PHYSICAL_MEMORY / PAGE_SIZE);
 uint32_t*  frames; // pointer to the bitset (functions: set/clear/test)
 uint32_t   ind, offs;
 
-struct page_directory* kernel_directory = 0;
+struct page_directory* kernel_directory, *current_directory;
 //struct page_directory* current_directory = 0;
+
+extern "C"
+{
+    extern copy_page_physical(LPTR arg0, LPTR arg1);
+}
 
 uint32_t placement_address = 0x00200000;
 
@@ -163,9 +169,9 @@ void paging_install()
 
 	// make a page directory
 	uint32_t phys;
-	kernel_directory = (struct page_directory*)k_malloc_no_heap(sizeof(struct page_directory), 1, &phys);
-	memset_(kernel_directory, 0, sizeof(struct page_directory));
-	kernel_directory->physical_address = phys;
+    kernel_directory = (page_directory*)k_malloc_no_heap(sizeof(page_directory), 1, &phys);
+    memset_(kernel_directory, 0, sizeof(page_directory));
+	kernel_directory->physical_address = phys;    
 
 	uint32_t counter = 0, i = 0, index = 0;
 	while (i < (placement_address + 0x10000))
@@ -179,15 +185,21 @@ void paging_install()
 			index = alloc_frame(page, 1, 0);
 		i += PAGE_SIZE; ++counter;
 	}
-	// cr3: PDBR (Page Directory Base Register)
-	asm volatile("mov %0, %%cr3":: "r"(kernel_directory->physical_address)); //set page directory base pointer
 
+    //clone kernel_directory
+    current_directory = clone_directory(kernel_directory);
+
+
+	// cr3: PDBR (Page Directory Base Register)
+    asm volatile("mov %0, %%cr3":: "r"(kernel_directory->physical_address));    //set page directory base pointer
 	// read cr0, set paging bit, write cr0 back
 	uint32_t cr0;
-	asm volatile("mov %%cr0, %0": "=r"(cr0)); // read cr0
-	cr0 |= 0x80000000; // set the paging bit in CR0 to enable paging
-	asm volatile("mov %0, %%cr0":: "r"(cr0)); // write cr0
+    asm volatile("mov %%cr0, %0": "=r"(cr0));   // read cr0
+    cr0 |= 0x80000000;                          // set the paging bit in CR0 to enable paging
+    asm volatile("mov %0, %%cr0":: "r"(cr0));   // write cr0
 };
+
+
 
 struct page* get_page(uint32_t address, uchar_t make, struct page_directory* dir)
 {
@@ -241,3 +253,78 @@ void analyze_physical_addresses()
 		}
 	}
 };
+
+page_table* clone_table(page_table* source, uint32_t* physAddr)
+{
+    //### only testing without heap, because heap dosent support alinged allocations yet
+    uint32_t phys;
+
+    LPTR tmp = k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
+    uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
+    LPTR addr = tmp + offset;
+
+    page_table* ret = (page_table*)addr;
+
+    memset_(ret, 0, sizeof(page_table));
+
+    for (uint32_t i = 0; i < 1024; ++i)
+    {
+        if (!source->pages[i].frame_address)
+            continue;
+
+        alloc_frame(&ret->pages[i], 0, 0);
+
+        if (source->pages[i].swapped_in)    ret->pages[i].swapped_in = 1;
+        if (source->pages[i].access_right)  ret->pages[i].access_right = 1;
+        if (source->pages[i].access_ring)   ret->pages[i].access_ring = 1;
+        if (source->pages[i].accessed)      ret->pages[i].accessed = 1;
+        if (source->pages[i].dirty)         ret->pages[i].dirty = 1;
+
+        copy_page_physical(source->pages[i].frame_address*0x1000, ret->pages[i].frame_address*0x1000);
+    };
+
+    return ret;
+};
+
+page_directory* clone_directory(page_directory* src)
+{
+    uint32_t phys;
+
+    LPTR tmp = k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
+    uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
+    LPTR addr = tmp + offset;
+
+
+    page_directory* dir = (page_directory*)addr;
+
+    memset(dir, 0, sizeof(page_directory));
+
+    uint32_t off = dir->tables_physical - (uint32_t)dir;
+    dir->physical_address = phys + off;
+
+    for (uint32_t i = 0; i < 1024; ++i)
+    {
+        if (!src->tables[i])    //### also try the other table
+            continue;
+
+        if (kernel_directory->tables[i] == src->tables[i])  //is it already mapped in the kernel_directory?
+        {
+            dir->tables[i] = src->tables[i];
+            dir->tables_physical[i] = src->tables_physical[i];
+        }
+        else    //no, have to copy it
+        {
+            uint32_t phys;
+            dir->tables[i] = clone_table(src->tables[i], &phys);
+            dir->tables_physical[i] = phys | 0x07;
+        }
+    }
+
+    return dir;
+};
+
+/*
+    LPTR tmp = k_malloc(alloc_size + PAGE_SIZE, 0, nullptr);
+    uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
+    LPTR tmp_new = tmp + offset;
+*/

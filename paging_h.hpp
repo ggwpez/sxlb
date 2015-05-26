@@ -31,12 +31,13 @@ void					paging_install();
 void					map_heap(uint32_t start, uint32_t end);
 void					unmap_heap(uint32_t start, uint32_t end);
 struct page*			get_page(uint32_t address, uchar_t make, struct page_directory* dir);
-struct page* set_page(uint32_t address, struct page_directory* dir);
-uint32_t				alloc_frame(struct page *page, int is_kernel, int is_writeable);
-void					free_frame(struct page *page);
-uint32_t k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys);
+struct page*            set_page(uint32_t address, struct page_directory* dir);
+uint32_t				alloc_frame(struct page* page, int is_kernel, int is_writeable);
+void					free_frame(struct page* page);
+uint32_t                k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys);
 
-struct page_directory*	clone_directory(struct page_directory *src);
+struct page_directory*	clone_directory(struct page_directory* src);
+struct page_table*      clone_table(struct page_table* src);
 
 uint32_t				show_physical_address(uint32_t virtual_address);
 kk

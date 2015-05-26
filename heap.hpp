@@ -11,7 +11,8 @@ public:
 	heap();
 	heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth);
 
-	void* malloc(uint32_t size);
+    void* heap::malloc(uint32_t size);
+    void* malloc(uint32_t size, bool page_aligned);
 	uint32_t free(void* ptr);
 	void dump_info();
 	heap_header* search_before(heap_header* address);

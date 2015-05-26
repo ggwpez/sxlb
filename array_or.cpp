@@ -81,22 +81,36 @@ void ordered_array::worst_case_order()	//quicksort, ### selbst implementieren
 }
 
 
-heap_header_info* ordered_array::find_fitting_block(uint32_t size, uint32_t* index_out)
+heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_aligned, uint32_t* index_out)
 {
-	uint32_t tmp, best_index = 0;
+    uint32_t best_index = 0;
+    int32_t offset = 0;
 	if (data[0].size < size)	//all blocks are too small
 		return nullptr;
 
 	for (uint32_t i = 1; i < this->size; i++)
 	{
-		if (data[i].size > size)
-		{
-			best_index = i;
-		}
-		else if (data[i].size == size)
-			return &data[i];
-		else
-			break;
+        if (page_aligned)
+        {
+            if (((uint32_t)&data[i]+sizeof(heap_header)) & 0xFFFFF000 != 0)    //would the user-address be page aligned?
+                offset = 0x1000 - ((uint32_t)&data[i] +sizeof(heap_header)) % 0x1000;
+
+            int32_t aligned_size = data[i].size - offset;
+
+            if (aligned_size == size)
+                return &data[i];
+            else if (aligned_size > size)
+                best_index = i;
+        }
+        else
+        {
+            if (data[i].size > size)
+                best_index = i;
+            else if (data[i].size == size)
+                return &data[i];
+            else
+                break;
+        }
 	}
 	if (!index_out)
 		*index_out = best_index;
