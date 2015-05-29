@@ -2,7 +2,6 @@
 
 
 #include "types.hpp"
-#include "memory.hpp"
 
 struct gdt_entry
 {

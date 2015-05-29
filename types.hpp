@@ -21,6 +21,7 @@
 #define sgn(x) ((x < 0) ? -1 : ((x > 0) ? 1 : 0))
 #define abs(x) ((x < 0) ? -x: x)
 #define hlt asm("hlt");
+#define stop asm("jmp .");
 #define finit asm("finit"); \
 	asm_set_register_ctrl(0, asm_get_register_ctrl(0) | (1 << 5));
 
@@ -37,7 +38,7 @@ typedef char*  va_list;
 #define cc ;
 #define kk ;
 
-#define break_point __asm__("xchgw %bx, %bx");
+#define break_point __asm__ __volatile__("xchgw %bx, %bx");
 
 #ifdef __cplusplus
 #define _ADDRESSOF(v)   ( &reinterpret_cast<const char &>(v) )

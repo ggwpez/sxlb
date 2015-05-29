@@ -10,7 +10,7 @@ extern void CPU_CPUID_request_00000000h(char_t* string);
 extern void CPU_CPUID_request_00000001h(char_t* flags_out);
 }
 
-void sxlb_system_halt(const char_t* error_msg)	//__attribute__((noreturn))
+void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 {
 	cli
 #if __CHECKS_NLPTR
@@ -33,9 +33,10 @@ void sxlb_system_halt(const char_t* error_msg)	//__attribute__((noreturn))
 
 	printlf(" CPU state:\n");
 	sxlb_system_dumb();
+
 	ui::video::update();
 
-	hlt
+    hlt
 };
 
 void sxlb_system_dumb()

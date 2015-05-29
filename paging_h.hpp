@@ -35,6 +35,7 @@ struct page*            set_page(uint32_t address, struct page_directory* dir);
 uint32_t				alloc_frame(struct page* page, int is_kernel, int is_writeable);
 void					free_frame(struct page* page);
 uint32_t                k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys);
+void                    enable_paging(page_directory* dir);
 
 struct page_directory*	clone_directory(struct page_directory* src);
 struct page_table*      clone_table(struct page_table* src);

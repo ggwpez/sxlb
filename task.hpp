@@ -44,17 +44,23 @@ namespace task
 	void multitasking_set_enabled(bool value);
 	void init();
 
-	bool task_create(uint32_t entry_point);
-	bool task_create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack);
-	struct cpu_state_t* schedule(struct cpu_state_t* cpu);
-	bool task_kill(uint32_t pid);
-	uint32_t get_pid();
-	
+    bool            create(uint32_t entry_point);
+    bool            create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack);
+    cpu_state_t*    schedule(struct cpu_state_t* cpu);
+    void            end();
+    bool            kill(uint32_t pid);
+    bool            kill_at(uint32_t index);
+
+    uint32_t        get_pid();
+    uint32_t        get_active_tasks();
+
 	struct task_t
 	{
 		uint32_t pid;
-		char_t* stack;
-		struct cpu_state_t* cpu_state;
+        char_t* kernel_stack;
+        LPTR user_stack_original;
+        page_directory* directory;
+        cpu_state_t* cpu_state;
 	}__attribute__((packed));
 	//kk
 }

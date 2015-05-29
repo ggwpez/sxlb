@@ -1,15 +1,20 @@
 #include "paging_h.hpp"
 #include "memory.hpp"
+#include "textmode.hpp"
 
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
 #define PHYSICAL_MEMORY		0x20000000           // 1 GB
+
+heap kheap = *(heap*)0;
 
 uint32_t   NFRAMES = (PHYSICAL_MEMORY / PAGE_SIZE);
 uint32_t*  frames; // pointer to the bitset (functions: set/clear/test)
 uint32_t   ind, offs;
 
 struct page_directory* kernel_directory, *current_directory;
+bool kheap_set = false;
+
 //struct page_directory* current_directory = 0;
 
 extern "C"
@@ -18,13 +23,6 @@ extern "C"
 }
 
 uint32_t placement_address = 0x00200000;
-
-void* memset_(void* dest, char val, size_t count)
-{
-	char* temp = (char*)dest;
-	for (; count != 0; count--) *(temp++) = val;
-	return dest;
-};
 
 uint32_t k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys)
 {
@@ -122,7 +120,7 @@ void free_frame(struct page* page) // dellocate a frame
 internal void bitset_install()
 {
 	frames = (uint32_t*)k_malloc_no_heap(NFRAMES / 32, 0, 0);
-	memset_(frames, 0, NFRAMES / 32);
+    memory::memset(frames, 0, NFRAMES / 32);
 };
 
 struct page* set_page(uint32_t address, struct page_directory* dir)
@@ -142,7 +140,7 @@ struct page* set_page(uint32_t address, struct page_directory* dir)
 	{
 		uint32_t phys;
 		dir->tables[table_index] = (struct page_table*)k_malloc_no_heap(sizeof(struct page_table), 1, &phys);
-		memset_(dir->tables[table_index], 0, PAGE_SIZE);
+        memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
 		dir->tables_physical[table_index] = phys | 0x7; // 111b meaning: PRESENT=1, RW=1, USER=1
 	}
 	return &dir->tables[table_index]->pages[address % 1024];
@@ -162,15 +160,20 @@ void unmap_heap(uint32_t start, uint32_t end)
 		free_frame(get_page(i,0, kernel_directory));
 };
 
+void heap_install()
+{
+    kheap = heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_MAX, KHEAP_START + HEAP_MIN_SIZE, 1, 1);
+    kheap_set = true;
+};
+
 void paging_install()
 {
-	// setup bitset
 	bitset_install();
 
 	// make a page directory
 	uint32_t phys;
     kernel_directory = (page_directory*)k_malloc_no_heap(sizeof(page_directory), 1, &phys);
-    memset_(kernel_directory, 0, sizeof(page_directory));
+    memory::memset(kernel_directory, 0, sizeof(page_directory));
 	kernel_directory->physical_address = phys;    
 
 	uint32_t counter = 0, i = 0, index = 0;
@@ -186,20 +189,26 @@ void paging_install()
 		i += PAGE_SIZE; ++counter;
 	}
 
-    //clone kernel_directory
+    map_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE);
     current_directory = clone_directory(kernel_directory);
 
+    enable_paging(kernel_directory);
 
-	// cr3: PDBR (Page Directory Base Register)
-    asm volatile("mov %0, %%cr3":: "r"(kernel_directory->physical_address));    //set page directory base pointer
-	// read cr0, set paging bit, write cr0 back
-	uint32_t cr0;
+    heap_install();
+};
+
+void enable_paging(page_directory* dir)
+{
+    current_directory = dir;
+
+    // cr3: PDBR (Page Directory Base Register)
+    asm volatile("mov %0, %%cr3":: "r"(current_directory->physical_address));    //set page directory base pointer
+    // read cr0, set paging bit, write cr0 back
+    uint32_t cr0;
     asm volatile("mov %%cr0, %0": "=r"(cr0));   // read cr0
     cr0 |= 0x80000000;                          // set the paging bit in CR0 to enable paging
     asm volatile("mov %0, %%cr0":: "r"(cr0));   // write cr0
-};
-
-
+}
 
 struct page* get_page(uint32_t address, uchar_t make, struct page_directory* dir)
 {
@@ -214,7 +223,7 @@ struct page* get_page(uint32_t address, uchar_t make, struct page_directory* dir
 	{
 		uint32_t phys;
 		dir->tables[table_index] = (struct page_table*)k_malloc_no_heap(sizeof(struct page_table), 1, &phys);
-		memset_(dir->tables[table_index], 0, PAGE_SIZE);
+        memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
 		dir->tables_physical[table_index] = phys | 0x7; // 111b meaning: PRESENT=1, RW=1, USER=1
 		return &dir->tables[table_index]->pages[address % 1024];
 	}
@@ -259,13 +268,15 @@ page_table* clone_table(page_table* source, uint32_t* physAddr)
     //### only testing without heap, because heap dosent support alinged allocations yet
     uint32_t phys;
 
-    LPTR tmp = k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
+    LPTR tmp = memory::k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
     uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
     LPTR addr = tmp + offset;
 
+    printlf("mod table: %i", addr % PAGE_SIZE);
+
     page_table* ret = (page_table*)addr;
 
-    memset_(ret, 0, sizeof(page_table));
+    memory::memset(ret, 0, sizeof(page_table));
 
     for (uint32_t i = 0; i < 1024; ++i)
     {
@@ -290,14 +301,13 @@ page_directory* clone_directory(page_directory* src)
 {
     uint32_t phys;
 
-    LPTR tmp = k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
+    LPTR tmp = memory::k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
     uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
     LPTR addr = tmp + offset;
 
-
     page_directory* dir = (page_directory*)addr;
 
-    memset(dir, 0, sizeof(page_directory));
+    memory::memset(dir, 0, sizeof(page_directory));
 
     uint32_t off = dir->tables_physical - (uint32_t)dir;
     dir->physical_address = phys + off;
@@ -322,9 +332,3 @@ page_directory* clone_directory(page_directory* src)
 
     return dir;
 };
-
-/*
-    LPTR tmp = k_malloc(alloc_size + PAGE_SIZE, 0, nullptr);
-    uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
-    LPTR tmp_new = tmp + offset;
-*/

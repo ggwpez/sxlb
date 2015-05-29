@@ -1,16 +1,9 @@
 #include "array_or.hpp" 
 #include "system.hpp"
-
+#include "memory.hpp"
 
 ordered_array::ordered_array()
 { }
-
-void* memset(void* dest, char val, size_t count)
-{
-	char* temp = (char*)dest;
-	for (; count != 0; count--) *(temp++) = val;
-	return dest;
-};
 
 ordered_array::ordered_array(uint32_t Size, uint32_t Capacity)
 {
@@ -22,7 +15,7 @@ ordered_array::ordered_array(uint32_t Size, uint32_t Capacity)
 	if (!this->data)
 		syshlt("Heap ctor(S, C) error.");
 	
-	memset(this->data, 0, element_size * Capacity);
+    ::memory::memset(this->data, 0, element_size * Capacity);
 }
 
 void ordered_array::best_case_order()	//bubblesort, ### selbst implementieren
@@ -79,7 +72,6 @@ void ordered_array::worst_case_order()	//quicksort, ### selbst implementieren
 {
 	quickSort(this->data, 0, this->size - 1);
 }
-
 
 heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_aligned, uint32_t* index_out)
 {
@@ -149,6 +141,7 @@ bool ordered_array::remove_by_address(heap_header* address)
 		{
 			//data[i].set_zero();
 			data[i].size = 0;
+            data[i].header = nullptr;
 			best_case_order();
 			size--;
 			return true;
@@ -182,7 +175,11 @@ bool ordered_array::check_size()
 
 ordered_array::~ordered_array()
 {
-	k_free(this->data);
-	this->element_size = 0;
-	this->data = NULL;
+    if (this->data)
+    {
+        memory::k_free(this->data);
+
+        this->element_size = 0;
+        this->data = NULL;
+    }
 }

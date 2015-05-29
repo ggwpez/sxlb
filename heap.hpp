@@ -4,15 +4,15 @@
 //#include "types.hpp"
 //#include "heap_he.hpp"
 
-
 class heap
 {
 public:
-	heap();
+    heap();
 	heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth);
 
-    void* heap::malloc(uint32_t size);
+    void* malloc(uint32_t size);
     void* malloc(uint32_t size, bool page_aligned);
+    void* malloc_pa(uint32_t size);
 	uint32_t free(void* ptr);
 	void dump_info();
 	heap_header* search_before(heap_header* address);
@@ -24,7 +24,7 @@ public:
 	void install_footer(uint32_t address, heap_header* header);
 	void install_header(uint32_t address, bool is_hole, heap_footer* footer);
 
-	~heap();
+    ~heap();
 
 	ordered_array list;
 	//uint32_t size, capacity;
@@ -36,3 +36,5 @@ public:
 	uint32_t access_right : 1;	//0: read-only,   1: read+write
 	uint32_t access_ring : 1;	//0: kernel-ring, 1: user-ring
 };
+
+heap* create_heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth);

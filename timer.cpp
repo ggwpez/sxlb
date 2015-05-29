@@ -4,7 +4,7 @@ namespace time
 {
 void install()
 {
-	set_frequenze(100);
+    set_frequenze(100);
 	install_event_handler();
 };
 

@@ -1,5 +1,5 @@
 #include "gdt.hpp"
-
+#include "memory.hpp"
 
 #define GDT_FLAG_DATASEG 0x02
 #define GDT_FLAG_CODESEG 0x0a
@@ -53,7 +53,7 @@ void write_tss(int num, uint16_t ss0, uint32_t esp0)
 	uint32_t limit = sizeof(tss_entry);
 
 	sxlb_gdt_gate_set_data(num, base, limit, 0xE9, 0x00); //access = 0xE9, granularity = 0x0
-	memset(&tss, 0, sizeof(tss_entry));
+    memory::memset(&tss, 0, sizeof(tss_entry));
 
 	tss.ss0 = ss0;  // Set the kernel stack segment.
 	tss.esp0 = esp0; // Set the kernel stack pointer.

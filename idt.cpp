@@ -1,4 +1,6 @@
 #include "idt.hpp"
+#include "memory.hpp"
+
 namespace idt
 {
 	const uchar_t* idt_isr_messages[32] =
@@ -23,13 +25,12 @@ namespace idt
 	extern "C" void isr_fault_handler(struct task::cpu_state_t* state)
 	{
 		if (state->int_no < 32)	//ensure that the fired ISR is valid
-			//hlt
 			syshlt((char_t*)idt_isr_messages[state->int_no]);	//halts the system
 	};
 
 	//If a delegate exists for the called IRQ, it gets called by this handler.
 	extern "C" struct task::cpu_state_t* irq_event_handler(struct task::cpu_state_t* state)
-	{
+    {
 		struct task::cpu_state_t* state_new = state;
 
 		if (task::multitasking_set_enabled && state->int_no == 32)
@@ -73,7 +74,7 @@ namespace idt
 	/*Clears the memory block of the complete IDT.*/
 	void flush()
 	{
-		::memset(&idt, 0, sizeof(struct idt_entry) * 256);
+        memory::memset(&idt, 0, sizeof(struct idt_entry) * 256);
 	};
 
 	/*Remaps the IRQ from offset=0 to offset=31, so the IRS wont overide user IRQ.*/

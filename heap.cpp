@@ -1,12 +1,51 @@
 #include "heap.hpp"
 #include "system.hpp"
+#include "memory.hpp"
 
 #define MAGIC 'lmao'
 
 #define OVERHEAD sizeof(heap_header)+sizeof(heap_footer)
 
-heap::heap()
-{ }
+heap::heap() = delete;
+//{ }
+
+heap* create_heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
+{
+    heap* ret = memory::k_malloc(sizeof(heap), 0,0);
+
+#if __CHECKS_ADVNCD
+    if (Start_address + OVERHEAD > End_address || Max_address < End_address)
+        syshlt("HEAP initialization error!");
+#endif
+                                            //sizeof(heap_header_info)*2000 = 16 Kb
+    ret->list = ordered_array(0, 2000);			//(sizeof(heap_header) + sizeof(heap_footer))*2000 = 40 Kb
+    ret->access_ring = Access_ring;
+    ret->access_right = Access_rigth;
+    ret->start_address = Start_address;
+    ret->end_address = End_address;
+    ret->min_address = Min_address;
+    ret->max_address = Max_address;
+
+    //printlf("heapStart@: %u  heapSize: %u", ret->start_address, ret->end_address -ret->start_address);
+    uint32_t footer_address = ret->end_address - sizeof(heap_footer);
+    ret->install_header(ret->start_address, true, footer_address);
+    ret->install_footer(footer_address, ret->start_address);
+
+    heap_header_info tmp;
+    tmp.header = (heap_header*)ret->start_address;
+    tmp.size = ret->end_address - ret->start_address - sizeof(heap_header)-sizeof(heap_footer);
+    //printlf("block0@: %u  block0Size: %u", tmp.header, tmp.size);
+
+    if (!tmp.header)
+        syshlt("HEAP out of memory!");		//could not be allocated
+
+    ret->list.add(tmp);
+
+    if (ret->list.size != 1)
+        syshlt("HEAP internal error! 20");
+
+    return ret;
+}
 
 heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
 {
@@ -15,7 +54,7 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 		syshlt("HEAP initialization error!");
 #endif
 											//sizeof(heap_header_info)*2000 = 16 Kb
-	list = ordered_array(0, 2000);			//(sizeof(heap_header) + sizeof(heap_footer))*2000 = 40 Kb
+    this->list = ordered_array(0, 2000);			//(sizeof(heap_header) + sizeof(heap_footer))*2000 = 40 Kb
 	this->access_ring = Access_ring;
 	this->access_right = Access_rigth;
 	this->start_address = Start_address;
@@ -25,8 +64,8 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 
 	//printlf("heapStart@: %u  heapSize: %u", this->start_address, this->end_address -this->start_address);
 	uint32_t footer_address = this->end_address - sizeof(heap_footer);
-	install_header(this->start_address, true, footer_address);
-	install_footer(footer_address, this->start_address);
+    this->install_header(this->start_address, true, footer_address);
+    this->install_footer(footer_address, this->start_address);
 
 	heap_header_info tmp;
 	tmp.header = (heap_header*)this->start_address;
@@ -36,9 +75,9 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 	if (!tmp.header)
 		syshlt("HEAP out of memory!");		//could not be allocated
 
-	list.add(tmp);
-	
-	if (list.size != 1)
+    this->list.add(tmp);
+
+    if (this->list.size != 1)
 		syshlt("HEAP internal error! 20");
 }
 
@@ -88,6 +127,21 @@ void heap::install_header(uint32_t address, bool is_hole, heap_footer* footer)
 	tmp->footer_address = (uint32_t)footer;
 }
 
+/*Allocated memory page aligned.*/
+/*void* heap::malloc_pa(uint32_t size)
+{
+    LPTR ptr = malloc(size + PAGE_SIZE*2);
+
+    if (!ptr)
+        return nullptr;
+
+    uint32_t offset = PAGE_SIZE - ptr%PAGE_SIZE;
+
+
+
+    return ptr + offset;
+}*/
+
 void* heap::malloc(uint32_t size)
 { return malloc(size, false); }
 
@@ -136,9 +190,9 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 			uint32_t new_footer;
 			found_footer->magic = 0;
 
-			expand(this->end_address + missing_size);
+            expand(this->end_address + missing_size);
 
-			new_footer = this->end_address - sizeof(heap_footer);
+            new_footer = this->end_address - sizeof(heap_footer);
 
 			install_footer(new_footer, found_header);
 			found_header->footer_address = new_footer;
@@ -151,7 +205,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 		{
 			uint32_t old_end = this->end_address;
 
-			expand(this->end_address +size +OVERHEAD);
+            expand(this->end_address +size +OVERHEAD);
 
 #if __CHECKS_DBG
 			if (this->end_address - old_end != size + OVERHEAD)
@@ -261,15 +315,16 @@ heap_header* heap::search_after(heap_footer* address)
 
 void heap::expand(uint32_t to)
 {
+    stop
 #if __CHECKS_ADVNCD		//should already have been checked
-	if (to > this->max_address)
-		syshlt("HEAP out of memory! expansion");
+    if (to > this->max_address)
+        syshlt("HEAP out of memory! expansion");
 #endif
 
 	map_heap(this->end_address, to);
 
-	printlf("Expanded from: %M to: %M", this->end_address - this->start_address, to - this->start_address);
-	this->end_address = to;
+    //printlf("Expanded from: %M to: %M", this->end_address - this->start_address, to - this->start_address);
+    this->end_address = to;
 }
 
 void heap::contract(uint32_t until)
@@ -283,7 +338,7 @@ void heap::contract(uint32_t until)
 	uint32_t old = until;
 	unmap_heap(this->end_address, until);
 
-    printlf("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
+    //printlf("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
 	this->end_address = old;
 }
 
@@ -293,7 +348,7 @@ uint32_t heap::free(void* ptr)
 	
 	if (header->magic != MAGIC)
 #if __CHECKS_DBG
-		syshlt("HEAP magic error! 7");
+        syshlt("Cant free at this address");
 #else
 		return 0;
 #endif
@@ -363,7 +418,7 @@ uint32_t heap::free(void* ptr)
 		
 		return tmp_size;
 	}
-	else if (found_before)				// __#
+    else if (found_before != 0)				// __#
 	{
 		heap_header_info* found_info = list.find_by_address(found_before);
 
@@ -460,6 +515,6 @@ uint32_t heap::free(void* ptr)
 heap::~heap()
 {
 	//only released on shutdown
-	this->min_address = this->max_address = this->start_address = this->end_address = 0;
-	list.~ordered_array();
-}
+    this->min_address = this->max_address = this->start_address = this->end_address = 0;
+    list.~ordered_array();
+};

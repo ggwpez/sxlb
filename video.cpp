@@ -39,7 +39,7 @@ namespace video
 			while (!(asm_inb(0x03da) & 0x08));
 		}
 
-		memcpy(vram, zbuffer, 64000);
+        memory::memcpy(vram, zbuffer, 64000);
 	};
 
 	/*Clears zBuffer*/

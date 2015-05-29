@@ -22,7 +22,7 @@ extern void CPU_CPUID_request(CPUID_REQUEST_TYPE request_type, char_t* string);
 /*Dumps all register values.*/
 void sxlb_system_dumb();
 /*Calls dump, and halts the CPU.*/
-void sxlb_system_halt(const char_t* error_msg) __attribute__((noreturn));
+void sxlb_system_halt(char_t* error_msg) __attribute__((noreturn));
 
 /*Call to get information about the CPU*/
 void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer);

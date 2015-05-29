@@ -16,53 +16,46 @@
 
 void one()
 {
-	while (true)
-		printf("%u", task::get_pid());
-		//sxlb_text_putchar(hw::keyboard::getc());
-}
+    int c;
+    int tmp[10];
 
-void two()
-{
-	while (true)
-		printf("%u", task::get_pid());
-}
+    for (c = 0; c < 10; ++c)
+        tmp[c] = memory::k_malloc(10, 0, 0);
 
-void update()
-{
-	while (1)
-		ui::video::update();
-}
+    for (c = 0; c < 10; ++c)
+        memory::k_free(tmp[c]);
+
+    printlf("done: %i", task::get_pid());
+    task::end();
+};
 
 int32_t main()
 {
 	sxlb_gdt_load();
 	idt::load();
-	
-	sxlb_memory_init();
-	cli
-	finit
-	
+    sti
+
+    memory::init();
+    //finit
 #if VIDEO_MODE == 1
-	LPTR zBuffer = k_malloc(64000, 0, nullptr);
+    LPTR zBuffer = memory::k_malloc(64000, 0, nullptr);
 	ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, true);
 	ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
 #else
-	ui::text::init(80, 50, FC_GREEN | BC_BLACK);
+    ui::text::init(80, 50, FC_GREEN | BC_BLACK);
 #endif
 
-    /*Test for aligned allocation - the lazy way*/
-    printf("cool");
-
+    printlf("done");
     //user::start();
-	/*time::install();
-	sti
-	
-	task::task_create(one);
-	task::task_create(two);
-	task::task_create(update);
+    time::install();
 
-	task::multitasking_set_enabled(true);*/
-	
+    task::create(one);
+    task::create(one);
+    task::create(one);
+    task::create(one);
+
+    task::multitasking_set_enabled(true);
+
 	while (true);
 	return 0;
 };

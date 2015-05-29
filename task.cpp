@@ -6,7 +6,7 @@ namespace task
 	static uint32_t pid = 1;
 	static int current_task = -1;
 	static int num_tasks = 0, capacity = 6;
-	static struct task_t tasks[6];
+    static struct task_t* tasks[6];
 	static bool multitasking_enabled = false;
 	extern "C" tss_entry tss;
 
@@ -24,11 +24,11 @@ namespace task
 		multitasking_enabled = value;
 	};
 
-	uint32_t task_find_by_pid(uint32_t pid)
+    uint32_t find_by_pid(uint32_t pid)
 	{
-		for (uint32_t i = 0; i < num_tasks; i++)
+        for (uint32_t i = 0; i < capacity; i++)
 		{
-			if (tasks[i].pid == pid)
+            if (tasks[i]->pid == pid)
 				return i;
 		}
 
@@ -37,10 +37,15 @@ namespace task
 	
 	uint32_t get_pid()
 	{
-		return tasks[current_task].pid;
+        return tasks[current_task]->pid;
 	};
+
+    uint32_t        get_active_tasks()
+    {
+        return num_tasks;
+    };
 	
-	struct task::cpu_state_t* init_task(void* entry, LPTR kernel_stack, LPTR user_stack)
+    struct task::task_t* init_task(void* entry, LPTR kernel_stack, LPTR user_stack)
 	{
 		cli
 		struct task::cpu_state_t new_state;
@@ -74,59 +79,96 @@ namespace task
 		struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(new_state);
 		*state = new_state;
 
+        task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
+        task->pid = pid++;
+        task->kernel_stack = kernel_stack;
+        task->user_stack_original = user_stack;
+        task->cpu_state = state;
+        //task.directory =
+
 		sti
-		return state;
+        return task;
 	};
 
-	bool task_create(uint32_t entry_point)
+    bool create(uint32_t entry_point)
 	{
-		task_create(entry_point, nullptr, nullptr);
+        create(entry_point, nullptr, nullptr);
 	}
 
-	bool task_create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack)
+    bool create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack)
 	{
 		if (num_tasks + 1 >= capacity)
 			return false;
 
-		if (!kernel_stack && !(kernel_stack = k_malloc(4096, 0, nullptr)))	//stack could not be allocated
+        if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
 				return false;
-		if (!user_stack && !(user_stack = k_malloc(4096, 0, nullptr)))	//stack could not be allocated
+        if (!user_stack && !(user_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
 			return false;
 
-		task_t task;
+        task_t* task = init_task(entry_point, kernel_stack, user_stack);
 
-		task.pid = pid++;
-		task.cpu_state = init_task(entry_point, kernel_stack, user_stack);
-		task.stack = kernel_stack;
-
-		tasks[num_tasks++] = task;
+        tasks[num_tasks++] = task;
 
 		return true;
 	};
+
+    void end()  //terminats the actual working task, and halts it
+    {
+        kill_at(current_task);
+
+        int ("int $127");   //the killed task must end here, otherwise the eip would get invalid
+        while (1);
+    };
 	
-	bool task_kill(uint32_t pid)
+    bool kill(uint32_t pid)
 	{
 		uint32_t index;
 
-		if ((index = task_find_by_pid(pid)) == uint32_max)
-			return false;
-
-		k_free(tasks[index].stack);
+        if ((index = find_by_pid(pid)) == uint32_max)
+            return false;
+        else
+            return kill_at(index);
 	};
+
+    bool kill_at(uint32_t index)
+    {
+        task_t* tmp = tasks[index];
+        cli
+        tasks[index] = nullptr;
+        num_tasks--;
+        sti
+
+        if (index >= capacity || num_tasks == 1)
+            return false;
+
+        if (!memory::k_free(tmp->kernel_stack) ||
+            !memory::k_free(tmp->user_stack_original) ||
+            !memory::k_free(tmp))
+                syshlt("Task::kill error");
+    };
 
 	struct task::cpu_state_t* schedule(struct task::cpu_state_t* cpu)
 	{
-		if (!multitasking_enabled)
-			return cpu;
+        if (!multitasking_enabled)
+            return cpu;
 
-		if (current_task >= 0)
-			tasks[current_task].cpu_state = cpu;
+        uint32_t i = current_task +1;
+        i %= capacity;                 //always normalize
+        while (!tasks[i])
+        {
+           i++;
+           i %= capacity;
 
-		current_task++;
-		current_task %= num_tasks;
+           if (i == current_task)
+               return cpu;
+        }
 
-		cpu = tasks[current_task].cpu_state;
-		tss.esp0 = tasks[current_task].stack;
+        tasks[current_task]->cpu_state = cpu;
+
+        current_task = i;
+
+        cpu = tasks[current_task]->cpu_state;
+        tss.esp0 = tasks[current_task]->kernel_stack;
 
 		return cpu;
 	};
