@@ -58,7 +58,7 @@ namespace memory
 
             if (tmp)
             {
-                //printlf("Freed: %M", tmp);
+                printlf("Freed: %M", tmp);
                 return tmp;
             }
             else
@@ -85,8 +85,8 @@ namespace memory
                 struct page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
-            //if (ret)
-              //  printlf("Allocated %M", size);
+            if (ret)
+                printlf("Allocated %M", size);
 
             m_locked = false;
             return ret;

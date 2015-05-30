@@ -25,7 +25,7 @@ com1: enabled=1, mode=null, dev=""
 #i440fxsupport: enabled=1
 vga_update_interval: 50000
 vga: extension=vbe
-cpu: count=1, ips=500000, reset_on_triple_fault=1, ignore_bad_msrs=1
+cpu: count=1, ips=6000000, reset_on_triple_fault=1, ignore_bad_msrs=1
 cpuid: cpuid_limit_winnt=0, mmx=1, sse=sse2, xapic=1, sep=1, aes=0, xsave=0, movbe=0, 1g_pages=0, pcid=0 fsgsbase=0
 cpuid: stepping=3, vendor_string="GenuineIntel", brand_string="              Intel(R) Pentium(R) 4 CPU        "
 print_timestamps: enabled=0

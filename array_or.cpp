@@ -175,6 +175,7 @@ bool ordered_array::check_size()
 
 ordered_array::~ordered_array()
 {
+    hlt
     if (this->data)
     {
         memory::k_free(this->data);

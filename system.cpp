@@ -12,7 +12,7 @@ extern void CPU_CPUID_request_00000001h(char_t* flags_out);
 
 void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 {
-	cli
+    cli
 #if __CHECKS_NLPTR
 	if (!error_msg)
 		syshlt("Double Fault");	//man wtf, are you trying to troll me?

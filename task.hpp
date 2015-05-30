@@ -47,7 +47,7 @@ namespace task
     bool            create(uint32_t entry_point);
     bool            create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack);
     cpu_state_t*    schedule(struct cpu_state_t* cpu);
-    void            end();
+    void            end() __attribute__((noreturn));
     bool            kill(uint32_t pid);
     bool            kill_at(uint32_t index);
 
@@ -56,11 +56,13 @@ namespace task
 
 	struct task_t
 	{
+        bool to_dispose = false;
 		uint32_t pid;
         char_t* kernel_stack;
         LPTR user_stack_original;
         page_directory* directory;
         cpu_state_t* cpu_state;
+        //~task_t();
 	}__attribute__((packed));
 	//kk
 }

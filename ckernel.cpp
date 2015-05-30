@@ -14,18 +14,38 @@
 
 #define VIDEO_MODE 0
 
+void two();
 void one()
 {
-    int c;
-    int tmp[10];
+    /*int c;
+    int tmp[5];
 
-    for (c = 0; c < 10; ++c)
+    for (c = 0; c < 5; ++c)
         tmp[c] = memory::k_malloc(10, 0, 0);
 
-    for (c = 0; c < 10; ++c)
-        memory::k_free(tmp[c]);
+    //for (c = 0; c < 10; ++c)
+        //memory::k_free(tmp[0]);*/
 
-    printlf("done: %i", task::get_pid());
+    printlf("pid: 11111");
+
+    task::create(two);
+    task::end();
+};
+
+void three();
+void two()
+{
+    printlf("pid: 22222");
+
+    task::create(three);
+    task::end();
+};
+
+void three()
+{
+    printlf("pid: 33333");
+
+    task::create(one);
     task::end();
 };
 
@@ -50,12 +70,7 @@ int32_t main()
     time::install();
 
     task::create(one);
-    task::create(one);
-    task::create(one);
-    task::create(one);
-
     task::multitasking_set_enabled(true);
 
-	while (true);
 	return 0;
 };

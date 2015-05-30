@@ -5,7 +5,7 @@ namespace task
 	//cc
 	static uint32_t pid = 1;
 	static int current_task = -1;
-	static int num_tasks = 0, capacity = 6;
+    static int num_tasks = 0, capacity = 6;
     static struct task_t* tasks[6];
 	static bool multitasking_enabled = false;
 	extern "C" tss_entry tss;
@@ -28,7 +28,7 @@ namespace task
 	{
         for (uint32_t i = 0; i < capacity; i++)
 		{
-            if (tasks[i]->pid == pid)
+            if (tasks[i] && tasks[i]->pid == pid)
 				return i;
 		}
 
@@ -37,18 +37,28 @@ namespace task
 	
 	uint32_t get_pid()
 	{
-        return tasks[current_task]->pid;
+        if (tasks[current_task])
+            return tasks[current_task]->pid;
+        else
+            return 0;
 	};
 
-    uint32_t        get_active_tasks()
+    uint32_t get_active_tasks()
     {
+        uint32_t c = 0;
+        for (int i = 0; i < capacity; ++i)
+            if (tasks[i])
+                c++;
+        if (c != num_tasks)
+            syshlt("internal error");
+
         return num_tasks;
     };
 	
     struct task::task_t* init_task(void* entry, LPTR kernel_stack, LPTR user_stack)
 	{
 		cli
-		struct task::cpu_state_t new_state;
+        task::cpu_state_t new_state;
 		new_state.eax = 0;
 		new_state.ebx = 0;
 		new_state.ecx = 0;
@@ -68,7 +78,7 @@ namespace task
 		new_state.es = 0x10;
 		new_state.fs = 0x10;
 		new_state.gs = 0x10;
-		//new_state.ss = 0x23;
+        //new_state.ss = 0x23;
 
 		/*tss.ss0 = 0x10;
 		tss.esp0 = kernel_stack + 4096 - sizeof(new_state);
@@ -80,6 +90,8 @@ namespace task
 		*state = new_state;
 
         task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
+        if (!task)
+            return 0;
         task->pid = pid++;
         task->kernel_stack = kernel_stack;
         task->user_stack_original = user_stack;
@@ -91,40 +103,50 @@ namespace task
 	};
 
     bool create(uint32_t entry_point)
-	{
-        create(entry_point, nullptr, nullptr);
+    {
+        return create(entry_point, nullptr, nullptr);
 	}
 
     bool create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack)
-	{
-		if (num_tasks + 1 >= capacity)
-			return false;
+    {
+        if (num_tasks >= capacity)
+            return false;
 
         if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
-				return false;
+            return false;
         if (!user_stack && !(user_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
-			return false;
+        {
+            memory::k_free(kernel_stack);
+            return false;
+        }
 
         task_t* task = init_task(entry_point, kernel_stack, user_stack);
+        if (!task)
+        {
+            memory::k_free(task->kernel_stack);
+            memory::k_free(task->user_stack_original);
+            memory::k_free(task);
+
+            return false;
+        }
 
         tasks[num_tasks++] = task;
 
 		return true;
 	};
 
-    void end()  //terminats the actual working task, and halts it
+    void end()  //terminats the actual working task
     {
-        kill_at(current_task);
-
-        int ("int $127");   //the killed task must end here, otherwise the eip would get invalid
-        while (1);
-    };
+        tasks[current_task]->to_dispose = true;
+        //__asm__ __volatile__("int $32");
+        while(1);
+    } __attribute__((noreturn));    //end means end
 	
     bool kill(uint32_t pid)
 	{
-		uint32_t index;
+        uint32_t index;
 
-        if ((index = find_by_pid(pid)) == uint32_max)
+        if (!pid || (index = find_by_pid(pid)) == uint32_max)
             return false;
         else
             return kill_at(index);
@@ -132,19 +154,20 @@ namespace task
 
     bool kill_at(uint32_t index)
     {
+        if (index +1 >= capacity || num_tasks <= 1)
+            return false;
+
         task_t* tmp = tasks[index];
         cli
         tasks[index] = nullptr;
         num_tasks--;
         sti
 
-        if (index >= capacity || num_tasks == 1)
-            return false;
+        if (!memory::k_free(tmp))
+            syshlt("Task::kill error");
 
-        if (!memory::k_free(tmp->kernel_stack) ||
-            !memory::k_free(tmp->user_stack_original) ||
-            !memory::k_free(tmp))
-                syshlt("Task::kill error");
+        printf("killed @%u", index);
+        return true;
     };
 
 	struct task::cpu_state_t* schedule(struct task::cpu_state_t* cpu)
@@ -152,23 +175,32 @@ namespace task
         if (!multitasking_enabled)
             return cpu;
 
+        if (num_tasks == 0) syshlt("no tasks available");
+
         uint32_t i = current_task +1;
-        i %= capacity;                 //always normalize
+        if (i == capacity) i = 0;                 //always normalize
         while (!tasks[i])
         {
+           if (tasks[i]->to_dispose)
+           {
+               kill_at(i);
+               continue;
+           }
+
            i++;
-           i %= capacity;
 
            if (i == current_task)
                return cpu;
+
+           if (i == capacity) i = 0;
         }
 
-        tasks[current_task]->cpu_state = cpu;
+        if (tasks[current_task])
+            tasks[current_task]->cpu_state = cpu;
 
         current_task = i;
-
-        cpu = tasks[current_task]->cpu_state;
-        tss.esp0 = tasks[current_task]->kernel_stack;
+        cpu = tasks[i]->cpu_state;
+        //tss.esp0 = tasks[i]->kernel_stack;
 
 		return cpu;
 	};

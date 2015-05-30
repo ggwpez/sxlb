@@ -4,8 +4,8 @@
 #include "textmode.hpp"
 #include "hwaccess.hpp"
 
-#define sti asm("sti");
-#define cli asm("cli");
+#define sti __asm__ __volatile__("sti");
+#define cli __asm__ __volatile__("cli");
 
 cc
 typedef enum
