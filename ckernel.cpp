@@ -17,35 +17,30 @@
 void two();
 void one()
 {
-    /*int c;
-    int tmp[5];
-
-    for (c = 0; c < 5; ++c)
-        tmp[c] = memory::k_malloc(10, 0, 0);
-
-    //for (c = 0; c < 10; ++c)
-        //memory::k_free(tmp[0]);*/
-
-    printlf("pid: 11111");
+    printlf("pid: %u", task::get_active_tasks());
 
     task::create(two);
+
+    //while(1);
     task::end();
 };
 
 void three();
 void two()
 {
-    printlf("pid: 22222");
+    printlf("pid: %u", task::get_active_tasks());
 
     task::create(three);
+    //while(1);
     task::end();
 };
 
 void three()
 {
-    printlf("pid: 33333");
+    printlf("pid: %u", task::get_active_tasks());
 
     task::create(one);
+    //while(1);
     task::end();
 };
 
@@ -62,15 +57,17 @@ int32_t main()
 	ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, true);
 	ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
 #else
-    ui::text::init(80, 50, FC_GREEN | BC_BLACK);
+    ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
 
-    printlf("done");
+    //printlf("done");
     //user::start();
     time::install();
 
     task::create(one);
+
     task::multitasking_set_enabled(true);
 
+    while(2) printlf("hi");
 	return 0;
 };

@@ -8,6 +8,7 @@
 
 namespace task
 {
+    struct task_t;
 	struct cpu_state_t
 	{
 		uint32_t   ds;
@@ -49,20 +50,22 @@ namespace task
     cpu_state_t*    schedule(struct cpu_state_t* cpu);
     void            end() __attribute__((noreturn));
     bool            kill(uint32_t pid);
-    bool            kill_at(uint32_t index);
+    bool            kill_at(task_t* target);
 
     uint32_t        get_pid();
     uint32_t        get_active_tasks();
 
 	struct task_t
 	{
-        bool to_dispose = false;
+        uint8_t to_dispose = false;
 		uint32_t pid;
         char_t* kernel_stack;
         LPTR user_stack_original;
         page_directory* directory;
         cpu_state_t* cpu_state;
-        //~task_t();
+
+        task_t* prev,* next;
+        ~task_t();
 	}__attribute__((packed));
 	//kk
 }
