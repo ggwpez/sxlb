@@ -4,17 +4,13 @@ namespace task
 {
     uint32_t pid = 1;
     int current_task = -1;
-    int num_tasks = 0, capacity = 6;
-    struct task_t* actual_task = nullptr;
+    int num_tasks = 0, capacity = 20;
+    struct task_t* start_task = nullptr,* actual_task = nullptr;
     bool multitasking_enabled = false;
 	extern "C" tss_entry tss;
 
 	void init()
 	{
-        if (!actual_task)
-            printlf("fail");
-        else
-            printlf("oko");
 	};
 
 	void multitasking_set_enabled(bool value)
@@ -24,22 +20,15 @@ namespace task
 
     task_t* find_by_pid(uint32_t pid)
 	{
-        task_t* start = actual_task;
-        task_t* iterator = actual_task;
-
-        while ((iterator = actual_task->next) != start && iterator->pid != pid);
-
-        if (iterator->pid == pid)
-            return iterator;
-        else
-            return nullptr;
+        syshlt("not implemented find_by_pid");
+        return nullptr;
 	};
 	
 	uint32_t get_pid()
 	{
         return actual_task->pid;
 	};
-    uint32_t        get_active_tasks()
+    uint32_t get_active_tasks()
     {
         return num_tasks;
     };
@@ -65,7 +54,7 @@ namespace task
 		new_state.cs = 0x08;
 		new_state.ds = 0x10;
 		new_state.es = 0x10;
-		new_state.fs = 0x10;
+        new_state.fs = 0x10;
 		new_state.gs = 0x10;
         //new_state.ss = 0x23;
 
@@ -73,7 +62,7 @@ namespace task
 		tss.esp0 = kernel_stack + 4096 - sizeof(new_state);
 		tss.ss = 0x23;*/
 
-		new_state.eflags = 0x200;
+        new_state.eflags = 0x200;
 
 		struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(new_state);
 		*state = new_state;
@@ -99,43 +88,39 @@ namespace task
 
     bool create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack)
     {
-        if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
+        if (num_tasks >= capacity)
             return false;
+
+        if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
+           { syshlt("1"); return false;}
         if (!user_stack && !(user_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
         {
-            memory::k_free(kernel_stack);
+            syshlt("2");
+            //memory::k_free(kernel_stack);
             return false;
         }
 
         task_t* task = init_task(entry_point, kernel_stack, user_stack);
         if (!task)
         {
-            memory::k_free(task);
+            syshlt("3");
+            //memory::k_free(task);
 
             //printlf("internal allocation error");
             return false;
         }
+        task->next = nullptr;
 
-        if (actual_task == nullptr)     //is it the first task to be created?
+        if (!start_task)    //first task to be created
         {
-            actual_task = task;
-
-            actual_task->next = actual_task;
-            actual_task->prev = actual_task;
-            //printlf("   only task now: %i", actual_task == nullptr);
+            start_task = task;
+            actual_task = start_task;
         }
-        else                            //no, there are already other tasks here
+        else
         {
-            task_t* prev = actual_task->prev;
-
-            prev->next = task;
-            task->prev = prev;
-            task->next = actual_task;
-            actual_task->prev = task;
-            //printlf("not the same!");
+            actual_task->next = task;
         }
 
-        //printlf("task created");
         num_tasks++;
         return true;
 	};
@@ -143,6 +128,7 @@ namespace task
     void end()  //terminats the actual working task
     {
         actual_task->to_dispose = 0xff;
+        kill_at(actual_task);
 
         //__asm__ __volatile__("int $32");
         while(1);            //end means end
@@ -162,23 +148,36 @@ namespace task
 
     bool kill_at(task_t* target)
     {
-        if (target->next == target)   //1 task
+        if (num_tasks <= 1)   //1 task
             return false;
 
-        task_t* next = target->next,
-              * prev = target->prev;
+        if (start_task == target)
+        {
+            start_task = start_task->next;
+            target->~task_t();
 
-        prev->next = next;
-        next->prev = prev;
-        actual_task = next;
+            num_tasks--;
 
+            //printlf("killed %u", target->pid);
+            return true;
+        }
+
+        task_t* prev = start_task;
+        while (1)
+            if (!prev->next)
+                return false;
+            else if (prev->next == target)
+                break;
+
+        prev->next = target->next;
         target->~task_t();
-        //memory::k_free(target);
 
         num_tasks--;
+        //printlf("killed %u", target->pid);
         return true;
     };
 
+    bool activated = false;
 	struct task::cpu_state_t* schedule(struct task::cpu_state_t* cpu)
 	{
         if (!multitasking_enabled)
@@ -186,35 +185,31 @@ namespace task
         if (!actual_task)
             syshlt("no task available");
 
-        if (actual_task->next == actual_task)    //only one task here
+        if (!activated)   //first switch from kernel to task, where the kernel cpu should not be copied to the task
         {
-            if (actual_task->cpu_state->eip == cpu->eip)
-                return cpu;
-            else
-            {
-                return actual_task->cpu_state;
-            }
+            activated = true;
+
+            if (!actual_task) syshlt("wat");
+            return actual_task->cpu_state;
         }
 
-        if (actual_task->to_dispose)
-            kill_at(actual_task);
-        else
-        {
-            actual_task->cpu_state = cpu;
+        actual_task->cpu_state = cpu;
+
+        if (actual_task->next)
             actual_task = actual_task->next;
-        }
+        else
+            actual_task = start_task;
+
         cpu = actual_task->cpu_state;
-        //tss.esp0 = tasks[i]->kernel_stack;
+        //tss.esp0 = tasks[i]->kernel_stack+4096;
 
 		return cpu;
 	};
 
     task_t::~task_t()
     {
-        to_dispose = 0;
-
+        //memory::k_free(this);
         memory::k_free(user_stack_original);
         memory::k_free(kernel_stack);
-        //memory::k_free(&to_dispose -1);
     };
 }

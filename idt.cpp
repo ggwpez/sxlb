@@ -9,9 +9,9 @@ namespace idt
 		"Into Detected Overflow", "Out of Bounds", "Invalid Opcode", "No Coprocessor",
 		"Double Fault", "Coprocessor Segment Overrun", "Bad TSS", "Segment Not Present",
 		"Stack Fault", "General Protection Fault - check your privileg", "Page Fault", "Unknown Interrupt",
-		"Coprocessor Fault", "Alignment Check", "Machine Check", "Reserved",
-		"Reserved", "Reserved", "Reserved", "Reserved",
-		"Reserved", "Reserved", "Reserved", "Reserved",
+        "Coprocessor Fault", "Alignment Check", "Machine Check", "SIMD FPU Fault",
+        "Virtualization Fault", "Reserved", "Security Fault", "Reserved",
+        "Triple Fault", "Reserved", "Reserved", "Reserved",
 		"Reserved", "Reserved", "Reserved", "Reserved"
 	};
 
@@ -25,7 +25,12 @@ namespace idt
 	extern "C" void isr_fault_handler(struct task::cpu_state_t* state)
 	{
 		if (state->int_no < 32)	//ensure that the fired ISR is valid
-			syshlt((char_t*)idt_isr_messages[state->int_no]);	//halts the system
+        {
+            char buffer[60];
+            sprintf_s(buffer, 60, "Num: %u, %s", state->error, idt_isr_messages[state->int_no]);
+
+            syshlt(buffer);	//halts the system
+        }
 	};
 
 	//If a delegate exists for the called IRQ, it gets called by this handler.

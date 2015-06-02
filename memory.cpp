@@ -58,15 +58,19 @@ namespace memory
 
             if (tmp)
             {
-                //printlf("Freed: %M", tmp);
+                printlf("Freed: %M", tmp);
                 return tmp;
             }
             else
+            {
+                printlf("freeing failed 0");
                 return 0;
+            }
         }
         else
         {
             f_locked = false;
+            printlf("freeing failed 1");
             return 0;
         }
     };
@@ -76,7 +80,6 @@ namespace memory
     {
         if (kheap_set)
         {
-            //kernel-heap enabled
             //while (m_locked); m_locked = true;
 
             void* ret = kheap.malloc(size, align);
@@ -85,8 +88,8 @@ namespace memory
                 struct page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
-            //if (ret)
-              //  printlf("Allocated %M", size);
+            if (ret)
+                printlf("Allocated %M", size);
 
             m_locked = false;
             return ret;

@@ -17,30 +17,26 @@
 void two();
 void one()
 {
-    printlf("pid: %u", task::get_active_tasks());
+    printlf("%u ", task::get_pid());
 
-    task::create(two);
-
-    //while(1);
+    if (!task::create(two)) syshlt("11");
     task::end();
 };
 
 void three();
 void two()
 {
-    printlf("pid: %u", task::get_active_tasks());
+    printlf("%u", task::get_pid());
 
-    task::create(three);
-    //while(1);
+    if (!task::create(three)) syshlt("22");
     task::end();
 };
 
 void three()
 {
-    printlf("pid: %u", task::get_active_tasks());
+    printlf("%u", task::get_pid());
 
-    task::create(one);
-    //while(1);
+    if (!task::create(one)) syshlt("33");
     task::end();
 };
 
@@ -64,10 +60,11 @@ int32_t main()
     //user::start();
     time::install();
 
+
     task::create(one);
 
     task::multitasking_set_enabled(true);
 
-    while(2) printlf("hi");
+    while(1);
 	return 0;
 };

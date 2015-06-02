@@ -64,7 +64,7 @@ namespace task
         page_directory* directory;
         cpu_state_t* cpu_state;
 
-        task_t* prev,* next;
+        task_t* next;
         ~task_t();
 	}__attribute__((packed));
 	//kk

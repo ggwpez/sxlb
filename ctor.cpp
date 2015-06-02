@@ -1,10 +1,11 @@
 extern "C"
 {
-  int __cxa_atexit(void (*f)(void *), void *p, void *d);
+  int  __cxa_atexit(void (*f)(void *), void *p, void *d);
   void __cxa_finalize(void *d);
+  void __cxa_pure_virtual();
 };
  
-void *__dso_handle;
+void* __dso_handle;
  
 struct object
 {
@@ -23,7 +24,12 @@ int __cxa_atexit(void (*f)(void *), void *p, void *d)
   ++iObject;
   return 0;
 }
- 
+
+void __cxa_pure_virtual()   //not implemented virtual function
+{
+
+}
+
 /* NOTE: Zerstört momentan unabhängig von d alle Objekte */
 void __cxa_finalize(void *d)
 {

@@ -70,6 +70,9 @@ void quickSort(heap_header_info arr[], int left, int right)
 
 void ordered_array::worst_case_order()	//quicksort, ### selbst implementieren
 {
+    best_case_order();
+    return;
+
 	quickSort(this->data, 0, this->size - 1);
 }
 

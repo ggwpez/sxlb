@@ -45,8 +45,8 @@ namespace text
 {
 void		write						(const char_t* text);
 void		update					();
-void		put_char					(const char c);
-void		put_char					(const char c, ubyte_t color);
+void		put_char					(char c);
+void		put_char					(char c, ubyte_t color);
 void 		get_size				(uint16_t& cols, uint16_t& rows);
 void		writeline					(const char_t* text);
 void		v_write_f					(const char* args, va_list ap);

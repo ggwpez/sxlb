@@ -377,7 +377,7 @@ void writeline(const char_t* text)
 	put_char('\n');
 };
 
-void put_char(const char c, ubyte_t color)
+void put_char(char c, ubyte_t color)
 {
 	CHECK_INIT
 	
@@ -388,7 +388,7 @@ void put_char(const char c, ubyte_t color)
 	text_mode.text_color = tmp;
 };
 
-void put_char(const char c)
+void put_char(char c)
 {
 	CHECK_INIT
 	
