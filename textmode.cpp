@@ -85,16 +85,13 @@ void tm_backspace()
 		{
 			text_mode.row--;
 			text_mode.col = text_mode.columns - 1;
-			video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
-			text_mode.row--;
-			text_mode.col = text_mode.columns - 1;
+  			video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
 		}
 	}
 	else
 	{
 		text_mode.col--;
 		video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
-		text_mode.col--;
 	}
 };
 
