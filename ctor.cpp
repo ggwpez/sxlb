@@ -4,9 +4,9 @@ extern "C"
   void __cxa_finalize(void *d);
   void __cxa_pure_virtual();
 };
- 
+
 void* __dso_handle;
- 
+
 struct object
 {
   void (*f)(void*);
@@ -14,7 +14,7 @@ struct object
   void *d;
 } object[32] = {0};
 unsigned int iObject = 0;
- 
+
 int __cxa_atexit(void (*f)(void *), void *p, void *d)
 {
   if (iObject >= 32) return -1;
@@ -25,7 +25,7 @@ int __cxa_atexit(void (*f)(void *), void *p, void *d)
   return 0;
 }
 
-void __cxa_pure_virtual()   //not implemented virtual function
+void __cxa_pure_virtual()   //called on not implemented virtual functions
 {
 
 }
@@ -40,4 +40,4 @@ void __cxa_finalize(void *d)
     object[iObject].f(object[iObject].p);
   }
 }
- 
+

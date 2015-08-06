@@ -9,44 +9,6 @@
 heap::heap() = delete;
 //{ }
 
-heap* create_heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
-{
-    heap* ret = memory::k_malloc(sizeof(heap), 0,0);
-
-#if __CHECKS_ADVNCD
-    if (Start_address + OVERHEAD > End_address || Max_address < End_address)
-        syshlt("HEAP initialization error!");
-#endif
-                                            //sizeof(heap_header_info)*2000 = 16 Kb
-    ret->list = ordered_array(0, 2000);			//(sizeof(heap_header) + sizeof(heap_footer))*2000 = 40 Kb
-    ret->access_ring = Access_ring;
-    ret->access_right = Access_rigth;
-    ret->start_address = Start_address;
-    ret->end_address = End_address;
-    ret->min_address = Min_address;
-    ret->max_address = Max_address;
-
-    //printlf("heapStart@: %u  heapSize: %u", ret->start_address, ret->end_address -ret->start_address);
-    uint32_t footer_address = ret->end_address - sizeof(heap_footer);
-    ret->install_header(ret->start_address, true, footer_address);
-    ret->install_footer(footer_address, ret->start_address);
-
-    heap_header_info tmp;
-    tmp.header = (heap_header*)ret->start_address;
-    tmp.size = ret->end_address - ret->start_address - sizeof(heap_header)-sizeof(heap_footer);
-    //printlf("block0@: %u  block0Size: %u", tmp.header, tmp.size);
-
-    if (!tmp.header)
-        syshlt("HEAP out of memory!");		//could not be allocated
-
-    ret->list.add(tmp);
-
-    if (ret->list.size != 1)
-        syshlt("HEAP internal error! 20");
-
-    return ret;
-}
-
 heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
 {
 #if __CHECKS_ADVNCD
@@ -62,7 +24,7 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 	this->min_address = Min_address;
 	this->max_address = Max_address;
 
-	//printlf("heapStart@: %u  heapSize: %u", this->start_address, this->end_address -this->start_address);
+    //printfl("heapStart@: %u  heapSize: %u", this->start_address, this->end_address -this->start_address);
 	uint32_t footer_address = this->end_address - sizeof(heap_footer);
     this->install_header(this->start_address, true, footer_address);
     this->install_footer(footer_address, this->start_address);
@@ -70,7 +32,7 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 	heap_header_info tmp;
 	tmp.header = (heap_header*)this->start_address;
 	tmp.size = this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer);
-	//printlf("block0@: %u  block0Size: %u", tmp.header, tmp.size);
+    //printfl("block0@: %u  block0Size: %u", tmp.header, tmp.size);
 
 	if (!tmp.header)
 		syshlt("HEAP out of memory!");		//could not be allocated
@@ -83,22 +45,22 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 
 void heap::dump_info()
 {
-	printlf("Allocations: %i  Start: %M  End: %M  Max: %M", this->list.size, this->start_address, this->end_address, this->max_address);
+    printfl("Allocations: %i  Start: %M  End: %M  Max: %M", this->list.size, this->start_address, this->end_address, this->max_address);
 	for (uint32_t i = 0; i < this->list.size; i++)
 	{
-		printlf("n: %i  S: %M  A: %M  E: %M  F: %b", i, this->list.data[i].size, this->list.data[i].header, this->list.data[i].header->footer_address, this->list.data[i].header->is_hole);
+        printfl("n: %i  S: %M  A: %M  E: %M  F: %b", i, this->list.data[i].size, this->list.data[i].header, this->list.data[i].header->footer_address, this->list.data[i].header->is_hole);
 	}
 	
 	/*
 	 * if (this->list.size == 1)
-		printlf("No allocations. Start: %M  End: %M  Max: %M", this->start_address, this->end_address, this->max_address);
+        printfl("No allocations. Start: %M  End: %M  Max: %M", this->start_address, this->end_address, this->max_address);
 	else
 	{
-		printlf("Allocations: %i  Start: %M  End: %M  Max: %M", this->list.size, this->start_address, this->end_address, this->max_address);
+        printfl("Allocations: %i  Start: %M  End: %M  Max: %M", this->list.size, this->start_address, this->end_address, this->max_address);
 		
 		if (this->list.size < 10)
 		for (uint32_t i = 0; i < this->list.size; i++)
-			printlf("n: %i  S: %M  A: %M  E: %M  H: %b", i, this->list.data[i].size, this->list.data[i].header, this->list.data[i].header->footer_address, this->list.data[i].header->is_hole);
+            printfl("n: %i  S: %M  A: %M  E: %M  H: %b", i, this->list.data[i].size, this->list.data[i].header, this->list.data[i].header->footer_address, this->list.data[i].header->is_hole);
 	}
 	 */
 }
@@ -149,14 +111,14 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 {
     if (page_aligned) syshlt("Aligned allocations not allowed.");
 
-	//printlf("Allocating: %M", size);
+    //printfl("Allocating: %M", size);
 	uint32_t index = 0;
     heap_header_info* found = this->list.find_fitting_block(size, page_aligned, &index);
 	
 	heap_footer* eie = this->end_address - sizeof(heap_footer);
 	if (eie->magic != MAGIC || !eie->header)
 	{
-		printlf("\neie %M   %M   %M  s: %M", (uint32_t)sizeof(heap_footer), eie->header, eie->magic, this->end_address -sizeof(heap_footer));
+        printfl("\neie %M   %M   %M  s: %M", (uint32_t)sizeof(heap_footer), eie->header, eie->magic, this->end_address -sizeof(heap_footer));
 		this->dump_info();
 		syshlt("HEAP Magic error! 0");
 	}
@@ -232,7 +194,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 	else					//block too big, have to split it up in to two smaller ones
 	{
 		uint32_t d_size = found->size - size;
-		//printlf("f_size-size: %u-%u = %u", found->size, size, d_size);
+        //printfl("f_size-size: %u-%u = %u", found->size, size, d_size);
 
 		heap_header* found_header = found->header;
 		heap_footer* found_footer = (heap_footer*)found_header->footer_address;
@@ -243,13 +205,13 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 		found_header->footer_address = (uint32_t)found_header + size +sizeof(heap_header);
 		found_header->is_hole = false;
 		install_footer(found_header->footer_address, found_header);
-		//printlf("footer@: %u", found_header->footer_address);
+        //printfl("footer@: %u", found_header->footer_address);
 
 		if (d_size <= OVERHEAD)
 		{
 			list.remove_by_index(index);	//the new block is to small to hold user data, have to let it free
 			list.best_case_order();
-			//printlf("Im not willing to waiste memory!");
+            //printfl("Im not willing to waiste memory!");
 			contract(found_header->footer_address +sizeof(heap_footer));	//free the memory, that this block otherwise would have used
 #if __CHECKS_DBG
 			if (size != (found_header->footer_address - (uint32_t)found_header - sizeof(heap_header)))
@@ -323,7 +285,7 @@ void heap::expand(uint32_t to)
 
 	map_heap(this->end_address, to);
 
-    //printlf("Expanded from: %M to: %M", this->end_address - this->start_address, to - this->start_address);
+    //printfl("Expanded from: %M to: %M", this->end_address - this->start_address, to - this->start_address);
     this->end_address = to;
 }
 
@@ -338,7 +300,7 @@ void heap::contract(uint32_t until)
 	uint32_t old = until;
 	unmap_heap(this->end_address, until);
 
-    //printlf("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
+    //printfl("Contracted from: %M to: %M", this->end_address - this->start_address - sizeof(heap_header)-sizeof(heap_footer), old - this->start_address - sizeof(heap_header)-sizeof(heap_footer));
 	this->end_address = old;
 }
 
@@ -388,10 +350,10 @@ uint32_t heap::free(void* ptr)
 				found_before->footer_address = footer_new;
 
 #if __CHECKS_DBG
-				if (list.size != 1)
-					syshlt("HEAP internal error! 12");
+                if (list.size != 1)
+                    syshlt("HEAP internal error! 12");
 #else
-					return 0;
+                    return 0;
 #endif
 
 				heap_header_info* found_info = &list.data[0];
@@ -406,8 +368,8 @@ uint32_t heap::free(void* ptr)
 
 		heap_header_info* found_info = list.find_by_address(found_before);
 #if __CHECKS_ADVNCD
-		if (!found_info)
-			syshlt("HEAP internal error! 4");
+        if (!found_info)
+            syshlt("HEAP internal error! 4");
 #else
 			return 0;
 #endif
@@ -423,10 +385,10 @@ uint32_t heap::free(void* ptr)
 		heap_header_info* found_info = list.find_by_address(found_before);
 
 #if __CHECKS_ADVNCD
-		if (!found_info)
-			syshlt("HEAP internal error! 5");
+        if (!found_info)
+            syshlt("HEAP internal error! 5");
 #else
-			return 0;
+            return 0;
 #endif
 
 		found_before->footer_address = header->footer_address;
@@ -453,10 +415,10 @@ uint32_t heap::free(void* ptr)
 		heap_header_info* found_info = list.find_by_address(found_after);
 
 #if __CHECKS_ADVNCD
-		if (!found_info)
-			syshlt("HEAP internal error! 6");
+        if (!found_info)
+            syshlt("HEAP internal error! 6");
 #else
-			return 0;	
+            return 0;
 #endif
 
 		header->footer_address = found_after->footer_address;
@@ -487,8 +449,8 @@ uint32_t heap::free(void* ptr)
 		header->footer_address = footer_new;
 
 #if __CHECKS_DBG
-		if (list.size != 0)
-			syshlt("HEAP internal error! 13");
+        if (list.size != 0)
+            syshlt("HEAP internal error! 13");
 #else
 			return 0;
 #endif

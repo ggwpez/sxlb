@@ -28,15 +28,15 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 	ui::text::writeline("  * SYSTEM HALTED *");
 	ui::text::writeline("  *****************");
 	
-	printlf("\n\nInfo:\n");
-	printlf(" Type: \n  %s\n", error_msg);
+    printfl("\n\nInfo:\n");
+    printfl(" Type: \n  %s\n", error_msg);
 
-	printlf(" CPU state:\n");
+    printfl(" CPU state:\n");
 	sxlb_system_dumb();
 
 	ui::video::update();
 
-    hlt
+    hlt_cli
 };
 
 void sxlb_system_dumb()
@@ -44,17 +44,17 @@ void sxlb_system_dumb()
 	uint8_t tab = ui::text::get_tab_with();
 	ui::text::set_tab_with(20);
 
-	printf("  eax: %u", asm_get_register_eax()); printlf("\tesi: %u", asm_get_register_esi());
-	printf("  ebx: %u", asm_get_register_ebx()); printlf("\tedi: %u", asm_get_register_edi());
-	printf("  ecx: %u", asm_get_register_ecx()); printlf("\tesp: %u", asm_get_register_esp());
-	printf("  edx: %u", asm_get_register_edx()); printlf("\tebp: %u", asm_get_register_ebp());
-	printlf("\teip: %u", asm_get_register_eip());
+    printf("  eax: %u", asm_get_register_eax()); printfl("\tesi: %u", asm_get_register_esi());
+    printf("  ebx: %u", asm_get_register_ebx()); printfl("\tedi: %u", asm_get_register_edi());
+    printf("  ecx: %u", asm_get_register_ecx()); printfl("\tesp: %u", asm_get_register_esp());
+    printf("  edx: %u", asm_get_register_edx()); printfl("\tebp: %u", asm_get_register_ebp());
+    printfl("\teip: %u", asm_get_register_eip());
 	ui::text::new_line();
-	printlf("  cr0: %u", asm_get_register_ctrl(0));
-	printlf("  cr1: ????");							//not accessable
-	printlf("  cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
-	printlf("  cr3: %u", asm_get_register_ctrl(3));
-	printlf("  cr4: %u", asm_get_register_ctrl(4));
+    printfl("  cr0: %u", asm_get_register_ctrl(0));
+    printfl("  cr1: ????");							//not accessable
+    printfl("  cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
+    printfl("  cr3: %u", asm_get_register_ctrl(3));
+    printfl("  cr4: %u", asm_get_register_ctrl(4));
 
 	ui::text::set_tab_with(tab);
 };

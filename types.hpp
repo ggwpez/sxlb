@@ -3,13 +3,13 @@
 #define __CHECKS 3	//enter check level, lower = unsafer = faster, higher = safer = slower
 
 #if __CHECKS > 0
-#define __CHECKS_NLPTR true
+    #define __CHECKS_NLPTR true
 #endif
 #if __CHECKS > 1
-#define __CHECKS_ADVNCD true
+    #define __CHECKS_ADVNCD true
 #endif
 #if __CHECKS > 2
-#define __CHECKS_DBG true
+    #define __CHECKS_DBG true
 #endif
 
 #ifndef __BITS
@@ -20,7 +20,9 @@
 #define NULL 0;
 #define sgn(x) ((x < 0) ? -1 : ((x > 0) ? 1 : 0))
 #define abs(x) ((x < 0) ? -x: x)
+#define TASK_SWITCH __asm__ __volatile__("int $32");
 #define hlt asm("hlt");
+#define hlt_cli asm("cli"); asm("hlt");
 #define stop asm("jmp .");
 #define finit asm("finit"); \
 	asm_set_register_ctrl(0, asm_get_register_ctrl(0) | (1 << 5));

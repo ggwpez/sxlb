@@ -64,18 +64,18 @@ namespace task
 
         new_state.eflags = 0x200;
 
-		struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(new_state);
+        struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);
 		*state = new_state;
 
         task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
         if (!task)
             return 0;
+
         task->pid = pid++;
-        task->kernel_stack = kernel_stack;
+        task->kernel_stack_original = kernel_stack;
         task->user_stack_original = user_stack;
         task->cpu_state = state;
         task->to_dispose = 0;
-        //task.directory =
 
 		sti
         return task;
@@ -92,11 +92,11 @@ namespace task
             return false;
 
         if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
-           { syshlt("1"); return false;}
+           { syshlt("1"); memory::k_free(kernel_stack); return false; }
         if (!user_stack && !(user_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
         {
             syshlt("2");
-            //memory::k_free(kernel_stack);
+            memory::k_free(user_stack);
             return false;
         }
 
@@ -104,9 +104,9 @@ namespace task
         if (!task)
         {
             syshlt("3");
-            //memory::k_free(task);
+            memory::k_free(task);
 
-            //printlf("internal allocation error");
+            //printfl("internal allocation error");
             return false;
         }
         task->next = nullptr;
@@ -128,10 +128,9 @@ namespace task
     void end()  //terminats the actual working task
     {
         actual_task->to_dispose = 0xff;
-        kill_at(actual_task);
-
-        //__asm__ __volatile__("int $32");
-        while(1);            //end means end
+        //kill_at(actual_task);
+        TASK_SWITCH
+        stop                                //end means end
     };
 	
     bool kill(uint32_t pid)
@@ -148,17 +147,18 @@ namespace task
 
     bool kill_at(task_t* target)
     {
+        printfl("hier");
         if (num_tasks <= 1)   //1 task
             return false;
 
         if (start_task == target)
         {
-            start_task = start_task->next;
-            target->~task_t();
+            start_task = target->next;
+            //if (!memory::k_free(target->user_stack_original)) syshlt("no free");
 
             num_tasks--;
 
-            //printlf("killed %u", target->pid);
+            printfl("killed(1) %u", target->pid);
             return true;
         }
 
@@ -170,10 +170,10 @@ namespace task
                 break;
 
         prev->next = target->next;
-        target->~task_t();
+        //target->free();
 
         num_tasks--;
-        //printlf("killed %u", target->pid);
+        printfl("killed(2) %u", target->pid);
         return true;
     };
 
@@ -195,6 +195,9 @@ namespace task
 
         actual_task->cpu_state = cpu;
 
+        if (actual_task->to_dispose)    //disposion flag set
+            kill_at(actual_task);
+
         if (actual_task->next)
             actual_task = actual_task->next;
         else
@@ -206,10 +209,19 @@ namespace task
 		return cpu;
 	};
 
+    void task_t::free()
+    {
+        if (this->to_dispose)
+        {
+            this->to_dispose = 0;
+            //memory::k_free(this);
+            memory::k_free(user_stack_original);
+            //memory::k_free(kernel_stack_original);
+        }
+    };
+
     task_t::~task_t()
     {
-        //memory::k_free(this);
-        memory::k_free(user_stack_original);
-        memory::k_free(kernel_stack);
+        this->free();
     };
 }

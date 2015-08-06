@@ -36,5 +36,3 @@ public:
 	uint32_t access_right : 1;	//0: read-only,   1: read+write
 	uint32_t access_ring : 1;	//0: kernel-ring, 1: user-ring
 };
-
-heap* create_heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth);

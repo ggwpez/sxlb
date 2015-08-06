@@ -211,7 +211,24 @@ void write_f_array32(const char* format, char_t* data, uint32_t length, uint32_t
 	}
 };
 
-/*printlf*/
+/*printl*/
+void write_line(const char* text)
+{
+    CHECK_INIT
+
+#if __CHECKS_NLPTR
+    if (!text)
+        return;
+#endif
+
+    write(text);
+
+    text_mode.col = 0;
+    text_mode.row++;
+    update();
+};
+
+/*printfl*/
 void write_line_f(const char* args, ...)
 {
 	CHECK_INIT

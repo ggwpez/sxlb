@@ -272,7 +272,7 @@ page_table* clone_table(page_table* source, uint32_t* physAddr)
     uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
     LPTR addr = tmp + offset;
 
-    printlf("mod table: %i", addr % PAGE_SIZE);
+    printfl("mod table: %i", addr % PAGE_SIZE);
 
     page_table* ret = (page_table*)addr;
 

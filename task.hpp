@@ -59,12 +59,13 @@ namespace task
 	{
         uint8_t to_dispose = false;
 		uint32_t pid;
-        char_t* kernel_stack;
         LPTR user_stack_original;
+        LPTR kernel_stack_original;
         page_directory* directory;
         cpu_state_t* cpu_state;
 
         task_t* next;
+        void free();
         ~task_t();
 	}__attribute__((packed));
 	//kk
