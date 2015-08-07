@@ -17,36 +17,21 @@
 void two();
 void one()
 {
-    while (1)
-    {
-        printl("1");
-    }
-
-    /*if (!task::create(two)) syshlt("#1");
-    task::end();*/
+    if (!task::create(two)) syshlt("#1");
+    task::end();
 };
 
 void three();
 void two()
 {
-    while (1)
-    {
-        printl("2");
-    }
-
-    /*if (!task::create(three)) syshlt("#2");
-    task::end();*/
+    if (!task::create(three)) syshlt("#2");
+    task::end();
 };
 
 void three()
 {
-    while (1)
-    {
-        printl("3");
-    }
-
-    /*if (!task::create(one)) syshlt("#3");
-    task::end();*/
+    if (!task::create(one)) syshlt("#3");
+    task::end();
 };
 
 void root()
@@ -63,7 +48,6 @@ int32_t main()
     idt::load();
     sti
 
-
     //finit
 #if VIDEO_MODE == 1
     memory::init();
@@ -73,28 +57,19 @@ int32_t main()
     ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
     ui::video::update();
 #else
+    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
     memory::init();
-    ui::text::init(80, 50, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
-#endif
+#endif 
 
+    hw::keyboard::init();
+    user::start();
 
-    /*hw::keyboard::init();
-    printf("hi");
-    while (1)
-    {
-        ui::text::put_char(hw::keyboard::getc());
-        ui::video::update();
-    }*/
+    //task::create(one);
+    //task::create(root);
 
-    //user::start();
+    //task::multitasking_set_enabled(true);
 
-    task::create(one);
-    task::create(two);
-    task::create(three);
-    task::create(root);
-
-    task::multitasking_set_enabled(true);
-
-    while(1);
+    printl("is over");
+    stop
     return 0;
 };

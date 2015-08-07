@@ -10,7 +10,7 @@ namespace idt
 		"Double Fault", "Coprocessor Segment Overrun", "Bad TSS", "Segment Not Present",
 		"Stack Fault", "General Protection Fault - check your privileg", "Page Fault", "Unknown Interrupt",
         "Coprocessor Fault", "Alignment Check", "Machine Check", "SIMD FPU Fault",
-        "Virtualization Fault", "Reserved", "Security Fault", "Reserved",
+        "Virtualization Fault", "Reserved", "Security Fault", "Nullptr Exception",
         "Triple Fault", "Reserved", "Reserved", "Reserved",
 		"Reserved", "Reserved", "Reserved", "Reserved"
 	};
@@ -26,9 +26,11 @@ namespace idt
 	{
 		if (state->int_no < 32)	//ensure that the fired ISR is valid
         {
-            char buffer[60];
-            sprintf_s(buffer, 60, "Num: %u, %s", state->error, idt_isr_messages[state->int_no]);
+            if (state->int_no == 13 && state->error == 0)       //gpf && nullptr_access
+                state->int_no = 23;                             //set to "Nullptr Exception"
 
+            char buffer[60];
+            sprintf_s(buffer, 60, "ISR Interrupt: %u, %s", state->int_no, idt_isr_messages[state->int_no]);
             syshlt(buffer);	//halts the system
         }
 	};
@@ -38,7 +40,7 @@ namespace idt
     {
 		struct task::cpu_state_t* state_new = state;
 
-		if (task::multitasking_set_enabled && state->int_no == 32)
+        if (state->int_no == 32 && task::multitasking_set_enabled)
 		{
 			state_new = task::schedule(state);
 			//tss.esp0 = (uint32_t)(state_new + 1);

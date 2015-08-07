@@ -4,6 +4,8 @@
 //#include "types.hpp"
 //#include "heap_he.hpp"
 
+namespace memory
+{
 class heap
 {
 public:
@@ -19,7 +21,7 @@ public:
 	heap_header* search_after (heap_footer* address);
 
 	void contract(uint32_t until);
-	void expand(uint32_t to);
+    bool expand(uint32_t to);
 
 	void install_footer(uint32_t address, heap_header* header);
 	void install_header(uint32_t address, bool is_hole, heap_footer* footer);
@@ -36,3 +38,4 @@ public:
 	uint32_t access_right : 1;	//0: read-only,   1: read+write
 	uint32_t access_ring : 1;	//0: kernel-ring, 1: user-ring
 };
+}

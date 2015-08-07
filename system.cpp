@@ -15,10 +15,10 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
     cli
 #if __CHECKS_NLPTR
 	if (!error_msg)
-		syshlt("Double Fault");	//man wtf, are you trying to troll me?
+        syshlt("Double Fault");     //man wtf, are you trying to troll me?
 #endif
-	
-	ui::text::set_foreground_color(FC_LIGHTGRAY | FC_MOD_INTENSITY);
+
+    ui::text::set_foreground_color(FC_LIGHTGRAY | FC_MOD_INTENSITY);
 	ui::text::set_background_color(BC_LIGHTBLUE);
 	ui::text::clear_screen();
 	ui::text::set_cursor(0,0);
@@ -36,7 +36,8 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 
 	ui::video::update();
 
-    hlt_cli
+    hlt
+    stop    //the OS WILL stop here
 };
 
 void sxlb_system_dumb()
@@ -51,7 +52,7 @@ void sxlb_system_dumb()
     printfl("\teip: %u", asm_get_register_eip());
 	ui::text::new_line();
     printfl("  cr0: %u", asm_get_register_ctrl(0));
-    printfl("  cr1: ????");							//not accessable
+    printfl("  cr1: <reserved>");                   //not accessable
     printfl("  cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
     printfl("  cr3: %u", asm_get_register_ctrl(3));
     printfl("  cr4: %u", asm_get_register_ctrl(4));

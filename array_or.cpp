@@ -5,24 +5,25 @@
 ordered_array::ordered_array()
 { }
 
-ordered_array::ordered_array(uint32_t Size, uint32_t Capacity)
+ordered_array::ordered_array(uint32_t Capacity)
 {
 	this->element_size = sizeof(heap_header_info);
-	this->size = Size;
+    this->size = 0;
 	this->capacity = Capacity;
 	this->data = (heap_header_info*)k_malloc_no_heap(element_size * Capacity, 0, nullptr);	//nullptr error
 	
 	if (!this->data)
 		syshlt("Heap ctor(S, C) error.");
 	
-    ::memory::memset(this->data, 0, element_size * Capacity);
+    memory::memset(this->data, 0, element_size * Capacity);
 }
 
 void ordered_array::best_case_order()	//bubblesort, ### selbst implementieren
 {
-	int32_t i, j, first = 1;
+    int32_t i, j;
 	heap_header_info tmp;
 	
+    if (this->size > 1)
 	for (i = size -1; i >= 0; i--)
 	{
 		for (j = size - 1; j >= 0; j--)
@@ -39,40 +40,37 @@ void ordered_array::best_case_order()	//bubblesort, ### selbst implementieren
 
 void quickSort(heap_header_info arr[], int left, int right)
 {
-	int i = left, j = right;
-	heap_header_info tmp;
-	heap_header_info pivot = arr[(left + right) / 2];
+    int i = left, j = right;
+    heap_header_info tmp;
+    heap_header_info pivot = arr[(left + right) / 2];
 
-	/* partition */
-	while (i <= j)
-	{
-		while (arr[i] > pivot)
-			i++;
-		while (arr[j] < pivot)
-			j--;
+    /* partition */
+    while (i <= j)
+    {
+        while (arr[i] > pivot)
+            i++;
+        while (arr[j] < pivot)
+            j--;
 
-		if (i <= j)
-		{
-			tmp = arr[i];
-			arr[i] = arr[j];
-			arr[j] = tmp;
-			i++;
-			j--;
-		}
-	};
+        if (i <= j)
+        {
+            tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+            i++;
+            j--;
+        }
+    };
 
-	/* recursion */
-	if (left < j)
-		quickSort(arr, left, j);
-	if (i < right)
-		quickSort(arr, i, right);
+    /* recursion */
+    if (left < j)
+        quickSort(arr, left, j);
+    if (i < right)
+        quickSort(arr, i, right);
 }
 
 void ordered_array::worst_case_order()	//quicksort, ### selbst implementieren
 {
-    best_case_order();
-    return;
-
 	quickSort(this->data, 0, this->size - 1);
 }
 
@@ -87,7 +85,7 @@ heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_ali
 	{
         if (page_aligned)
         {
-            if (((uint32_t)&data[i]+sizeof(heap_header)) & 0xFFFFF000 != 0)    //would the user-address be page aligned?
+            if (((uint32_t)&data[i]+sizeof(heap_header)) & 0xFFFFF000 != 0)    //should the user-address be page aligned?
                 offset = 0x1000 - ((uint32_t)&data[i] +sizeof(heap_header)) % 0x1000;
 
             int32_t aligned_size = data[i].size - offset;
@@ -126,9 +124,12 @@ heap_header_info* ordered_array::find_by_address(uint32_t address)
 bool ordered_array::remove_by_index(uint32_t index)
 {
 #if __CHECKS_DBG
+    if (!this->size)
+        syshlt("HEAP empty");
 	if (data[index].header == nullptr && index >= this->size)
 		syshlt("HEAP remove_by_index error!");
 #endif
+
 	//data[index].set_zero();
 	data[index].size = 0,
 	best_case_order();
@@ -138,18 +139,23 @@ bool ordered_array::remove_by_index(uint32_t index)
 
 bool ordered_array::remove_by_address(heap_header* address)
 {
-	for (uint32_t i = 0; i < this->size; i++)
-	{
-		if (data[i].header == address)
-		{
-			//data[i].set_zero();
-			data[i].size = 0;
+#if __CHECKS_DBG
+    if (!this->size)
+        syshlt("HEAP empty");
+#endif
+
+    for (uint32_t i = 0; i < this->size; i++)
+    {
+        if (data[i].header == address)
+        {
+            //data[i].set_zero();
+            data[i].size = 0;
             data[i].header = nullptr;
-			best_case_order();
-			size--;
-			return true;
-		}
-	}
+            best_case_order();
+            size--;
+            return true;
+        }
+    }
 
 #if __CHECKS_DBG
 	syshlt("HEAP remove_by_address error!");
@@ -159,30 +165,32 @@ bool ordered_array::remove_by_address(heap_header* address)
 
 bool ordered_array::add(heap_header_info value)
 {
-	if (this->size >= this->capacity)
-		syshlt("HEAP-Table out of memory!");
+    if (this->size >= this->capacity)
+        syshlt("HEAP-Table out of memory!");
 
-	data[size++] = value;
-	best_case_order();
-	
+    this->data[this->size++] = value;
+    this->best_case_order();
+
+    if (!check_size())
+    { cli_hlt }
+
 	return true;
 }
 
 bool ordered_array::check_size()
 {
-	uint32_t c = 0;
+    int32_t c = 0;
 	while (data[c].size != 0 && data[c].header != nullptr) { c++; }
 
-	return (c == this->size);
+    return (c == this->size);
 }
 
 ordered_array::~ordered_array()
 {
     if (this->data)
     {
-        memory::k_free(this->data);
+        //memory::k_free(this->data);   //actually should be: k_free_no_heap, but thats unnecessary
 
-        this->element_size = 0;
-        this->data = NULL;
+        memory::memset(this, 0, sizeof(ordered_array));
     }
 }

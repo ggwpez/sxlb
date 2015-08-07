@@ -6,10 +6,10 @@
 class ordered_array
 {
 public:
-	uint32_t size, capacity;
-	heap_header_info* data;
+    int32_t size, capacity;
+    heap_header_info* data;
 	ordered_array();
-	ordered_array(uint32_t Size, uint32_t Capacity);
+    ordered_array(uint32_t Capacity);
 	~ordered_array();
 	/*Use if it is nearly sorted.*/
 	void best_case_order();

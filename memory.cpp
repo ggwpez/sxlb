@@ -2,6 +2,7 @@
 #include "system.hpp"
 #include "ctor.cpp"
 
+using namespace memory;
 extern uint32_t placement_address;
 extern page_directory* kernel_directory;
 extern heap kheap;
@@ -17,9 +18,9 @@ namespace memory
             syshlt("HEAP allocation failed.");
     }
 
-    void dump_info(struct ::heap* heape)
+    void dump_info(heap* heape)
     {
-        if (!kheap_set)
+        if (kheap_set)
             kheap.dump_info();
         else
             heape->dump_info();
@@ -58,19 +59,19 @@ namespace memory
 
             if (tmp)
             {
-                printfl("Freed: %M", tmp);
+                printfl("Freed(1): %M", tmp);
                 return tmp;
             }
             else
             {
-                printfl("freeing failed 0");
+                syshlt("freeing failed 0");
                 return 0;
             }
         }
         else
         {
             f_locked = false;
-            printfl("freeing failed 1");
+            syshlt("kheap_set == 0");
             return 0;
         }
     };
@@ -88,8 +89,10 @@ namespace memory
                 struct page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
-            /*if (ret)
-                printfl("Allocated %M", size);*/
+            if (ret)
+                printfl("Allocated heap %M", size);
+            else
+                printl("Allocation failed");
 
             m_locked = false;
             return ret;

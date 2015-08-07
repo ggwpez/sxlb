@@ -53,7 +53,8 @@ namespace task
     bool            kill_at(task_t* target);
 
     uint32_t        get_pid();
-    uint32_t        get_active_tasks();
+    task_t*         get_task();
+    uint32_t        get_task_count();
 
 	struct task_t
 	{
@@ -66,7 +67,7 @@ namespace task
 
         task_t* next;
         void free();
-        ~task_t();
+        //~task_t();
 	}__attribute__((packed));
 	//kk
 }

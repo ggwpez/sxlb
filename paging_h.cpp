@@ -5,6 +5,7 @@
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
 #define PHYSICAL_MEMORY		0x20000000           // 1 GB
+using namespace memory;
 
 heap kheap = *(heap*)0;
 
@@ -130,12 +131,9 @@ struct page* set_page(uint32_t address, struct page_directory* dir)
 	uint32_t table_index = (address >> 10);  // ==> page table containing this address
 
 	//TODO: check it against Intel Manual 3A !!!
-	if (
-		(((uint32_t)(dir->tables_physical[table_index])) & 0x1)
-		&& (dir->tables[table_index])
-		)
-	{	
-	}
+    if ((((uint32_t)(dir->tables_physical[table_index])) & 0x1)
+        && (dir->tables[table_index]))
+    {}
 	else
 	{
 		uint32_t phys;
@@ -146,11 +144,14 @@ struct page* set_page(uint32_t address, struct page_directory* dir)
 	return &dir->tables[table_index]->pages[address % 1024];
 };
 
-void map_heap(uint32_t start, uint32_t end)
+uint32_t map_heap(uint32_t start, uint32_t end)
 {
 	uint32_t i = 0;
 	for (i = start; i < end; i += PAGE_SIZE)
-		alloc_frame(set_page(i, kernel_directory), 0, 0);
+        if (!alloc_frame(set_page(i, kernel_directory), 0, 0))
+            return i;
+
+    return 0;
 };
 
 void unmap_heap(uint32_t start, uint32_t end)

@@ -28,7 +28,11 @@ struct page_directory
 }__attribute__((packed));
 
 void					paging_install();
-void					map_heap(uint32_t start, uint32_t end);
+/**
+ * @brief map_heap Mapps memory for the heap.
+ * @return 0 on success. Otherwise returns the highest successfully mapped address.
+ */
+uint32_t                map_heap(uint32_t start, uint32_t end);
 void					unmap_heap(uint32_t start, uint32_t end);
 struct page*			get_page(uint32_t address, uchar_t make, struct page_directory* dir);
 struct page*            set_page(uint32_t address, struct page_directory* dir);
