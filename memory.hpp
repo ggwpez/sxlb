@@ -1,16 +1,8 @@
 #pragma once
 
-#include "paging_h.hpp"
+#include "paging.hpp"
 #include "heap.hpp"
 #include "types.hpp"
-
-#define _512KiB	  128*PAGE_SIZE
-#define _1MiB	  256*PAGE_SIZE
-#define _4MiB	 1024*PAGE_SIZE
-#define _8MiB	 4096*PAGE_SIZE
-#define _16MiB 	 8192*PAGE_SIZE
-#define _32MiB  16384*PAGE_SIZE
-
 
 namespace memory
 {

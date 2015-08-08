@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.hpp"
-#define PAGE_SIZE	0x1000
 
 cc
 struct page

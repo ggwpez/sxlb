@@ -1,14 +1,15 @@
-#include "paging_h.hpp"
+#include "paging.hpp"
 #include "memory.hpp"
 #include "textmode.hpp"
 
+
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
-#define PHYSICAL_MEMORY		0x20000000           // 1 GB
+#define PHYSICAL_MEMORY 0x20000000
+
 using namespace memory;
 
 heap kheap = *(heap*)0;
-
 uint32_t   NFRAMES = (PHYSICAL_MEMORY / PAGE_SIZE);
 uint32_t*  frames; // pointer to the bitset (functions: set/clear/test)
 uint32_t   ind, offs;
@@ -23,7 +24,7 @@ extern "C"
     extern copy_page_physical(LPTR arg0, LPTR arg1);
 }
 
-uint32_t placement_address = 0x00200000;
+uint32_t placement_address = _2MiB;
 
 uint32_t k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys)
 {
@@ -69,8 +70,8 @@ internal void clear_frame(uint32_t frame_addr)
 /*
 static uint32_t test_frame(uint32_t frame_addr)
 {
-get_Index_and_Offset(frame_addr);
-return( frames[ind] & (1<<offs) );
+    get_Index_and_Offset(frame_addr);
+    return( frames[ind] & (1<<offs) );
 }
 */
 /***********************************************************/
@@ -120,7 +121,7 @@ void free_frame(struct page* page) // dellocate a frame
 
 internal void bitset_install()
 {
-	frames = (uint32_t*)k_malloc_no_heap(NFRAMES / 32, 0, 0);
+    frames = (uint32_t*)k_malloc_no_heap(NFRAMES / 32, 0, 0);
     memory::memset(frames, 0, NFRAMES / 32);
 };
 

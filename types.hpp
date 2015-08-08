@@ -69,6 +69,22 @@ typedef char*  va_list;
 	0##x >> 12 & 0100 | \
 	0##x >> 14 & 0200)
 
+#define PAGE_SIZE	0x1000
+
+#define _512KiB	  128*PAGE_SIZE
+#define _1MiB	  256*PAGE_SIZE
+#define _2MiB	  512*PAGE_SIZE
+#define _4MiB	 1024*PAGE_SIZE
+#define _8MiB	 4096*PAGE_SIZE
+#define _16MiB 	 8192*PAGE_SIZE
+#define _32MiB  16384*PAGE_SIZE
+#define _64MiB       2*_32MiB
+#define _128MiB      4*_32MiB
+
+#define _1GiB        1073741824
+#define _2GiB        2*_1GiB
+#define _4GiB        0xffffffff
+
 #ifndef __cplusplus
 enum { false = 0, true = 1 };
 typedef ubyte_t bool;

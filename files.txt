@@ -13,7 +13,7 @@ task.cpp
 timer.cpp
 system.cpp
 convert.cpp
-paging_h.cpp
+paging.cpp
 gdt.cpp
 heap.cpp
 heap_he.cpp

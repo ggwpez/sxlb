@@ -2,7 +2,7 @@
 set -e
 
 echo "Assembling..."
-nasm -O32 -f bin boot.asm -o boot.bin
+nasm -O32 -f bin   boot.asm -o boot.bin
 nasm -O32 -f elf32 kernel.asm -o kernel.o
 nasm -O32 -f elf32 idtList.asm -o idtList.o
 nasm -O32 -f elf32 cpu.asm -o cpu.o

@@ -2,10 +2,10 @@
 
 #include "array_or.hpp"
 //#include "types.hpp"
-//#include "heap_he.hpp"
 
 namespace memory
 {
+
 class heap
 {
 public:

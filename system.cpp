@@ -29,8 +29,10 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 	ui::text::writeline("  *****************");
 	
     printfl("\n\nInfo:\n");
+
+    printfl(" Type: ");
     ui::text::set_fc(FC_RED | FC_MOD_INTENSITY);
-    printfl(" Type: \n  %s\n", error_msg);
+    printfl("\t%s\n", error_msg);
     ui::text::set_fc(FC_LIGHTGRAY | FC_MOD_INTENSITY);
 
     printfl(" CPU state:\n");

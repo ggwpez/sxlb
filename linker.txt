@@ -16,7 +16,7 @@ task.o
 memory.o
 timer.o
 gdt.o
-paging_h.o
+paging.o
 sprintf.o
 heap.o
 heap_he.o
