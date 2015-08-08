@@ -35,8 +35,8 @@ namespace video
 	{
 		if (v_sync_enabled)
 		{	//wait for vertical retrace
-			while ((asm_inb(0x03da) & 0x08));
-			while (!(asm_inb(0x03da) & 0x08));
+            while ((hw::asm_inb(0x03da) & 0x08));
+            while (!(hw::asm_inb(0x03da) & 0x08));
 		}
 
         memory::memcpy(vram, zbuffer, 64000);

@@ -9,7 +9,11 @@ extern void CPU_CPUID_request_00000000h(char_t* string);
 /*ASM call to for CPUID_CPU_COMPANY_NAME.*/
 extern void CPU_CPUID_request_00000001h(char_t* flags_out);
 }
+extern uint32_t kernel_end;
 
+using namespace hw;
+namespace system
+{
 void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 {
     cli
@@ -125,9 +129,8 @@ void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer)
 	}
 };
 
-extern uint32_t kernel_end;
 uint32_t sxlb_system_kernel_end_address()
 {
 	return &kernel_end;
 };
-kk
+}

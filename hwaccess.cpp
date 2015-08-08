@@ -1,5 +1,7 @@
 #include "hwaccess.hpp"
-cc
+
+namespace hw
+{
 /*ASM 'in'. Reads a byte from the given port.*/
 ubyte_t asm_inb(ushort_t port)
 {
@@ -150,4 +152,4 @@ int32_t asm_get_register_eip()
 		"1: pop %0" : "=r"(out));
 	return out;
 };
-kk
+}

@@ -1,6 +1,7 @@
 #include "idt.hpp"
 #include "memory.hpp"
 
+using namespace hw;
 namespace idt
 {
 	const uchar_t* idt_isr_messages[32] =

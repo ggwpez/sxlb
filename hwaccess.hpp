@@ -1,10 +1,10 @@
 #pragma once
 
-
 #include "types.hpp"
 #include "convert.hpp"
 
-cc
+namespace hw
+{
 /*ASM 'in'. Reads a byte from the given port.*/
 ubyte_t asm_inb(ushort_t port);
 /*ASM 'in'. Reads a word from the given port.*/
@@ -43,4 +43,4 @@ int32_t asm_get_register_esp();
 int32_t asm_get_register_ebp();
 /*ASM 'mov'. Reads a value from eip.*/
 int32_t asm_get_register_eip();
-kk
+}

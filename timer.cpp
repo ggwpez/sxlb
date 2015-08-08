@@ -36,9 +36,9 @@ void set_frequenze(int32_t hz)
 
 	int32_t divisor = 1193180 / hz;  /* Calculate our divisor */
 
-	asm_outb(0x43, 0x36);             /* Set our command byte 0x36 */
-	asm_outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
-	asm_outb(0x40, divisor >> 8);     /* Set high byte of divisor */
+    hw::asm_outb(0x43, 0x36);             /* Set our command byte 0x36 */
+    hw::asm_outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
+    hw::asm_outb(0x40, divisor >> 8);     /* Set high byte of divisor */
 };
 
 void install_event_handler()

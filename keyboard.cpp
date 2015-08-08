@@ -11,18 +11,18 @@ namespace keyboard
 	void init()
 	{
 		//clear buffer
-		while (asm_inb(0x64) & 1)
-			asm_inb(0x60);
+        while (hw::asm_inb(0x64) & 1)
+            hw::asm_inb(0x60);
 	};
 
 	uint8_t get_key(bool& pressed)
 	{
-		while (!(asm_inb(0x64) & 1)) { }
-		uint8_t code = asm_inb(0x60), key = code & B(01111111);
+        while (!(hw::asm_inb(0x64) & 1)) { }
+        uint8_t code = hw::asm_inb(0x60), key = code & B(01111111);
 
-		uchar_t port_value = asm_inb(0x61);	//Let the keyboard know, that we got it
-		asm_outb(0x61, port_value | 0x80);	// 0->1
-		asm_outb(0x61, port_value &~0x80);	// 1->0
+        uchar_t port_value = hw::asm_inb(0x61);	//Let the keyboard know, that we got it
+        hw::asm_outb(0x61, port_value | 0x80);	// 0->1
+        hw::asm_outb(0x61, port_value &~0x80);	// 1->0
 
 		pressed = !(code & B(10000000));		//sing bit indicates if the key was pressed or released
 

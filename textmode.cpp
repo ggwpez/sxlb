@@ -526,10 +526,10 @@ void update()
         {
             old_pos = pos;
 
-            asm_outb(0x3D4, 0x0F);
-            asm_outb(0x3D5, (ubyte_t)(pos & 0xFF));
-            asm_outb(0x3D4, 0x0E);
-            asm_outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
+            hw::asm_outb(0x3D4, 0x0F);
+            hw::asm_outb(0x3D5, (ubyte_t)(pos & 0xFF));
+            hw::asm_outb(0x3D4, 0x0E);
+            hw::asm_outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
         }
 	}
 };
