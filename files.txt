@@ -1,3 +1,4 @@
+src/array_or.cpp
 src/gdt.cpp
 src/scanf.cpp
 src/convert.cpp

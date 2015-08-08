@@ -76,10 +76,13 @@ void ordered_array::worst_case_order()	//quicksort, ### selbst implementieren
 
 heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_aligned, uint32_t* index_out)
 {
-    uint32_t best_index = 0;
     int32_t offset = 0;
+
 	if (data[0].size < size)	//all blocks are too small
+    {
+        printfl("1. block: %u, size: %u, block_c: %u", data[0].size, size, this->size);
 		return nullptr;
+    }
 
 	for (uint32_t i = 1; i < this->size; i++)
 	{
@@ -93,22 +96,20 @@ heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_ali
             if (aligned_size == size)
                 return &data[i];
             else if (aligned_size > size)
-                best_index = i;
+                *index_out = i;
         }
         else
         {
             if (data[i].size > size)
-                best_index = i;
+                *index_out = i;
             else if (data[i].size == size)
                 return &data[i];
             else
                 break;
         }
 	}
-	if (!index_out)
-		*index_out = best_index;
 
-	return &data[best_index];
+    return &data[*index_out];
 }
 
 heap_header_info* ordered_array::find_by_address(uint32_t address)
@@ -119,6 +120,15 @@ heap_header_info* ordered_array::find_by_address(uint32_t address)
 			return data + i *sizeof(heap_header_info);
 	}
 	return nullptr;
+}
+
+bool ordered_array::exists(heap_header* address)
+{
+    for (int32_t i = 0; i < this->size; ++i)
+        if (data[i].header == address)
+            return true;
+
+    return false;
 }
 
 bool ordered_array::remove_by_index(uint32_t index)
@@ -134,6 +144,7 @@ bool ordered_array::remove_by_index(uint32_t index)
 	data[index].size = 0,
 	best_case_order();
 	size--;
+    printfl("removed. s: %u", this->size);
 	return true;
 }
 
@@ -144,6 +155,7 @@ bool ordered_array::remove_by_address(heap_header* address)
         syshlt("HEAP empty");
 #endif
 
+    address->magic = 0;
     for (uint32_t i = 0; i < this->size; i++)
     {
         if (data[i].header == address)
@@ -153,18 +165,20 @@ bool ordered_array::remove_by_address(heap_header* address)
             data[i].header = nullptr;
             best_case_order();
             size--;
+            printfl("removed. s: %u", this->size);
             return true;
         }
     }
 
 #if __CHECKS_DBG
-	syshlt("HEAP remove_by_address error!");
+    syshlt("HEAP remove_by_address error!");
 #endif
 	return false;
 }
 
 bool ordered_array::add(heap_header_info value)
 {
+    printfl("added. s: %u, c: %u", value.size, this->size);
     if (this->size >= this->capacity)
         syshlt("HEAP-Table out of memory!");
 
@@ -172,7 +186,7 @@ bool ordered_array::add(heap_header_info value)
     this->best_case_order();
 
     if (!check_size())
-    { cli_hlt }
+    { syshlt("size error"); }
 
 	return true;
 }

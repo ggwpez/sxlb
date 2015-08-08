@@ -20,7 +20,7 @@ public:
 	heap_header_info* find_by_address(uint32_t address);
 
 	bool add(heap_header_info value);
-
+    bool exists(heap_header* address);
 	bool remove_by_index(uint32_t index);
 	bool remove_by_address(heap_header* address);
 

@@ -148,7 +148,8 @@ uint32_t map_heap(uint32_t start, uint32_t end)
 {
 	uint32_t i = 0;
 	for (i = start; i < end; i += PAGE_SIZE)
-        if (!alloc_frame(set_page(i, kernel_directory), 0, 0))
+        //alloc_frame(set_page(i, kernel_directory), 0, 0);
+        if (alloc_frame(set_page(i, kernel_directory), 0, 0) == 0)
             return i;
 
     return 0;

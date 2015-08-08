@@ -114,7 +114,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
     if (page_aligned) syshlt("Aligned allocations not allowed.");
 
     //printfl("Allocating: %M", size);
-	uint32_t index = 0;
+    uint32_t index = 0;
     heap_header_info* found = this->list.find_fitting_block(size, page_aligned, &index);
 
 	heap_footer* eie = this->end_address - sizeof(heap_footer);
@@ -146,14 +146,16 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 		if (found_footer->magic != MAGIC || found_header->magic != MAGIC)
 			syshlt("HEAP magic error. 0");
 
-		heap_header_info* found_info = list.find_by_address(found_header);
+        //heap_header_info* found_info = list.find_by_address(found_header);
 
 		if (found_header->is_hole)	//nice, we can easily expand this block
         {
-			uint32_t missing_size = size - found_info->size;
+            uint32_t found_size = found_header->footer_address - (uint32_t)found_header;
+            uint32_t missing_size = found_size - size;
 			uint32_t new_footer;
-			found_footer->magic = 0;
+            found_footer->magic = 0;
 
+            //printfl("found: %u, needed: %u, missing: %u", found_header->footer_address - (uint32_t)found_header, size, missing_size);
             expand(this->end_address + missing_size);
 
             new_footer = this->end_address - sizeof(heap_footer);
@@ -161,7 +163,8 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 			install_footer(new_footer, found_header);
 			found_header->footer_address = new_footer;
             found_header->is_hole = false;
-			list.remove_by_address(found_header);
+            printl("delete #1");
+            list.remove_by_address(found_header);
 
 			return (void*)((uint32_t)found_header +sizeof(heap_header));
 		}
@@ -186,9 +189,12 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 	{
 		heap_header* header = found->header;
 		header->is_hole = false;
-		//### maybe check if the heap must be expanded?
+        header->magic = 0;
+        //### maybe check if the heap must be expanded? - nope, will be handled on the next allocation
 		uint32_t ret = (uint32_t)found->header + sizeof(heap_header);	//save it
-		list.remove_by_index(index);
+
+        printl("delete #6");
+        list.remove_by_index(index);
 		list.best_case_order();
 
 		return (void*)ret;
@@ -211,9 +217,10 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 
 		if (d_size <= OVERHEAD)
 		{
+            printl("delete #7");
 			list.remove_by_index(index);	//the new block is to small to hold user data, have to let it free
 			list.best_case_order();
-            //printfl("Im not willing to waiste memory!");
+            //printfl("Im not willed to waste memory!");
 			contract(found_header->footer_address +sizeof(heap_footer));	//free the memory, that this block otherwise would have used
 #if __CHECKS_DBG
 			if (size != (found_header->footer_address - (uint32_t)found_header - sizeof(heap_header)))
@@ -239,7 +246,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 /*Searches free blocks directly before this address, */
 heap_header* heap::search_before(heap_header* address)
 {
-	if (address == this->start_address)
+    if (address <= this->start_address)
 		return nullptr;						//there is nothing before
 
 #if __CHECKS_ADVNCD
@@ -258,13 +265,17 @@ heap_header* heap::search_before(heap_header* address)
 	if (!found_header->is_hole)
 		return nullptr;						//nothing to reclaim here
 
+#if __CHECKS_ADVNCD
+    if (!this->list.exists(found_header))
+        syshlt("HEAP internal error! 16");
+#endif
 	return found_header;			//also a free block above the freeed one, gonna reclaim that
 }
 
 /*Searches free blocks directly after this address, */
 heap_header* heap::search_after(heap_footer* address)
 {
-	if ((address + sizeof(heap_footer)) == this->end_address)
+    if ((address + sizeof(heap_footer)) >= this->end_address)
 		return nullptr;						//its the last block in the heap
 
 	heap_header* found_header = (uint32_t)address +sizeof(heap_footer);
@@ -274,6 +285,10 @@ heap_header* heap::search_after(heap_footer* address)
 	if (!found_header->is_hole)
 		return nullptr;
 
+#if __CHECKS_ADVNCD
+    if (!this->list.exists(found_header))
+        syshlt("HEAP internal error! 17");
+#endif
 	return found_header;
 }
 
@@ -281,11 +296,15 @@ bool heap::expand(uint32_t to)
 {
 #if __CHECKS_ADVNCD		//should already have been checked
     if (to > this->max_address)
-        syshlt("HEAP out of memory! expansion");
+    {
+        printfl("to: %u, end: %u", to, this->max_address);
+        cli_hlt
+//        syshlt("HEAP out of memory! expansion");
+    }
 #endif
 
     uint32_t mapped = map_heap(this->end_address, to);
-    if (!mapped)                                    //could not be mapped, to less memory
+    if (mapped != 0)                                    //could not be mapped, to less memory
     {
         this->contract(mapped);                     //rollback, so unmap the blocks, that could be mapped
 
@@ -340,8 +359,10 @@ uint32_t heap::free(void* ptr)
 			//but its not the only one, because then we would delete the heap!
 			if (found_before != this->start_address)
 			{
-				list.remove_by_address(found_before);
-				list.remove_by_address(found_after);
+                printl("delete #2");
+                list.remove_by_address(found_before);
+                printl("delete #3");
+                list.remove_by_address(found_after);
 				header->is_hole = false;
 
 				contract(found_before);
@@ -350,7 +371,8 @@ uint32_t heap::free(void* ptr)
 			}
 			else	//instead of deleting, we contract him back to min_address
 			{
-				list.remove_by_address(found_after);
+                printl("delete #4");
+                list.remove_by_address(found_after);
 
 				contract(this->min_address);
 
@@ -372,12 +394,14 @@ uint32_t heap::free(void* ptr)
 				return tmp_size;
 			}
 		}
+
 		found_before->footer_address = found_after->footer_address;
 		((heap_footer*)found_after->footer_address)->header = found_before;	//dont forget the footer->header pointer!
 
 		heap_header_info* found_info = list.find_by_address(found_before);
-#if __CHECKS_ADVNCD
+
         if (!found_info)
+#if __CHECKS_ADVNCD
             syshlt("HEAP internal error! 4");
 #else
 			return 0;
@@ -385,7 +409,8 @@ uint32_t heap::free(void* ptr)
 		found_info->size = found_after->footer_address - (uint32_t)found_before - sizeof(heap_header);
 		found_info->header = found_before;
 		list.best_case_order();
-		list.remove_by_address(found_after);
+        printl("delete #5");
+        list.remove_by_address(found_after);
 		
 		return tmp_size;
 	}
@@ -423,8 +448,8 @@ uint32_t heap::free(void* ptr)
 	{
 		heap_header_info* found_info = list.find_by_address(found_after);
 
-#if __CHECKS_ADVNCD
         if (!found_info)
+#if __CHECKS_ADVNCD
             syshlt("HEAP internal error! 6");
 #else
             return 0;

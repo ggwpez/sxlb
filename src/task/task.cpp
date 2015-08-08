@@ -129,7 +129,7 @@ namespace task
             task->next = actual_task->next;
             actual_task->next = task;
         }
-
+        //printl("task created");
         num_tasks++;
         return true;
 	};
@@ -160,11 +160,11 @@ namespace task
         if (start_task == target)
         {
             start_task = target->next;
-            memory::k_free(target);
+            target->free();
 
             num_tasks--;
 
-            printfl("killed(1) %u", target->pid);
+            //printfl("killed(1) %u", target->pid);
             return true;
         }
 
@@ -220,9 +220,9 @@ namespace task
         if (this->to_dispose)
         {
             this->to_dispose = 0;
-            //memory::k_free(this);
-            //memory::k_free(user_stack_original);
+            memory::k_free(this);
             memory::k_free(kernel_stack_original);
+            memory::k_free(user_stack_original);
         }
     };
 

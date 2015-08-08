@@ -1,3 +1,6 @@
+CC = g++
+CFLAGS 	 := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w -c
+
 # This is a list of all non-source files that are part of the distribution.
 AUXFILES := Makefile LICENSE.md filex.txt linker.txt
 
@@ -12,4 +15,10 @@ DEPFILES    := $(patsubst %.cpp,%.d,$(SRCFILES))
 
 ALLFILES := $(SRCFILES) $(HDRFILES) $(AUXFILES)
 
-CFLAGS 	 := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w -c
+include $(DEPFILES)
+
+APP = hello
+all: $(APP)
+
+$(APP) : %.cpp Makefile
+	@$(CC) $(CFLAGS) -MMD -MP -c $< -o $@

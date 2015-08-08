@@ -14,32 +14,35 @@
 
 #define VIDEO_MODE 0
 
+volatile uint32_t v;
 void two();
 void one()
 {
-    if (!task::create(two)) syshlt("#1");
+    task::create(two);
+
     task::end();
 };
 
 void three();
 void two()
 {
-    if (!task::create(three)) syshlt("#2");
+    task::create(three);
+
     task::end();
 };
 
 void three()
 {
-    if (!task::create(one)) syshlt("#3");
+    //if (!task::create(one)) syshlt("#3");
+
     task::end();
 };
 
 void root()
 {
-    while (1)
-    {
-        printfl("hier");
-    }
+    memory::dump_info(nullptr);
+
+    stop
 }
 
 int32_t main()
@@ -57,23 +60,23 @@ int32_t main()
     ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
     ui::video::update();
 #else
-    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
     memory::init();
+    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
 #endif 
 
-    hw::keyboard::init();
+    /*hw::keyboard::init();
     while (1)
     {
         ui::text::put_char(hw::keyboard::getc());
-        //ui::video::update();
-    }
+       ui::video::update();
+    }*/
 
-    //task::create(one);
-    //task::create(root);
+    task::create(one);
+    task::create(root);
 
-    //task::multitasking_set_enabled(true);
+    task::multitasking_set_enabled(true);
+    TASK_SWITCH
 
-    printl("is over");
-    stop
+    while (1) printl("the end");
     return 0;
 };
