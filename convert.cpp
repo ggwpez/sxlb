@@ -6,7 +6,7 @@ char_t hex_i[] = { 'f', 'd', 'e', 'c', 'b', 'a', '9', '8', '7', '6', '5', '4', '
 void reverse(char_t* s, int32_t count)
 {
 	int temp, i;
-	for (i = 0; i < count >> 1; ++i) 
+    for (i = 0; i < (count >> 1); ++i)
 	{
 		temp = s[count - i - 1];
 		s[count - i - 1] = s[i];
@@ -36,6 +36,7 @@ void sxlb_convert_itoa_s8_hex(int8_t number, char_t* string)
 	else
 		sxlb_convert_itoa_u8_hex(number, string);
 };
+
 /*Buffer length = 3*/
 void sxlb_convert_itoa_u8_hex(uint8_t number, char_t* string)
 {
@@ -60,6 +61,7 @@ void sxlb_convert_itoa_s16_hex(int16_t number, char_t* string)
 	else
 		sxlb_convert_itoa_u16_hex(number, string);
 };
+
 /*Buffer length = 5*/
 void sxlb_convert_itoa_u16_hex(uint16_t number, char_t* string)
 {
@@ -120,6 +122,7 @@ void sxlb_convert_itoa_s16_dec(int16_t number, char_t* string)
 
 	reverse(string, i);
 };
+
 /*Buffer length = 5*/
 void sxlb_convert_itoa_u16_dec(uint16_t number, char_t* string)
 {
@@ -165,6 +168,7 @@ void sxlb_convert_itoa_s32_dec(int32_t number, char_t* string)
 
 	reverse(string, i);
 };
+
 /*Buffer length = 11*/
 void sxlb_convert_itoa_u32_dec(uint32_t number, char_t* string)
 {
@@ -195,6 +199,7 @@ void sxlb_convert_itoa_s32_hex(int32_t number, char_t* string)
 	else
 		sxlb_convert_itoa_u32_hex(number, string);
 };
+
 /*Buffer length = 9*/
 void sxlb_convert_itoa_u32_hex(uint32_t number, char_t* string)
 {

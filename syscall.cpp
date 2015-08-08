@@ -20,5 +20,5 @@ namespace system
 		//### use fastcall advantages
 		
 		return ret;
-	}  __attribute__((fastcall));
+    }  __attribute__((fastcall));
 }

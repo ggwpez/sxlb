@@ -4,11 +4,13 @@ namespace ui
 {
 namespace text
 {
-	
+
 byte_t* vram = 0xb8000;
 byte_t font_color = video::VC_WHITE;
 bool initialized = false;
 #define CHECK_INIT if (!initialized) return;
+#define VIDEO text_mode.font
+#define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | c)
 
 struct text
 {
@@ -24,25 +26,31 @@ void init(uint16_t pixelW, uint16_t pixelH, ubyte_t default_color, Font::Font_in
 {
 	text_mode.columns = pixelW / font->distW;
 	text_mode.rows    = pixelH / font->distH;
+    text_mode.col = 0;
+    text_mode.row = 0;
 	text_mode.tab_size = 4;
 	text_mode.text_color = default_color;
 	text_mode.font = font;
 	
 	initialized = true;
+    update();
 };
 
 void init(uint16_t cols, uint16_t rows, ubyte_t default_color)
 {
 	text_mode.columns = cols;
 	text_mode.rows = rows;
+    text_mode.col = 0;
+    text_mode.row = 0;
 	text_mode.tab_size = 4;
 	text_mode.text_color = default_color;
 	text_mode.font = nullptr;
 	
 	initialized = true;
 	clear_screen();
-	set_foreground_color(default_color);
-	set_background_color(default_color);
+    set_fc_all(default_color);
+    set_bc_all(default_color);
+    update();
 };
 
 void tm_newline()
@@ -71,28 +79,39 @@ void tm_tab()
 	uint16_t _col = (text_mode.col/text_mode.tab_size+1)*text_mode.tab_size;
 	while(text_mode.col != _col)
 		put_char(' ');
+
+    update();
 };
 
 void tm_backspace()
 {
 	CHECK_INIT
-	
+
 	if (text_mode.col == 0)
 	{
 		if (text_mode.row == 0)
-		{ }	//already position 0/0, nothing to do here
+        { }	//already pSosition 0/0, nothing to do here
 		else
 		{
 			text_mode.row--;
 			text_mode.col = text_mode.columns - 1;
-  			video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+
+            if (VIDEO)
+                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+            else
+                PUT_C(0);
 		}
 	}
 	else
 	{
 		text_mode.col--;
-		video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+
+        if (VIDEO)
+            video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+        else
+            PUT_C(0);
 	}
+    update();
 };
 
 void sxlb_textmoxe_set_cursor(uint16_t row, uint16_t col)
@@ -107,7 +126,7 @@ void clear_screen()
 {
 	CHECK_INIT
 	
-	if (text_mode.font)
+    if (VIDEO)
 		video::clear_screen(video::bg_color);
 	else
 	{
@@ -156,7 +175,15 @@ uint32_t write_in_line(const char* message, unsigned int line)
 	write(message);
 };
 
-void set_background_color(char bc)
+void set_bc(char bc)
+{
+    bc &= B(11110000);
+
+    text_mode.text_color &= B(00001111);
+    text_mode.text_color |= bc;
+}
+
+void set_bc_all(char bc)
 {
 	CHECK_INIT
 	
@@ -175,7 +202,15 @@ void set_background_color(char bc)
 	text_mode.text_color |= bc;
 };
 
-void set_foreground_color(char fc)
+void set_fc(char fc)
+{
+    fc &= B(00001111);
+
+    text_mode.text_color &= B(11110000);
+    text_mode.text_color |= fc;
+}
+
+void set_fc_all(char fc)
 {
 	CHECK_INIT
 	
@@ -305,7 +340,7 @@ void v_write_f(const char* args, va_list ap)
 			case 's':
 			{
 				u = va_arg(ap, LPTR);			//cant pass a byte, implicit dword
-				write((char_t*)u);//actuallisy is char_t*
+                write((char_t*)u);              //actuallisy is char_t*
 			} break;
 			case 'm':
 			{
@@ -405,48 +440,46 @@ void put_char(char c, ubyte_t color)
 void put_char(char c)
 {
 	CHECK_INIT
-	
-	if (c > 32 && c < 127)	//check if its a printable char
-	{
-		if (text_mode.font)	//write to the vram of the video mode
-		{
-			video::draw_char(text_mode.col++ * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, c - 33);
-			update();
-		}
-		else
-		{
-			vram[(text_mode.col++ + text_mode.row*text_mode.columns) << 1] = c;
-			update();
-		}
-	}
-	else
-		switch(c)
-		{
-			case ' ':
-				//if (text_mode.font)		//overdraw the space
-				//	video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
 
-				text_mode.col++;
-				update();
-				break;
-			case '\n':
-				{
-					tm_carriage_return();
-					tm_newline();
-				} break;
-			case '\t':
-				{
-					tm_tab();
-				} break;
-			case '\b':
-				{
-					tm_backspace();
-				} break;
-			default:
-				video::draw_char(text_mode.col++ * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, 64);	//30 = '?'
-				update();
-				break;
-		}
+   // if (!VIDEO)
+        //vram[((text_mode.col + text_mode.row*text_mode.columns) << 1) -1] = text_mode.text_color;   //set the text color, should put this in PUT_C but cant get it working with (uint16_t*)vram ...
+
+    switch(c)
+    {
+        case ' ':
+        {
+            if (VIDEO)		//overdraw the space
+                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+            else
+                PUT_C(0);
+
+            text_mode.col++;
+            update();
+        } break;
+        case '\n':
+        {
+            tm_carriage_return();
+            tm_newline();
+        } break;
+        case '\t':
+        {
+            tm_tab();
+        } break;
+        case '\b':
+        {
+            tm_backspace();
+        } break;
+        default:
+        {
+            if (VIDEO)      //write to the vram of the video mode
+                video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, c - 33);
+            else
+                PUT_C(c);
+
+            text_mode.col++;
+            update();
+        } break;
+    }
 };
 
 void get_size(uint16_t& cols, uint16_t& rows)
@@ -470,6 +503,7 @@ uint8_t get_tab_with()
 	return text_mode.tab_size;
 };
 
+uint16_t old_pos = 0xffff;
 void update()
 {
 	CHECK_INIT
@@ -484,14 +518,19 @@ void update()
 	if(text_mode.row>=text_mode.rows)
 		text_mode.row = 0;
 	
-	if (!text_mode.font)
+    if (!VIDEO)
 	{
-		uint16_t pos = text_mode.col + text_mode.row*text_mode.rows;
+        uint16_t pos = text_mode.col + text_mode.row*text_mode.columns;
 
-		asm_outb(0x3D4, 0x0F);
-		asm_outb(0x3D5, (ubyte_t)(pos & 0xFF));
-		asm_outb(0x3D4, 0x0E);
-		asm_outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
+        if (pos != old_pos)
+        {
+            old_pos = pos;
+
+            asm_outb(0x3D4, 0x0F);
+            asm_outb(0x3D5, (ubyte_t)(pos & 0xFF));
+            asm_outb(0x3D4, 0x0E);
+            asm_outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
+        }
 	}
 };
 

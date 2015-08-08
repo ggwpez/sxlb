@@ -62,7 +62,11 @@ int32_t main()
 #endif 
 
     hw::keyboard::init();
-    user::start();
+    while (1)
+    {
+        ui::text::put_char(hw::keyboard::getc());
+        //ui::video::update();
+    }
 
     //task::create(one);
     //task::create(root);

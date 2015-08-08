@@ -18,8 +18,8 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
         syshlt("Double Fault");     //man wtf, are you trying to troll me?
 #endif
 
-    ui::text::set_foreground_color(FC_LIGHTGRAY | FC_MOD_INTENSITY);
-	ui::text::set_background_color(BC_LIGHTBLUE);
+    ui::text::set_fc_all(FC_LIGHTGRAY | FC_MOD_INTENSITY);
+    ui::text::set_bc_all(BC_LIGHTBLUE);
 	ui::text::clear_screen();
 	ui::text::set_cursor(0,0);
 
@@ -29,7 +29,9 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 	ui::text::writeline("  *****************");
 	
     printfl("\n\nInfo:\n");
+    ui::text::set_fc(FC_RED | FC_MOD_INTENSITY);
     printfl(" Type: \n  %s\n", error_msg);
+    ui::text::set_fc(FC_LIGHTGRAY | FC_MOD_INTENSITY);
 
     printfl(" CPU state:\n");
 	sxlb_system_dumb();

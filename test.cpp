@@ -3,6 +3,7 @@
 #include "video.hpp"
 #include "textmode.hpp"
 #include "syscall.hpp"
+#include "system.hpp"
 
 namespace user
 {
@@ -35,25 +36,20 @@ namespace user
         memory::memset(ptr, 0, sizeof(ptr));
         for (int i = 0; i < l; ++i)
         {
-            ptr[i] = memory::k_malloc(_512KiB, 0, nullptr);
+            ptr[i] = memory::k_malloc(10, 0, nullptr);
         }
 
         printl("over");
         memory::dump_info(nullptr);
-        /*if (hw::keyboard::getc());
+        if (hw::keyboard::getc());
         ui::text::clear_screen();
 
-        int v = 1;
-        while (!is_empty())
-        {
-            if (ptr[v % l])
-                memory::k_free(ptr[v % l]);
+        for (int i = 0; i < l; ++i)
+            memory::k_free(ptr[i]);
 
-            v *= 4;
-        }
-
+        if (hw::keyboard::getc());
         ui::text::clear_screen();
-        memory::dump_info(nullptr);*/
+        memory::dump_info(nullptr);
     }
     //end
 
