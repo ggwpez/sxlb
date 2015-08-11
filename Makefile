@@ -1,24 +1,15 @@
 CC = g++
-CFLAGS 	 := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w -c
+LD = ld
+CFLAGS 	 := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -lgpp -lgpl -lm -lpc -w
+LDFLAGS	 := -m elf_i386 -T kernel.ld @linker.txt
 
 # This is a list of all non-source files that are part of the distribution.
-AUXFILES := Makefile LICENSE.md filex.txt linker.txt
+SOURCES 	:= $(shell find $(SOURCEDIR) -name '*.cpp')
+OBJECTS 	:= $(SOURCES:.cpp=.o)
+OUT_FILE 	:= out
 
-PROJDIRS := src
+all: $(SOURCES) $(OUT_FILE)
+    
+$(OUT_FILE): $(OBJECTS) 
+	$(CC) $(CFLAGS) $(OBJECTS) -o $@ $(LDFLAGS)
 
-SRCFILES := $(shell find $(PROJDIRS) -type f -name "\*.cpp")
-HDRFILES := $(shell find $(PROJDIRS) -type f -name "\*.hpp")
-
-OBJFILES := $(patsubst %.cpp,%.o,$(SRCFILES))
-# changes from .cpp to .d, auxilary files craeted my gcc
-DEPFILES    := $(patsubst %.cpp,%.d,$(SRCFILES))
-
-ALLFILES := $(SRCFILES) $(HDRFILES) $(AUXFILES)
-
-include $(DEPFILES)
-
-APP = hello
-all: $(APP)
-
-$(APP) : %.cpp Makefile
-	@$(CC) $(CFLAGS) -MMD -MP -c $< -o $@

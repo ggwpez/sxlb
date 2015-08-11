@@ -135,16 +135,19 @@ bool ordered_array::remove_by_index(uint32_t index)
 {
 #if __CHECKS_DBG
     if (!this->size)
+    {
+        printl("he 1");
+        cli_hlt
         syshlt("HEAP empty");
+    }
 	if (data[index].header == nullptr && index >= this->size)
 		syshlt("HEAP remove_by_index error!");
 #endif
 
-	//data[index].set_zero();
+    printfl("remove. s: %u, is_hole: %u", this->size, data[index].header->is_hole);	//data[index].set_zero();
 	data[index].size = 0,
 	best_case_order();
 	size--;
-    printfl("removed. s: %u", this->size);
 	return true;
 }
 
@@ -152,7 +155,11 @@ bool ordered_array::remove_by_address(heap_header* address)
 {
 #if __CHECKS_DBG
     if (!this->size)
+    {
+        printl("he 2");
+        cli_hlt
         syshlt("HEAP empty");
+    }
 #endif
 
     address->magic = 0;
@@ -160,12 +167,13 @@ bool ordered_array::remove_by_address(heap_header* address)
     {
         if (data[i].header == address)
         {
+            printfl("remove. s: %u, is_hole: %u", this->size, data[i].header->is_hole);	//data[index].set_zero();
+
             //data[i].set_zero();
             data[i].size = 0;
             data[i].header = nullptr;
             best_case_order();
             size--;
-            printfl("removed. s: %u", this->size);
             return true;
         }
     }
