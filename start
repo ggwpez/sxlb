@@ -4,7 +4,7 @@ set -e
 ./make
 
 echo "Starting Bochs..."
-bochs
+bochs -q
 echo "Bochs terminated."
 
 exit 0

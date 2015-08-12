@@ -138,8 +138,10 @@ namespace task
     {
         actual_task->to_dispose = 0xff;
 
-        //kill_at(actual_task);
-        //TASK_SWITCH
+        if (num_tasks == 1)
+            syshlt("Last task ended.");
+
+        TASK_SWITCH
         stop                                //end means end
     };
 	
@@ -160,26 +162,24 @@ namespace task
         if (start_task == target)
         {
             start_task = target->next;
-            target->free();
+            target->~task_t();
 
             num_tasks--;
 
-            //printfl("killed(1) %u", target->pid);
             return true;
         }
 
-        task_t* prev = start_task;
-        while (1)
-            if (!prev->next)
-                return false;
-            else if (prev->next == target)
+        task_t* task = start_task;
+        while (task->next != target)
+            if (!task->next)
                 break;
+            else
+                task = task->next;
 
-        prev->next = target->next;
-        //target->free();
+        task->next = target->next;
+        target->~task_t();
 
         num_tasks--;
-        printfl("killed(2) %u", target->pid);
         return true;
     };
 
@@ -210,24 +210,16 @@ namespace task
             actual_task = start_task;
 
         cpu = actual_task->cpu_state;
-        //tss.esp0 = tasks[i]->kernel_stack+4096;
+        tss.esp0 = actual_task->kernel_stack_original+4096;
 
 		return cpu;
 	};
 
-    void task_t::free()
+    task_t::~task_t()
     {
-        if (this->to_dispose)
-        {
-            this->to_dispose = 0;
-            memory::k_free(this);
-            memory::k_free(kernel_stack_original);
-            memory::k_free(user_stack_original);
-        }
+        this->to_dispose = 0;
+        memory::k_free(this);
+        memory::k_free(user_stack_original);
+        memory::k_free(kernel_stack_original);
     };
-
-    /*task_t::~task_t()
-    {
-        this->free();
-    };*/
 }

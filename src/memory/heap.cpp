@@ -417,8 +417,8 @@ uint32_t heap::free(void* ptr)
 	{
 		heap_header_info* found_info = list.find_by_address(found_before);
 
-#if __CHECKS_ADVNCD
         if (!found_info)
+#if __CHECKS_ADVNCD
             syshlt("HEAP internal error! 5");
 #else
             return 0;
@@ -483,8 +483,8 @@ uint32_t heap::free(void* ptr)
         install_footer(footer_new, header);
         header->footer_address = footer_new;
 
-#if __CHECKS_DBG
         if (list.size != 0)
+#if __CHECKS_DBG
             syshlt("HEAP internal error! 13");
 #else
             return 0;

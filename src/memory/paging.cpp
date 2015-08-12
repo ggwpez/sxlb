@@ -4,7 +4,7 @@
 
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
-#define PHYSICAL_MEMORY 0x20000000
+#define PHYSICAL_MEMORY  0x20000000
 
 using namespace memory;
 

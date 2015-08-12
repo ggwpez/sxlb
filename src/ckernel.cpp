@@ -11,6 +11,7 @@
 #include "font.hpp"
 #include "hw/keyboard.hpp"
 #include "user/test.hpp"
+#include "system/syscall.hpp"
 
 #define VIDEO_MODE 0
 
@@ -49,6 +50,7 @@ int32_t main()
 {
     sxlb_gdt_load();
     idt::load();
+    time::install();
     sti
 
     //finit
@@ -61,9 +63,9 @@ int32_t main()
     ui::video::update();
 #else
     memory::init();
-    ui::text::init(80, 50, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
+    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
 #endif 
-
+    system::init();
     /*hw::keyboard::init();
     while (1)
     {
@@ -71,12 +73,14 @@ int32_t main()
        ui::video::update();
     }*/
 
-    task::create(one);
-    task::create(root);
+    /*task::create(one);
+    //task::create(root);
 
     task::multitasking_set_enabled(true);
-    TASK_SWITCH
+    TASK_SWITCH*/
 
-    while (1) printl("the end");
+    system::testcall(0,67,64,64,67,69);
+
+    ui::video::update();
     return 0;
 };

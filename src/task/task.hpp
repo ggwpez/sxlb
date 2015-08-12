@@ -11,19 +11,19 @@ namespace task
     struct task_t;
 	struct cpu_state_t
 	{
+        // Von Hand gesicherte Register
 		uint32_t   ds;
 		uint32_t   es;
 		uint32_t   fs;
 		uint32_t   gs;
-		
-		// Von Hand gesicherte Register
-		uint32_t   eax;
-		uint32_t   ebx;
-		uint32_t   ecx;
-		uint32_t   edx;
-		uint32_t   ebp;
-		uint32_t   esi;
-		uint32_t   edi;
+
+        uint32_t   edi;
+        uint32_t   esi;
+        uint32_t   ebp;
+        uint32_t   edx;
+        uint32_t   ecx;
+        uint32_t   ebx;
+        uint32_t   eax;
 
 		uint32_t   int_no;
 		uint32_t   error;
@@ -66,8 +66,6 @@ namespace task
         cpu_state_t* cpu_state;
 
         task_t* next;
-        void free();
-        //~task_t();
+        ~task_t();
 	}__attribute__((packed));
-	//kk
 }

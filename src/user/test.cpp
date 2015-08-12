@@ -13,8 +13,8 @@ namespace user
     {
         //((void(*)(const char))system::calls[0])('f');
 
-        system::syscall(system::call_number::PUTC, 'p', 'h', 'i', 'j', 'k');
-        printf(" n ist: %i", system::syscall(system::call_number::TEST, 0,0,0,0,0));
+        //system::syscall(system::call_number::PUTC, 'p', 'h', 'i', 'j', 'k');
+       // printf(" n ist: %i", system::syscall(system::call_number::TEST, 0,0,0,0,0));
     }
     //end
 

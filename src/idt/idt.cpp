@@ -16,11 +16,11 @@ namespace idt
 		"Reserved", "Reserved", "Reserved", "Reserved"
 	};
 
-	void*  irq_functions[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    void*  irq_functions[128] = { 0 };
 	struct idt_entry idt[256];	//always 256 needed
 	struct idt_ptr idt_r;		//Interrupt register
 	extern "C" tss_entry tss;
-	
+
 
 	//If a exception_messages exists, it will be printed out.
 	extern "C" void isr_fault_handler(struct task::cpu_state_t* state)
@@ -51,7 +51,10 @@ namespace idt
 
 		//Look if functionhandler for this IRQ exists
 		handler = irq_functions[state->int_no - 32];
-		if (handler) { handler(state); }	//### <- dont comment this
+        if (handler)
+            { handler(state); }	//### <- dont comment this
+        else
+            printf("handler empty for: %u", state->int_no);
 		//If the IRQ was raised by the SLAVE PIC, send EOI to SLAVE controllers
 		if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }
 
@@ -164,7 +167,6 @@ namespace idt
 	{
 		idt[index].base_lo = base & 0x0000ffff;
 		idt[index].base_hi = (base >> 16) & 0xffff;
-		//idt[index].base_hi = base & 0xffff0000;
 		idt[index].selector = selector;
 		idt[index].zero = NULL;
 		idt[index].flags = flags | 0x60;

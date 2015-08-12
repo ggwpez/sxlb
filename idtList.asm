@@ -1,3 +1,4 @@
+[BITS 32]
 ; Interrupt Service Routine isr0 ... isr32 
 [global _isr0]
 [global _isr1]
@@ -36,188 +37,188 @@
 ;  0: Divide By Zero Exception
 _isr0:
     cli
-	
+
     push byte 0
     push byte 0
     jmp isr_common_stub
 
 _isr1:
     cli
-	
+
     push byte 0
     push byte 1
     jmp isr_common_stub
-	
+
 _isr2:
     cli
-	
+
     push byte 0
     push byte 2
     jmp isr_common_stub
-	
+
 _isr3:
     cli
 	
     push byte 0
     push byte 3
     jmp isr_common_stub
-	
+
 _isr4:
     cli
     push byte 0
     push byte 4
     jmp isr_common_stub
-	
+
 _isr5:
     cli
     push byte 0
     push byte 5
     jmp isr_common_stub
-	
+
 _isr6:
     cli
     push byte 0
     push byte 6
     jmp isr_common_stub
-	
+
 _isr7:
     cli
     push byte 0
     push byte 7
     jmp isr_common_stub
-	
+
 _isr8:	;double fault, dont push
     cli
     push byte 8
     jmp isr_common_stub
-	
+
 _isr9:
     cli
     push byte 0
     push byte 9
     jmp isr_common_stub
-	
+
 _isr10:
     cli
     push byte 10
     jmp isr_common_stub
-	
+
 _isr11:
     cli
     push byte 11
     jmp isr_common_stub
-	
+
 _isr12:
     cli
     push byte 12
     jmp isr_common_stub
-	
+
 _isr13:
     cli
     push byte 13
     jmp isr_common_stub
-	
+
 _isr14:
     cli
     push byte 14
     jmp isr_common_stub
-	
+
 _isr15:
     cli
     push byte 0
     push byte 15
     jmp isr_common_stub
-	
+
 _isr16:
     cli
     push byte 0
     push byte 16
     jmp isr_common_stub
-	
+
 _isr17:
     cli
     push byte 0
     push byte 17
     jmp isr_common_stub
-	
+
 _isr18:
     cli
     push byte 0
     push byte 18
     jmp isr_common_stub
-	
+
 _isr19:
     cli
     push byte 0
     push byte 19
     jmp isr_common_stub
-	
+
 _isr20:
     cli
     push byte 0
     push byte 20
     jmp isr_common_stub
-	
+
 _isr21:
     cli
     push byte 0
     push byte 21
     jmp isr_common_stub
-	
+
 _isr22:
     cli
     push byte 0
     push byte 22
     jmp isr_common_stub
-	
+
 _isr23:
     cli
     push byte 0
     push byte 23
     jmp isr_common_stub
-	
+
 _isr24:
     cli
     push byte 0
     push byte 24
     jmp isr_common_stub
-	
+
 _isr25:
     cli
     push byte 0
     push byte 25
     jmp isr_common_stub
-	
+
 _isr26:
     cli
     push byte 0
     push byte 26
     jmp isr_common_stub
-	
+
 _isr27:
     cli
     push byte 0
     push byte 27
     jmp isr_common_stub
-	
+
 _isr28:
     cli
     push byte 0
     push byte 28
     jmp isr_common_stub
-	
+
 _isr29:
     cli
     push byte 0
     push byte 29
     jmp isr_common_stub
-	
+
 _isr30:
     cli
     push byte 0
     push byte 30
     jmp isr_common_stub
-	
+
 ; 31: Reserved
 _isr31:
     cli
@@ -415,8 +416,8 @@ irq_common_stub:
     mov gs, ax
     
     push esp
-   	call _irq_event_handler	
-    mov esp, eax    
+    call _irq_event_handler
+    mov esp, eax
     
     pop gs
     pop fs
@@ -430,8 +431,19 @@ irq_common_stub:
 	pop ecx
 	pop ebx
 	pop eax
-	
     add esp, 8
 
 ;    // Ruecksprung zum unterbrochenen Code
     iret
+
+[global _testcall]
+_testcall:
+	mov eax, [esp+4]
+	mov ebx, [esp+8]
+	mov ecx, [esp+12]
+	mov edx, [esp+16]
+	mov esi, [esp+20]
+	mov edi, [esp+24]
+
+	int 37
+	ret

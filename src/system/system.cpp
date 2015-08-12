@@ -50,8 +50,8 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 
 void sxlb_system_dumb()
 {
-	uint8_t tab = ui::text::get_tab_with();
-	ui::text::set_tab_with(20);
+    uint8_t tab = ui::text::get_tab_with();
+    ui::text::set_tab_with(20);
 
     printf("  eax: %u", asm_get_register_eax()); printfl("\tesi: %u", asm_get_register_esi());
     printf("  ebx: %u", asm_get_register_ebx()); printfl("\tedi: %u", asm_get_register_edi());
@@ -65,7 +65,7 @@ void sxlb_system_dumb()
     printfl("  cr3: %u", asm_get_register_ctrl(3));
     printfl("  cr4: %u", asm_get_register_ctrl(4));
 
-	ui::text::set_tab_with(tab);
+    ui::text::set_tab_with(tab);
 };
 
 void parse_00000001h(uint32_t* flags_in, char_t* string_out)

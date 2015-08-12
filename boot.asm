@@ -4,8 +4,8 @@ org 0x7C00  ; set up start address of bootloader
 ; setup a stack and segment regs ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	;mov ax, 0x1114	;set text-mode 80*25
-	mov ax, 0x1112	;set text-mode 80*50
+	mov ax, 0x1114	;set text-mode 80*25
+	;mov ax, 0x1112	;set text-mode 80*50
 	;mov ax, 0x13	;320x200 256 color
 
 	int 0x10
