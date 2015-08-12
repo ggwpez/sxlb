@@ -2,7 +2,7 @@
 
 #include "../types.hpp"
 
-cc
+
 struct page
 {
 	uint32_t swapped_in : 1;
@@ -44,4 +44,4 @@ struct page_directory*	clone_directory(struct page_directory* src);
 struct page_table*      clone_table(struct page_table* src);
 
 uint32_t				show_physical_address(uint32_t virtual_address);
-kk
+

@@ -79,6 +79,9 @@ namespace memory
     bool m_locked = false;
     uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys)
     {
+        if (!size)
+            return size;
+
         if (kheap_set)
         {
             //while (m_locked); m_locked = true;

@@ -33,7 +33,7 @@ void two()
 
 void three()
 {
-    //if (!task::create(one)) syshlt("#3");
+    task::create(one);
 
     task::end();
 };
@@ -61,7 +61,7 @@ int32_t main()
     ui::video::update();
 #else
     memory::init();
-    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
+    ui::text::init(80, 50, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
 #endif 
 
     /*hw::keyboard::init();

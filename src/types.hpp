@@ -37,9 +37,6 @@ typedef signed int dword_t, int_t, int32_t;
 typedef unsigned int udword_t, uint_t, uint32_t, size_t, LPTR;
 typedef char*  va_list;
 
-#define cc ;
-#define kk ;
-
 #define break_point __asm__ __volatile__("xchgw %bx, %bx");
 
 #ifdef __cplusplus

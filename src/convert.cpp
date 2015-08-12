@@ -1,5 +1,5 @@
 #include "convert.hpp"
-cc
+
 char_t hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 char_t hex_i[] = { 'f', 'd', 'e', 'c', 'b', 'a', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0' };
 
@@ -274,5 +274,3 @@ void sxlb_convert_itoa_u32_hex(uint32_t number, char_t* string)
 	}
 	string[i] = '\0';
 };
-
-kk

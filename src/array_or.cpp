@@ -79,10 +79,7 @@ heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_ali
     int32_t offset = 0;
 
 	if (data[0].size < size)	//all blocks are too small
-    {
-        printfl("1. block: %u, size: %u, block_c: %u", data[0].size, size, this->size);
 		return nullptr;
-    }
 
 	for (uint32_t i = 1; i < this->size; i++)
 	{
@@ -115,10 +112,9 @@ heap_header_info* ordered_array::find_fitting_block(uint32_t size, bool page_ali
 heap_header_info* ordered_array::find_by_address(uint32_t address)
 {
 	for (uint32_t i = 0; i < this->size; i++)
-	{
 		if (data[i].header == address)
-			return data + i *sizeof(heap_header_info);
-	}
+            return (uint32_t)data + i *sizeof(heap_header_info);
+
 	return nullptr;
 }
 
@@ -144,10 +140,11 @@ bool ordered_array::remove_by_index(uint32_t index)
 		syshlt("HEAP remove_by_index error!");
 #endif
 
-    printfl("remove. s: %u, is_hole: %u", this->size, data[index].header->is_hole);	//data[index].set_zero();
-	data[index].size = 0,
+    data[index].size = 0;
+    data[index].header->is_hole = 0;
+    data[index].header = nullptr;
 	best_case_order();
-	size--;
+    this->size--;
 	return true;
 }
 
@@ -162,18 +159,15 @@ bool ordered_array::remove_by_address(heap_header* address)
     }
 #endif
 
-    address->magic = 0;
+    address->is_hole = 0;
     for (uint32_t i = 0; i < this->size; i++)
     {
         if (data[i].header == address)
         {
-            printfl("remove. s: %u, is_hole: %u", this->size, data[i].header->is_hole);	//data[index].set_zero();
-
-            //data[i].set_zero();
             data[i].size = 0;
             data[i].header = nullptr;
             best_case_order();
-            size--;
+            this->size--;
             return true;
         }
     }
@@ -184,6 +178,37 @@ bool ordered_array::remove_by_address(heap_header* address)
 	return false;
 }
 
+bool ordered_array::remove_by_address(heap_header_info* address)
+{
+#if __CHECKS_DBG
+    if (!this->size)
+    {
+        printl("he 3");
+        cli_hlt
+        syshlt("HEAP empty");
+    }
+#endif
+
+    address->size = 0;
+    address->header->is_hole = 0;
+    for (uint32_t i = 0; i < this->size; i++)
+    {
+        if (&(data[i]) == address)
+        {
+            data[i].size = 0;
+            data[i].header = nullptr;
+            best_case_order();
+            this->size--;
+            return true;
+        }
+    }
+
+#if __CHECKS_DBG
+    syshlt("HEAP remove_by_address error!");
+#endif
+    return false;
+};
+
 bool ordered_array::add(heap_header_info value)
 {
     printfl("added. s: %u, c: %u", value.size, this->size);
@@ -192,6 +217,7 @@ bool ordered_array::add(heap_header_info value)
 
     this->data[this->size++] = value;
     this->best_case_order();
+    value.header->is_hole = true;
 
     if (!check_size())
     { syshlt("size error"); }

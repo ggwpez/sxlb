@@ -6,7 +6,7 @@ struct heap_header
 {
 	dword_t magic;		//4
 	bool is_hole;		//4
-	uint32_t footer_address;	//4
+    uint32_t footer_address;	//4
 };	//12
 
 struct heap_footer

@@ -22,7 +22,8 @@ public:
 	bool add(heap_header_info value);
     bool exists(heap_header* address);
 	bool remove_by_index(uint32_t index);
-	bool remove_by_address(heap_header* address);
+    bool remove_by_address(heap_header* address);
+    bool remove_by_address(heap_header_info* address);
 
 	/*If this returns false, you better halt the system and go debugging!*/
 	bool check_size();

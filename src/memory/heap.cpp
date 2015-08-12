@@ -17,7 +17,7 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 	if (Start_address + OVERHEAD > End_address || Max_address < End_address)
 		syshlt("HEAP initialization error!");
 #endif
-											//sizeof(heap_header_info)*2000 = 16 Kb
+                                                //sizeof(heap_header_info)*2000 = 16 Kb
     this->list = ordered_array(2000);			//(sizeof(heap_header) + sizeof(heap_footer))*2000 = 40 Kb
 	this->access_ring = Access_ring;
 	this->access_right = Access_rigth;
@@ -153,7 +153,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
             uint32_t found_size = found_header->footer_address - (uint32_t)found_header;
             uint32_t missing_size = found_size - size;
 			uint32_t new_footer;
-            found_footer->magic = 0;
+            //found_footer->magic = 0;
 
             //printfl("found: %u, needed: %u, missing: %u", found_header->footer_address - (uint32_t)found_header, size, missing_size);
             expand(this->end_address + missing_size);
@@ -184,17 +184,16 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 			return (void*)(old_end +sizeof(heap_header));
 		}
 	}
-
-	if (found->size == size)	//found block matches exaclly the requested size - nice
+    else if (found->size == size)	//found block matches exaclly the requested size - nice
 	{
 		heap_header* header = found->header;
 		header->is_hole = false;
-        header->magic = 0;
+        //header->magic = 0;
         //### maybe check if the heap must be expanded? - nope, will be handled on the next allocation
 		uint32_t ret = (uint32_t)found->header + sizeof(heap_header);	//save it
 
         printl("delete #6");
-        list.remove_by_index(index);
+        list.remove_by_address(found);
 		list.best_case_order();
 
 		return (void*)ret;
@@ -218,7 +217,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 		if (d_size <= OVERHEAD)
 		{
             printl("delete #7");
-			list.remove_by_index(index);	//the new block is to small to hold user data, have to let it free
+            list.remove_by_address(found);	//the new block is to small to hold user data, have to let it free
 			list.best_case_order();
             //printfl("Im not willed to waste memory!");
 			contract(found_header->footer_address +sizeof(heap_footer));	//free the memory, that this block otherwise would have used
@@ -279,8 +278,8 @@ heap_header* heap::search_after(heap_footer* address)
 		return nullptr;						//its the last block in the heap
 
 	heap_header* found_header = (uint32_t)address +sizeof(heap_footer);
-	if (found_header->magic != MAGIC)
-		return nullptr;						//nope, no header here
+    if (found_header->magic != MAGIC) //|| ((heap_footer*)found_header->footer_address)->magic != MAGIC)
+        return nullptr;						//nope, no or broken header
 
 	if (!found_header->is_hole)
 		return nullptr;

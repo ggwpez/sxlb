@@ -1,6 +1,5 @@
 #include "sprintf.hpp"
 
-cc
 void write_string(char_t* dest, char_t* src, uint32_t* maxl, uint32_t offset)
 {
 	while ((*(dest+++offset) = *src++) && *maxl) 
@@ -77,4 +76,3 @@ int32_t sprintf_s(char_t* str, uint32_t size, const char_t* format, ...)
 	str[tmp_s - 1] = '\0';
 	return tmp_s - size;
 };
-kk
