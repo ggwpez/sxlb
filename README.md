@@ -24,13 +24,6 @@ Open the direcory with: `cd sxlb`
 ###Bochs
 `sudo apt-get install bochs`
 
-You maybe also need 'bochs-sdl' since the contained configuration file 'bochsrc' implicates this.
-
-`sudo apt-get install bochs-sdl`
-
-###g++
-`sudo apt-get install g++`
-
 ##Testing
 Make it with:
 `./make`
