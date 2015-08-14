@@ -25,7 +25,7 @@ com1: enabled=1, mode=null, dev=""
 #i440fxsupport: enabled=1
 vga: extension=cirrus, update_freq=10, realtime=1
 vga: extension=vbe
-cpu: count=1, ips=6000000, reset_on_triple_fault=1, ignore_bad_msrs=1
+cpu: count=1, ips=6000000, reset_on_triple_fault=0, ignore_bad_msrs=1
 cpuid: stepping=3, vendor_string="GenuineIntel", brand_string="              Intel(R) Pentium(R) 4 CPU        "
 print_timestamps: enabled=0
 # no gdb stub

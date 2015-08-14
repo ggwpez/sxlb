@@ -37,9 +37,12 @@ namespace task
     {
         return num_tasks;
     };
-	
+
+    #define PRIVILEG 3
     struct task::task_t* init_task(void* entry, LPTR kernel_stack, LPTR user_stack)
 	{
+        dword_t code_segment = 0x08, data_segment = 0x10;
+
         cli
         task::cpu_state_t new_state;
 		new_state.eax = 0;
@@ -56,20 +59,27 @@ namespace task
 		new_state.user_esp = user_stack +4096;
 		new_state.eip = entry;
 
-		new_state.cs = 0x08;
-		new_state.ds = 0x10;
-		new_state.es = 0x10;
-        new_state.fs = 0x10;
-		new_state.gs = 0x10;
-        //new_state.ss = 0x23;
+        if (PRIVILEG == 3)
+        {
+            new_state.ss = 0x23;    //TODO: missong privileg == 3 check for kernel_stack
+            code_segment = 0x1b;
+        }
+        new_state.cs = code_segment;
 
-		/*tss.ss0 = 0x10;
-		tss.esp0 = kernel_stack + 4096 - sizeof(new_state);
-		tss.ss = 0x23;*/
+        new_state.ds = data_segment;
+        new_state.es = data_segment;
+        new_state.fs = data_segment;
+        new_state.gs = data_segment;
 
-        new_state.eflags = 0x200;
+        tss.ss0 = 0x10;
+        tss.esp0 = kernel_stack;
+        tss.ss = data_segment;
 
-        struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);
+        new_state.eflags = 0x202;
+        //new_state.return_address = task::end;
+
+
+        struct task::cpu_state_t* state = kernel_stack +4096;// -sizeof(task::cpu_state_t);
 		*state = new_state;
 
         task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, nullptr);
@@ -79,12 +89,83 @@ namespace task
         task->pid = pid++;
         task->kernel_stack_original = kernel_stack;
         task->user_stack_original = user_stack;
+        task->directory = clone_directory(kernel_directory);
         task->cpu_state = state;
         task->to_dispose = 0;
+
+        task->esp = (uint32_t)kernel_stack; //TODO: look here
+        task->ss  = data_segment;
 
         sti
         return task;
 	};
+
+    /*extern "C"
+    {
+        extern void irq_tail();
+    }
+    task::task_t* init_task2(void* entry, LPTR kernel_stack, LPTR user_stack)
+    {
+        cli
+        page_directory* directory = clone_directory(kernel_directory);
+        task_t* new_task            = (task_t*)memory::k_malloc(sizeof(task_t),0,0);
+
+        new_task->pid  = pid++;
+        new_task->directory = directory;
+        new_task->kernel_stack_original   = kernel_stack; //align
+        new_task->to_dispose = 0;
+
+        uint32_t* esp = kernel_stack;
+        uint32_t code_segment=0x08, data_segment=0x10;
+
+        //*(--esp) = 0x0;  // return address dummy
+
+        if(PRIVILEG == 3)
+        {
+            // general information: Intel 3A Chapter 5.12
+            *(--esp) = new_task->ss = 0x23;    // ss
+            *(--esp) = new_task->kernel_stack_original; // esp0
+            code_segment = 0x1B;                        // 0x18|0x3=0x1B
+        }
+
+        *(--esp) = 0x0202; // eflags = interrupts activated and iopl = 0
+        *(--esp) = code_segment; // cs
+        *(--esp) = (uint32_t)entry; // eip
+        *(--esp) = 0; // error code
+
+        *(--esp) = 0; // interrupt nummer
+
+        // general purpose registers w/o esp
+        *(--esp) = 0;
+        *(--esp) = 0;
+        *(--esp) = 0;
+        *(--esp) = 0;
+        *(--esp) = 0;
+        *(--esp) = 0;
+        *(--esp) = 0;
+
+        if(PRIVILEG == 3) data_segment = 0x23; // 0x20|0x3=0x23
+
+        *(--esp) = data_segment;
+        *(--esp) = data_segment;
+        *(--esp) = data_segment;
+        *(--esp) = data_segment;
+
+        //setup TSS
+        tss.ss0   = 0x10;
+        tss.esp0  = new_task->kernel_stack_original;
+        tss.ss    = data_segment;
+
+
+        //setup task_t
+        new_task->ebp = 0xd00fc0de; // test value
+        new_task->esp = (uint32_t)esp;
+        new_task->eip = (uint32_t)irq_tail;
+        new_task->ss  = data_segment;
+
+        sti
+        return new_task;
+    }*/
 
     bool create(uint32_t entry_point)
     {
@@ -183,6 +264,13 @@ namespace task
         return true;
     };
 
+    void tss_switch(uint32_t esp0, uint32_t esp, uint32_t ss)
+    {
+        tss.esp0 = esp0;
+        tss.esp = esp;
+        tss.ss = ss;
+    }
+
     bool activated = false;
 	struct task::cpu_state_t* schedule(struct task::cpu_state_t* cpu)
 	{
@@ -210,7 +298,8 @@ namespace task
             actual_task = start_task;
 
         cpu = actual_task->cpu_state;
-        tss.esp0 = actual_task->kernel_stack_original+4096;
+        //tss.esp0 = actual_task->kernel_stack_original+4096;
+        tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
 
 		return cpu;
 	};

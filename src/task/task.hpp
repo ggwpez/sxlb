@@ -34,6 +34,7 @@ namespace task
 		uint32_t   eflags;
 		uint32_t   user_esp;
 		uint32_t   ss;
+        //uint32_t   return_address;
 	}__attribute__((packed));
 /*
 	unsigned int gs, fs, es, ds;
@@ -60,6 +61,7 @@ namespace task
 	{
         uint8_t to_dispose = false;
 		uint32_t pid;
+        uint32_t esp, ss;
         LPTR user_stack_original;
         LPTR kernel_stack_original;
         page_directory* directory;

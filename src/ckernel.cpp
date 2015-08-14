@@ -73,13 +73,13 @@ int32_t main()
        ui::video::update();
     }*/
 
-    /*task::create(one);
+    task::create(one);
     //task::create(root);
 
     task::multitasking_set_enabled(true);
-    TASK_SWITCH*/
+    TASK_SWITCH
 
-    system::testcall(0,67,64,64,67,69);
+    //printf("e=%u", system::syscall(system::CALL::TEST, 67,64,64,67,69));
 
     ui::video::update();
     return 0;

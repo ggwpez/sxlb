@@ -393,6 +393,7 @@ _irq15:
     jmp irq_common_stub
 
 extern _irq_event_handler
+[global _irq_tail]
 
 irq_common_stub:
  ; CPU-Zustand sichern
@@ -417,8 +418,10 @@ irq_common_stub:
     
     push esp
     call _irq_event_handler
+
+_irq_tail:
     mov esp, eax
-    
+
     pop gs
     pop fs
     pop es
@@ -436,8 +439,8 @@ irq_common_stub:
 ;    // Ruecksprung zum unterbrochenen Code
     iret
 
-[global _testcall]
-_testcall:
+[global _syscall]
+_syscall:
 	mov eax, [esp+4]
 	mov ebx, [esp+8]
 	mov ecx, [esp+12]

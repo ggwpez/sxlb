@@ -40,6 +40,7 @@ void					free_frame(struct page* page);
 uint32_t                k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys);
 void                    enable_paging(page_directory* dir);
 
+extern page_directory*  kernel_directory;
 struct page_directory*	clone_directory(struct page_directory* src);
 struct page_table*      clone_table(struct page_table* src);
 
