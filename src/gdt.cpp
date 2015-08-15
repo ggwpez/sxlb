@@ -21,14 +21,14 @@ void sxlb_gdt_load()
 	sxlb_gdt_gate_set_data(0, 0, 0, 0, 0);	//null desc
 	sxlb_gdt_gate_set_data(1, 0, 0xffffffff, 0x9a, 0xcf);
 	sxlb_gdt_gate_set_data(2, 0, 0xffffffff, 0x92, 0xcf);
-    sxlb_gdt_gate_set_data(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
-    sxlb_gdt_gate_set_data(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
-    write_tss(5, 0x10, 0x0);
+    //sxlb_gdt_gate_set_data(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
+    //sxlb_gdt_gate_set_data(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
+    //write_tss(5, 0x10, 0x0);
 
 	gdt_flush(&gdt);
     //tss_flush();
     //sxlb_gdt_reload();
-    asm volatile("ltr %%ax" : : "a" (sizeof(gdt_entry) *5 +3));     //+3 are the 3 funny RPL bits
+    //asm volatile("ltr %%ax" : : "a" (sizeof(gdt_entry) *5 +3));     //+3 are the 3 funny RPL bits
 };
 
 void sxlb_gdt_reload()

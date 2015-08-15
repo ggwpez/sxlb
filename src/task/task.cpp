@@ -38,8 +38,8 @@ namespace task
         return num_tasks;
     };
 
-    #define PRIVILEG 3
-    struct task::task_t* init_task(void* entry, LPTR kernel_stack, LPTR user_stack)
+    #define PRIVILEG 0
+    task::task_t* init_task(task::task_t* task, void* entry, LPTR const kernel_stack, LPTR const user_stack)
 	{
         dword_t code_segment = 0x08, data_segment = 0x10;
 
@@ -71,25 +71,24 @@ namespace task
         new_state.fs = data_segment;
         new_state.gs = data_segment;
 
-        tss.ss0 = 0x10;
+        /*tss.ss0 = 0x10;
         tss.esp0 = kernel_stack;
-        tss.ss = data_segment;
+        tss.ss = data_segment;*/
 
         new_state.eflags = 0x202;
         //new_state.return_address = task::end;
 
 
-        struct task::cpu_state_t* state = kernel_stack +4096;// -sizeof(task::cpu_state_t);
+        struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);    //you better dont forgett the -!
 		*state = new_state;
 
-        task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, nullptr);
         if (!task)
             return 0;
 
         task->pid = pid++;
         task->kernel_stack_original = kernel_stack;
         task->user_stack_original = user_stack;
-        task->directory = clone_directory(kernel_directory);
+        //task->directory = clone_directory(kernel_directory);
         task->cpu_state = state;
         task->to_dispose = 0;
 
@@ -102,35 +101,19 @@ namespace task
 
     bool create(uint32_t entry_point)
     {
-        return create(entry_point, nullptr, nullptr);
-	}
-
-    bool create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack)
-    {
         if (num_tasks >= capacity)
         {
             syshlt("no capacity");
             return false;
         }
 
-        if (!kernel_stack && !(kernel_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
-           { syshlt("1"); memory::k_free(kernel_stack); return false; }
-        if (!user_stack && !(user_stack = memory::k_malloc(4096, 0, nullptr)))	//stack could not be allocated
-        {
-            syshlt("2");
-            memory::k_free(user_stack);
+        LPTR task_mem = memory::k_malloc(sizeof(task_t) + USER_STACK_SIZE + KERNEL_STACK_SIZE, 0, nullptr);
+        LPTR kernel_stack   = task_mem     + sizeof(task_t);
+        LPTR user_stack     = kernel_stack + KERNEL_STACK_SIZE;
+        if (!task_mem)
             return false;
-        }
 
-        task_t* task = init_task(entry_point, kernel_stack, user_stack);
-        if (!task)
-        {
-            syshlt("3");
-            memory::k_free(task);
-
-            printfl("internal allocation error");
-            return false;
-        }
+        task_t* task = init_task((task_t*)task_mem, entry_point, kernel_stack, user_stack);
         task->next = nullptr;
 
         if (!start_task)    //first task to be created
@@ -205,7 +188,7 @@ namespace task
     }
 
     bool activated = false;
-	struct task::cpu_state_t* schedule(struct task::cpu_state_t* cpu)
+    cpu_state_t* schedule(cpu_state_t* cpu)
 	{
         if (!multitasking_enabled)
             return cpu;
@@ -231,17 +214,15 @@ namespace task
             actual_task = start_task;
 
         cpu = actual_task->cpu_state;
-        //tss.esp0 = actual_task->kernel_stack_original+4096;
-        tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
+        //tss.esp0 = actual_task->kernel_stack_original;
+        //tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
 
 		return cpu;
 	};
 
     task_t::~task_t()
     {
-        this->to_dispose = 0;
         memory::k_free(this);
-        memory::k_free(user_stack_original);
-        memory::k_free(kernel_stack_original);
+        this->to_dispose = 0;
     };
 }

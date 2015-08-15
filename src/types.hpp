@@ -22,6 +22,7 @@
 #define abs(x) ((x < 0) ? -x: x)
 #define TASK_SWITCH __asm__ __volatile__("int $32");
 #define hlt asm("hlt");
+extern "C" { extern void nop(); }
 #define cli_hlt asm("cli"); asm("hlt");
 #define stop asm("jmp .");
 #define finit asm("finit"); \

@@ -8,7 +8,7 @@ namespace memory
 {
     #define KHEAP_START         0x01000000
     #define KHEAP_INITIAL_SIZE  _1MiB + sizeof(heap_header) + sizeof(heap_footer)	//otherwise its a bit smaller than expected
-    #define KHEAP_MAX           KHEAP_START + _4MiB
+    #define KHEAP_MAX           KHEAP_START + _2MiB
     #define HEAP_MIN_SIZE		KHEAP_INITIAL_SIZE
 
     class heap;

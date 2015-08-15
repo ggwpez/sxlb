@@ -6,7 +6,7 @@
 #include "../task/task.hpp"
 
 namespace system
-{
+{    
 	#define CALL_NUM_MAX 2
     enum class CALL: dword_t
 	{

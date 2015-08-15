@@ -82,6 +82,9 @@ namespace memory
         if (!size)
             return size;
 
+        if (align)
+            syshlt("No aligned allocations.");
+
         if (kheap_set)
         {
             //while (m_locked); m_locked = true;

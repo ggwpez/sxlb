@@ -113,7 +113,7 @@ heap_header_info* ordered_array::find_by_address(uint32_t address)
 {
 	for (uint32_t i = 0; i < this->size; i++)
 		if (data[i].header == address)
-            return (uint32_t)data + i *sizeof(heap_header_info);
+            return & data[i];
 
 	return nullptr;
 }

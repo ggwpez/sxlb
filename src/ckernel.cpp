@@ -82,5 +82,6 @@ int32_t main()
     //printf("e=%u", system::syscall(system::CALL::TEST, 67,64,64,67,69));
 
     ui::video::update();
+    while (1);
     return 0;
 };

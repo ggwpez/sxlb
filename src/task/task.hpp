@@ -47,7 +47,6 @@ namespace task
 	void init();
 
     bool            create(uint32_t entry_point);
-    bool            create(uint32_t entry_point, LPTR kernel_stack, LPTR user_stack);
     cpu_state_t*    schedule(struct cpu_state_t* cpu);
     void            end() __attribute__((noreturn));
     bool            kill(uint32_t pid);
@@ -57,6 +56,8 @@ namespace task
     task_t*         get_task();
     uint32_t        get_task_count();
 
+    #define USER_STACK_SIZE 4096
+    #define KERNEL_STACK_SIZE 4096
 	struct task_t
 	{
         uint8_t to_dispose = false;

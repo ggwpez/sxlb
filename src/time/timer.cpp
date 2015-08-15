@@ -44,10 +44,12 @@ void set_frequenze(int32_t hz)
 void install_event_handler()
 {
 	idt::irq_register_event_handler(0, event_handler);
+    idt::irq_register_event_handler(7, nop);            //APIC timer, actually not used
 };
 
 void uninstall_event_handler()
 {
 	idt::irq_del_event_handler(0);
+    idt::irq_del_event_handler(7);
 };
 }

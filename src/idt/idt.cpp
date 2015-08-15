@@ -23,7 +23,7 @@ namespace idt
 
 
 	//If a exception_messages exists, it will be printed out.
-	extern "C" void isr_fault_handler(struct task::cpu_state_t* state)
+    void isr_handler(task::cpu_state_t* state)
 	{
 		if (state->int_no < 32)	//ensure that the fired ISR is valid
         {
@@ -36,31 +36,40 @@ namespace idt
         }
 	};
 
-	//If a delegate exists for the called IRQ, it gets called by this handler.
-	extern "C" struct task::cpu_state_t* irq_event_handler(struct task::cpu_state_t* state)
+    task::cpu_state_t* irq_handler(task::cpu_state_t* state)
     {
-		struct task::cpu_state_t* state_new = state;
+        struct task::cpu_state_t* state_new = state;
 
         if (state->int_no == 32 && task::multitasking_set_enabled)
-		{
-			state_new = task::schedule(state);
-			//tss.esp0 = (uint32_t)(state_new + 1);
-		}
-		//thats a delegate with one argument (struct task::cpu_state_t*)
-		void(*handler)(struct task::cpu_state_t* state);
+        {
+            state_new = task::schedule(state);
+            //tss.esp0 = (uint32_t)(state_new + 1);
+        }
+        //thats a delegate with one argument (struct task::cpu_state_t*)
+        void(*handler)(struct task::cpu_state_t* state);
 
-		//Look if functionhandler for this IRQ exists
-		handler = irq_functions[state->int_no - 32];
+        //Look if functionhandler for this IRQ exists
+        handler = irq_functions[state->int_no - 32];
         if (handler)
             { handler(state); }	//### <- dont comment this
         else
             printf("handler empty for: %u", state->int_no);
-		//If the IRQ was raised by the SLAVE PIC, send EOI to SLAVE controllers
-		if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }
+        //If the IRQ was raised by the SLAVE PIC, send EOI to SLAVE controllers
+        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }
 
-		//In both cases the MASTER PIC needs a EOI, otherwise no IRQ anymore
-		asm_outb(0x20, 0x20);
-		return state_new;
+        //In both cases the MASTER PIC needs a EOI, otherwise no IRQ anymore
+        asm_outb(0x20, 0x20);
+        return state_new;
+    }
+
+	//If a delegate exists for the called IRQ, it gets called by this handler.
+    extern "C" struct task::cpu_state_t* ir_event_handler(struct task::cpu_state_t* state)
+    {
+        if (state->int_no >= 32)
+            return irq_handler(state);
+
+        isr_handler(state);
+        return state;
 	};
 
 	int load()
