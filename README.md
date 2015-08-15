@@ -26,10 +26,10 @@ Open the direcory with: `cd sxlb`
 
 ##Testing
 Make it with:
-`./make`
+`sh make`
 
 And start it with:
 `bochs`
 
 And if you want both at once:
-`./start`
+`sh start`
