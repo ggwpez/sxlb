@@ -8,7 +8,7 @@ extern _ir_event_handler
     [global _isr%1]
     _isr%1:
 	%if (%1!=8) && (%1<10 || %1>14)
-	push dword 0    ; Dummy error code needs to be pushed on some interrupts
+	    push dword 0
 	%endif
 	push dword %1
 	jmp ir_common_stub
