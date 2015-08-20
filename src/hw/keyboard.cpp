@@ -1,9 +1,7 @@
 #include "keyboard.hpp"
 #include "hwaccess.hpp"
 
-namespace hw
-{
-namespace keyboard
+namespace2(hw, keyboard)
 {
 bool shift = false;
 

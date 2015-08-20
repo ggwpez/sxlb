@@ -19,9 +19,9 @@ volatile uint32_t v;
 void two();
 void one()
 {
-    task::create(two);
-
-    task::end();
+    printl("worked");
+    cli_hlt;
+    stop;
 };
 
 void three();

@@ -1,9 +1,7 @@
 #pragma once
 #include "../types.hpp"
 
-namespace hw
-{
-namespace keyboard
+namespace2(hw, keyboard)
 {
 uint8_t get_key(bool& pressed);
 void init();

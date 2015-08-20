@@ -113,7 +113,6 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 {
     if (page_aligned) syshlt("Aligned allocations not allowed.");
 
-    //printfl("Allocating: %M", size);
     uint32_t index = 0;
     heap_header_info* found = this->list.find_fitting_block(size, page_aligned, &index);
 
@@ -121,7 +120,7 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 	if (eie->magic != MAGIC || !eie->header)
 	{
         printfl("\neie %M   %M   %M  s: %M", (uint32_t)sizeof(heap_footer), eie->header, eie->magic, this->end_address -sizeof(heap_footer));
-		this->dump_info();
+        this->dump_info();
 		syshlt("HEAP Magic error! 0");
 	}
 

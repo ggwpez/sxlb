@@ -39,26 +39,27 @@ extern _ir_event_handler
 
 ; General Interrupt method
 ir_common_stub:
-    push eax	;Pushad is for plebs, push them manually
-    push ebx	;Things like EFLAGS and so on, are automatically
+    push eax	;Pushad is for plebs, push them manually.
+    push ebx	;Things like EFLAGS and so on are automatically
     push ecx	;saved by the CPU
     push edx
     push ebp
     push esi
     push edi
-	
+
     push ds
     push es
     push fs
     push gs
-    
+
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
-    
+
     push esp
+    cld
     call _ir_event_handler
 
 _ir_tail:
@@ -68,7 +69,7 @@ _ir_tail:
     pop fs
     pop es
     pop ds
-    
+
     pop edi
     pop esi
     pop ebp

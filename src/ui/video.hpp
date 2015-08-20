@@ -4,9 +4,7 @@
 #include "../memory/memory.hpp"
 #include "../font.hpp"
 
-namespace ui
-{
-namespace video
+namespace2(ui, video)
 {
 	/*You can pick one of these pre-defined colors, or yust take any number from 0-255*/
 	enum video_color

@@ -16,7 +16,7 @@ uint32_t get_ticks();
 /*Don't use.*/
 void set_frequenze(int32_t hz);
 /*Don't use.*/
-void event_handler(struct task::cpu_state_t* state);
+void event_handler(task::cpu_state_t* state);
 /*Don't use.*/
 void uninstall_event_handler();
 /*Don't use.*/

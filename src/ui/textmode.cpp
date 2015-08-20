@@ -1,10 +1,7 @@
 #include "textmode.hpp"
 
-namespace ui
+namespace2(ui, text)
 {
-namespace text
-{
-
 byte_t* vram = 0xb8000;
 byte_t font_color = video::VC_WHITE;
 bool initialized = false;
@@ -17,10 +14,10 @@ struct text
 	uint16_t columns, rows;
 	uint16_t row, col;
 	uint8_t tab_size;
-	ubyte_t text_color;
+    ubyte_t text_color;
 	Font::Font_info* font;
 }__attribute__((packed)); 
-struct text text_mode;
+text text_mode;
 
 void init(uint16_t pixelW, uint16_t pixelH, ubyte_t default_color, Font::Font_info* font)
 {
@@ -175,7 +172,7 @@ uint32_t write_in_line(const char* message, unsigned int line)
 	write(message);
 };
 
-void set_bc(char bc)
+void set_bc(uchar_t bc)
 {
     bc &= B(11110000);
 
@@ -183,7 +180,7 @@ void set_bc(char bc)
     text_mode.text_color |= bc;
 }
 
-void set_bc_all(char bc)
+void set_bc_all(uchar_t bc)
 {
 	CHECK_INIT
 	
@@ -202,7 +199,7 @@ void set_bc_all(char bc)
 	text_mode.text_color |= bc;
 };
 
-void set_fc(char fc)
+void set_fc(uchar_t fc)
 {
     fc &= B(00001111);
 
@@ -210,7 +207,7 @@ void set_fc(char fc)
     text_mode.text_color |= fc;
 }
 
-void set_fc_all(char fc)
+void set_fc_all(uchar_t fc)
 {
 	CHECK_INIT
 	

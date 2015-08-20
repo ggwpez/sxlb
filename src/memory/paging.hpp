@@ -16,13 +16,13 @@ struct page
 
 struct page_table
 {
-	struct page pages[1024];
+    page pages[1024];
 }__attribute__((packed));
 
 struct page_directory
 {
 	uint32_t tables_physical[1024];
-	struct page_table* tables[1024];
+    page_table* tables[1024];
 	uint32_t physical_address;
 }__attribute__((packed));
 
@@ -33,16 +33,17 @@ void					paging_install();
  */
 uint32_t                map_heap(uint32_t start, uint32_t end);
 void					unmap_heap(uint32_t start, uint32_t end);
-struct page*			get_page(uint32_t address, uchar_t make, struct page_directory* dir);
-struct page*            set_page(uint32_t address, struct page_directory* dir);
-uint32_t				alloc_frame(struct page* page, int is_kernel, int is_writeable);
-void					free_frame(struct page* page);
+page*			get_page(uint32_t address, uchar_t make, page_directory* dir);
+page*            set_page(uint32_t address, page_directory* dir);
+uint32_t				alloc_frame(page* page, int is_kernel, int is_writeable);
+void					free_frame(page* page);
 uint32_t                k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys);
 void                    enable_paging(page_directory* dir);
+void switch_paging(page_directory* dir);
 
 extern page_directory*  kernel_directory;
-struct page_directory*	clone_directory(struct page_directory* src);
-struct page_table*      clone_table(struct page_table* src);
+page_directory*	clone_directory(page_directory* src, uint32_t* dir_offset);
+page_table*      clone_table(page_table* src);
 
 uint32_t				show_physical_address(uint32_t virtual_address);
 

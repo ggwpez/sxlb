@@ -11,7 +11,7 @@ namespace idt
 	struct idt_entry		//IDT entry, 256 in all
 	{
 		ushort_t base_lo;	//base adress 0-15 bit
-		ushort_t selector;
+        ushort_t selector;  //code segment selector in GDT or LDT
 		uchar_t zero;
 		uchar_t flags;		//permission flags
 		ushort_t base_hi;	//base adress 16-32 bit
@@ -28,7 +28,7 @@ namespace idt
 	/*Call in kernel shut down, to unload IDT (IRSs+IRQs). Not necessary*/
 	int unload();
 	/*Call to register a Software Interrupt Handler*/
-	void irq_register_event_handler(uchar_t index, void(*event_handler)(struct task::cpu_state_t* state));
+    void irq_register_event_handler(uchar_t index, void(*event_handler)(task::cpu_state_t* state));
 	/*Call to remove a Software Interrupt Handler*/
 	void irq_del_event_handler(uchar_t index);
 

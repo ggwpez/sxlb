@@ -1,9 +1,7 @@
 #include "video.hpp"
 #include "../system/system.hpp"
 
-namespace ui
-{
-namespace video
+namespace2(ui, video)
 {
 	uint16_t screen_width, screen_heigth, size;
 	static byte_t* vram = 0xa0000;	//actuallisy is far pointer (ubyte_t far* 0xA0000000)

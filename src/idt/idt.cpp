@@ -17,10 +17,9 @@ namespace idt
 	};
 
     void*  irq_functions[128] = { 0 };
-	struct idt_entry idt[256];	//always 256 needed
-	struct idt_ptr idt_r;		//Interrupt register
-	extern "C" tss_entry tss;
-
+    idt_entry idt[256];	//always 256 needed
+    idt_ptr idt_r;		//Interrupt register
+    tss_entry tss;
 
 	//If a exception_messages exists, it will be printed out.
     void isr_handler(task::cpu_state_t* state)
@@ -31,22 +30,21 @@ namespace idt
                 state->int_no = 23;                             //set to "Nullptr Exception"
 
             char buffer[60];
-            sprintf_s(buffer, 60, "ISR Interrupt: %u, %s", state->int_no, idt_isr_messages[state->int_no]);
+            sprintf_s(buffer, 60, "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
             syshlt(buffer);	//halts the system
         }
 	};
 
     task::cpu_state_t* irq_handler(task::cpu_state_t* state)
     {
-        struct task::cpu_state_t* state_new = state;
+        task::cpu_state_t* state_new = state;
 
         if (state->int_no == 32 && task::multitasking_set_enabled)
         {
             state_new = task::schedule(state);
-            //tss.esp0 = (uint32_t)(state_new + 1);
         }
-        //thats a delegate with one argument (struct task::cpu_state_t*)
-        void(*handler)(struct task::cpu_state_t* state);
+        //thats a delegate with one argument (task::cpu_state_t*)
+        void(*handler)(task::cpu_state_t* state);
 
         //Look if functionhandler for this IRQ exists
         handler = irq_functions[state->int_no - 32];
@@ -59,10 +57,11 @@ namespace idt
 
         //In both cases the MASTER PIC needs a EOI, otherwise no IRQ anymore
         asm_outb(0x20, 0x20);
-        return state_new;
-    }
 
-	//If a delegate exists for the called IRQ, it gets called by this handler.
+        return state_new;
+    };
+
+    //Decides if its an ISR or IRQ
     extern "C" struct task::cpu_state_t* ir_event_handler(struct task::cpu_state_t* state)
     {
         if (state->int_no >= 32)
@@ -70,11 +69,11 @@ namespace idt
 
         isr_handler(state);
         return state;
-	};
+    };
 
 	int load()
 	{
-		idt_r.limit = (sizeof (struct idt_entry) * 256) - 1;
+        idt_r.limit = (sizeof(idt_entry) * 256) - 1;
 		idt_r.base = (uint32_t)&idt;
 		flush();
 		irq_install();
@@ -89,12 +88,13 @@ namespace idt
 		idt_r.base = NULL;
 		flush();
 		asm("lidt 0x00");
+        return 1;
 	};
 
 	/*Clears the memory block of the complete IDT.*/
 	void flush()
 	{
-        memory::memset(&idt, 0, sizeof(struct idt_entry) * 256);
+        memory::memset(&idt, 0, sizeof(idt_entry) * 256);
 	};
 
 	/*Remaps the IRQ from offset=0 to offset=31, so the IRS wont overide user IRQ.*/
@@ -174,19 +174,22 @@ namespace idt
 	/*Constructs an idt_entry, at the given index.*/
 	void entry_set_data(uchar_t index, uint32_t base, ushort_t selector, uchar_t flags)
 	{
-		idt[index].base_lo = base & 0x0000ffff;
+        idt[index].base_lo = base & 0xffff;
 		idt[index].base_hi = (base >> 16) & 0xffff;
 		idt[index].selector = selector;
-		idt[index].zero = NULL;
-		idt[index].flags = flags | 0x60;
+        idt[index].zero = 0;
+        idt[index].flags =  flags; //| 0x60;
 	};
 
-	void irq_register_event_handler(uchar_t event_number, void(*event_handler)(struct task::cpu_state_t* state))
+    void irq_register_event_handler(uchar_t event_number, void(*event_handler)(task::cpu_state_t* state))
 	{
 #if __CHECKS_NLPTR
 		if (!event_handler)
 			syshlt("IDT event register!");
 #endif
+        if (event_number > 128)
+            return;
+
 		irq_functions[event_number] = event_handler;
 	};
 

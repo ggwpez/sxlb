@@ -4,9 +4,9 @@ namespace task
 {
     uint32_t pid = 1;
     int num_tasks = 0, capacity = 20;
-    struct task_t* start_task = nullptr,* actual_task = nullptr;
+    task_t* start_task = nullptr,* actual_task = nullptr;
     bool multitasking_enabled = false;
-	extern "C" tss_entry tss;
+    extern "C" struct tss_entry tss;
 
 	void init()
 	{
@@ -38,7 +38,29 @@ namespace task
         return num_tasks;
     };
 
-    #define PRIVILEG 0
+    void dump_tss(tss_entry* tssEntry)
+    {
+        printf("esp0: %x ", tssEntry->esp0);
+        printf("ss0: %x ", tssEntry->ss0);
+        printf("cr3: %x ", tssEntry->cr3);
+        printf("eip: %x ", tssEntry->eip);
+        printf("eflags: %x ", tssEntry->eflags);
+        printf("eax: %x ", tssEntry->eax);
+        printf("ecx: %x ", tssEntry->ecx);
+        printf("edx: %x ", tssEntry->edx);
+        printf("ebx: %x ", tssEntry->ebx);
+        printf("esp: %x ", tssEntry->esp);
+        printf("esi: %x ", tssEntry->esi);
+        printf("edi: %x ", tssEntry->edi);
+        printf("es: %x ", tssEntry->es);
+        printf("cs: %x ", tssEntry->cs);
+        printf("ss: %x ", tssEntry->ss);
+        printf("ds: %x ", tssEntry->ds);
+        printf("fs: %x ", tssEntry->fs);
+        printf("gs: %x\n", tssEntry->gs);
+    }
+
+    #define PRIVILEG 3
     task::task_t* init_task(task::task_t* task, void* entry, LPTR const kernel_stack, LPTR const user_stack)
 	{
         dword_t code_segment = 0x08, data_segment = 0x10;
@@ -61,25 +83,26 @@ namespace task
 
         if (PRIVILEG == 3)
         {
-            new_state.ss = 0x23;    //TODO: missong privileg == 3 check for kernel_stack
             code_segment = 0x1b;
+            data_segment = 0x23;
         }
-        new_state.cs = code_segment;
 
+        new_state.cs = code_segment;        
+        new_state.ss = data_segment;
         new_state.ds = data_segment;
         new_state.es = data_segment;
         new_state.fs = data_segment;
         new_state.gs = data_segment;
 
-        /*tss.ss0 = 0x10;
+        tss.ss0 = 0x10;
         tss.esp0 = kernel_stack;
-        tss.ss = data_segment;*/
+        tss.ss = data_segment;
 
         new_state.eflags = 0x202;
         //new_state.return_address = task::end;
 
 
-        struct task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);    //you better dont forgett the -!
+        task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);    //you better dont forgett the -!
 		*state = new_state;
 
         if (!task)
@@ -88,11 +111,12 @@ namespace task
         task->pid = pid++;
         task->kernel_stack_original = kernel_stack;
         task->user_stack_original = user_stack;
-        //task->directory = clone_directory(kernel_directory);
+        task->directory = clone_directory(kernel_directory, &task->dir_offset);
+        //task->directory = kernel_directory;
         task->cpu_state = state;
         task->to_dispose = 0;
 
-        task->esp = (uint32_t)kernel_stack; //TODO: look here
+        task->esp = (uint32_t)user_stack; //TODO: look here
         task->ss  = data_segment;
 
         sti
@@ -189,7 +213,7 @@ namespace task
 
     bool activated = false;
     cpu_state_t* schedule(cpu_state_t* cpu)
-	{
+    {
         if (!multitasking_enabled)
             return cpu;
         if (!actual_task)
@@ -200,6 +224,8 @@ namespace task
             activated = true;
 
             if (!actual_task) syshlt("wat");
+            tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
+            switch_paging(actual_task->directory);
             return actual_task->cpu_state;
         }
 
@@ -214,8 +240,8 @@ namespace task
             actual_task = start_task;
 
         cpu = actual_task->cpu_state;
-        //tss.esp0 = actual_task->kernel_stack_original;
-        //tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
+        tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
+        switch_paging(actual_task->directory);
 
 		return cpu;
 	};
@@ -223,6 +249,7 @@ namespace task
     task_t::~task_t()
     {
         memory::k_free(this);
+        memory::k_free((uint32_t)directory - this->dir_offset);
         this->to_dispose = 0;
     };
 }

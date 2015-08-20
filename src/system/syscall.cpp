@@ -22,7 +22,7 @@ namespace system
         return 999;
     }
 
-    void syscall_event_handler(struct task::cpu_state_t* state)
+    void syscall_event_handler(task::cpu_state_t* state)
     {
         if (state->eax >= CALL_NUM_MAX)
         {

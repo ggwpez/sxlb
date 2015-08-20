@@ -36,7 +36,7 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
 
     printfl(" Type: ");
     ui::text::set_fc(FC_RED | FC_MOD_INTENSITY);
-    printfl("\t%s\n", error_msg);
+    printfl("   %s\n", error_msg);
     ui::text::set_fc(FC_LIGHTGRAY | FC_MOD_INTENSITY);
 
     printfl(" CPU state:\n");
@@ -53,17 +53,17 @@ void sxlb_system_dumb()
     uint8_t tab = ui::text::get_tab_with();
     ui::text::set_tab_with(20);
 
-    printf("  eax: %u", asm_get_register_eax()); printfl("\tesi: %u", asm_get_register_esi());
-    printf("  ebx: %u", asm_get_register_ebx()); printfl("\tedi: %u", asm_get_register_edi());
-    printf("  ecx: %u", asm_get_register_ecx()); printfl("\tesp: %u", asm_get_register_esp());
-    printf("  edx: %u", asm_get_register_edx()); printfl("\tebp: %u", asm_get_register_ebp());
+    printf("   eax: %u", asm_get_register_eax()); printfl("\tesi: %u", asm_get_register_esi());
+    printf("   ebx: %u", asm_get_register_ebx()); printfl("\tedi: %u", asm_get_register_edi());
+    printf("   ecx: %u", asm_get_register_ecx()); printfl("\tesp: %u", asm_get_register_esp());
+    printf("   edx: %u", asm_get_register_edx()); printfl("\tebp: %u", asm_get_register_ebp());
     printfl("\teip: %u", asm_get_register_eip());
 	ui::text::new_line();
-    printfl("  cr0: %u", asm_get_register_ctrl(0));
-    printfl("  cr1: <reserved>");                   //not accessable
-    printfl("  cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
-    printfl("  cr3: %u", asm_get_register_ctrl(3));
-    printfl("  cr4: %u", asm_get_register_ctrl(4));
+    printfl("   cr0: %u", asm_get_register_ctrl(0));
+    printfl("   cr1: <reserved>");                      //not accessable
+    printfl("   cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
+    printfl("   cr3: %u", asm_get_register_ctrl(3));
+    printfl("   cr4: %u", asm_get_register_ctrl(4));
 
     ui::text::set_tab_with(tab);
 };

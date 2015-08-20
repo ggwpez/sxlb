@@ -92,7 +92,7 @@ namespace memory
             void* ret = kheap.malloc(size, align);
             if (phys)
             {
-                struct page* page = get_page((uint32_t)ret, 0, kernel_directory);
+                page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
             if (ret)

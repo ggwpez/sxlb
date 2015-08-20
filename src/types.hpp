@@ -17,9 +17,11 @@
 #endif
 
 #define nullptr 0
-#define NULL 0;
+#define NULL 0
+
 #define sgn(x) ((x < 0) ? -1 : ((x > 0) ? 1 : 0))
 #define abs(x) ((x < 0) ? -x: x)
+
 #define TASK_SWITCH __asm__ __volatile__("int $32");
 #define hlt asm("hlt");
 extern "C" { extern void nop(); }
@@ -41,12 +43,14 @@ typedef char*  va_list;
 #define break_point __asm__ __volatile__("xchgw %bx, %bx");
 
 #ifdef __cplusplus
-#define _ADDRESSOF(v)   ( &reinterpret_cast<const char &>(v) )
+#define _ADDRESSOF(v)   (&reinterpret_cast<const char &>(v))
 #else  /* __cplusplus */
-#define _ADDRESSOF(v)   ( &(v) )
+#define _ADDRESSOF(v)   (&(v))
 #endif  /* __cplusplus */
 
-#define _INTSIZEOF(n)   ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+#define _2NSIZEOF(n, s)     ((sizeof(n) + s -1) & ~(s - 1))
+#define _INTSIZEOF(n)       ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
+
 
 #define va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )
 #define va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
@@ -56,6 +60,7 @@ typedef char*  va_list;
 #define uint32_max 0xffffffff
 
 #define internal static
+#define namespace2(a, b) namespace a { namespace b
 
 #define B(x) ( \
 	0##x >> 0 & 0001 | \

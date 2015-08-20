@@ -12,10 +12,10 @@ namespace task
 	struct cpu_state_t
 	{
         // Von Hand gesicherte Register
-		uint32_t   ds;
-		uint32_t   es;
-		uint32_t   fs;
-		uint32_t   gs;
+        uint32_t   gs;
+        uint32_t   fs;
+        uint32_t   es;
+        uint32_t   ds;
 
         uint32_t   edi;
         uint32_t   esi;
@@ -28,9 +28,9 @@ namespace task
 		uint32_t   int_no;
 		uint32_t   error;
 
-		// Von der CPU gesichert
+        // Von der CPU gesichert
 		uint32_t   eip;
-		uint32_t   cs;
+        uint32_t   cs;
 		uint32_t   eflags;
 		uint32_t   user_esp;
 		uint32_t   ss;
@@ -46,8 +46,11 @@ namespace task
 	void multitasking_set_enabled(bool value);
 	void init();
 
+    void dump_tss(tss_entry* tssEntry);
+    extern "C" { extern struct tss_entry tss; }
+
     bool            create(uint32_t entry_point);
-    cpu_state_t*    schedule(struct cpu_state_t* cpu);
+    cpu_state_t*    schedule(cpu_state_t* cpu);
     void            end() __attribute__((noreturn));
     bool            kill(uint32_t pid);
     bool            kill_at(task_t* target);
@@ -66,6 +69,7 @@ namespace task
         LPTR user_stack_original;
         LPTR kernel_stack_original;
         page_directory* directory;
+        uint32_t dir_offset;
         cpu_state_t* cpu_state;
 
         task_t* next;
