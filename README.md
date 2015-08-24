@@ -28,5 +28,8 @@ Open the direcory with: `cd sxlb`
 `sudo apt-get install bochs`
 
 ##Testing
-Compile it and start bpchs with:
+Compile it and start bochs with:
 `make start`
+
+Cleanup is done with:
+`make clean`
