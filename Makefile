@@ -14,6 +14,9 @@ LDFLAGS := -m elf_i386 -T kernel.ld
 
 all: boot.bin ckernel.bin binary	
 
+start: all
+	bochs -q
+
 boot.bin: boot.asm
 	$(NASM) $(ASFLAGSBIN) $< -o $@
 
