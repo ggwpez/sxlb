@@ -19,22 +19,22 @@ volatile uint32_t v;
 void two();
 void one()
 {
-    printl("worked");
-    cli_hlt;
-    stop;
+    task::create2(two);
+
+    task::end();
 };
 
 void three();
 void two()
 {
-    task::create(three);
+    task::create2(three);
 
     task::end();
 };
 
 void three()
 {
-    task::create(one);
+    task::create2(one);
 
     task::end();
 };
@@ -51,7 +51,6 @@ int32_t main()
     sxlb_gdt_load();
     idt::load();
     time::install();
-    sti
 
     //finit
 #if VIDEO_MODE == 1
@@ -65,23 +64,15 @@ int32_t main()
     memory::init();
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
 #endif 
-    system::init();
-    /*hw::keyboard::init();
-    while (1)
-    {
-        ui::text::put_char(hw::keyboard::getc());
-       ui::video::update();
-    }*/
+    //time::set_frequenze(1);
+    //system::init();
 
-    task::create(one);
-    //task::create(root);
+    printl("Kernel loaded.");
+    task::create2(one);
 
     task::multitasking_set_enabled(true);
     TASK_SWITCH
-
-    //printf("e=%u", system::syscall(system::CALL::TEST, 67,64,64,67,69));
-
     ui::video::update();
-    while (1);
+    stop
     return 0;
 };

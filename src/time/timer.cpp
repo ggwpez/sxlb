@@ -26,7 +26,7 @@ uint32_t get_seconds()
 
 void event_handler(task::cpu_state_t* state)
 {
-	ticks++;
+    ticks++;
 };
 
 void set_frequenze(int32_t hz)
@@ -34,11 +34,11 @@ void set_frequenze(int32_t hz)
 	if (!hz)
 		hz++;	//div zero
 
-	int32_t divisor = 1193180 / hz;  /* Calculate our divisor */
+    int32_t divisor = 1193182 / hz;                 /* Calculate our divisor */
 
-    hw::asm_outb(0x43, 0x36);             /* Set our command byte 0x36 */
-    hw::asm_outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
-    hw::asm_outb(0x40, (divisor >> 8) & 0xff);     /* Set high byte of divisor */
+    hw::asm_outb(0x43, 0x36);                       /* Set our command byte 0x36 */
+    hw::asm_outb(0x40, divisor & 0xFF);             /* Set low byte of divisor */
+    hw::asm_outb(0x40, (divisor >> 8) & 0xff);      /* Set high byte of divisor */
 };
 
 void install_event_handler()

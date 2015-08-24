@@ -89,11 +89,7 @@ void asm_set_register_ctrl(uint8_t number, uint32_t value)
 
 
 int32_t asm_get_register_eax()
-{
-	int32_t out;
-	asm volatile("mov %%eax, %0": "=r"(out));
-	return out;
-};
+{ };    //eax returns itself
 
 int32_t asm_get_register_ebx()
 {

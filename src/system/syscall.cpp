@@ -19,7 +19,7 @@ namespace system
 
     dword_t test_ret(dword_t arg0, dword_t arg1, dword_t arg2, dword_t arg3, dword_t arg4)
     {
-        return 999;
+        return 654;
     }
 
     void syscall_event_handler(task::cpu_state_t* state)

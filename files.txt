@@ -7,6 +7,7 @@ src/ctor.cpp
 src/sprintf.cpp
 src/hw/hwaccess.cpp
 src/hw/keyboard.cpp
+src/idt/fault_handler.cpp
 src/idt/idt.cpp
 src/user/test.cpp
 src/system/syscall.cpp

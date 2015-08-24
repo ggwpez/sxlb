@@ -61,24 +61,24 @@ namespace task
     }
 
     #define PRIVILEG 3
-    task::task_t* init_task(task::task_t* task, void* entry, LPTR const kernel_stack, LPTR const user_stack)
+    task_t* init_task(task_t* task, void* entry, LPTR const kernel_stack, LPTR const user_stack)
 	{
         dword_t code_segment = 0x08, data_segment = 0x10;
 
         cli
-        task::cpu_state_t new_state;
-		new_state.eax = 0;
-		new_state.ebx = 0;
+        cpu_state_t new_state;
+        new_state.eax = 0;
+        new_state.ebx = 0;
 		new_state.ecx = 0;
 		new_state.edx = 0;
-		new_state.esi = 0;
+        new_state.esi = 0;
 		new_state.edi = 0;
 		new_state.ebp = 0;
 		
 		new_state.error = 0;
 		new_state.int_no = 0;
 
-		new_state.user_esp = user_stack +4096;
+        new_state.user_esp = user_stack +4096;
 		new_state.eip = entry;
 
         if (PRIVILEG == 3)
@@ -102,15 +102,15 @@ namespace task
         //new_state.return_address = task::end;
 
 
-        task::cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);    //you better dont forgett the -!
+        cpu_state_t* state = kernel_stack +4096 -sizeof(task::cpu_state_t);    //you better dont forgett the -!
 		*state = new_state;
 
         if (!task)
             return 0;
 
         task->pid = pid++;
-        task->kernel_stack_original = kernel_stack;
-        task->user_stack_original = user_stack;
+        task->kernel_stack = kernel_stack;
+        task->user_stack = user_stack;
         task->directory = clone_directory(kernel_directory, &task->dir_offset);
         //task->directory = kernel_directory;
         task->cpu_state = state;
@@ -121,7 +121,80 @@ namespace task
 
         sti
         return task;
-	};
+	};  
+
+    bool create2(uint32_t entry_point)
+    {
+        if (num_tasks >= capacity)
+        {
+            syshlt("no capacity");
+            return false;
+        }
+
+        task_t* task = memory::k_malloc(sizeof(task_t), 0, 0);
+        task->next = nullptr;
+        task->directory = clone_directory(kernel_directory, &task->dir_offset);
+
+        task->pid = pid++;
+        task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE, 0, 0) + KERNEL_STACK_SIZE;
+        uint32_t* kernel_stack = task->kernel_stack;
+
+        uint32_t code_segment=0x08, data_segment=0x10;
+        *(--kernel_stack) = 0x0;  // return address dummy
+
+        if(PRIVILEG == 3)
+        {
+            // general information: Intel 3A Chapter 5.12
+            *(--kernel_stack) = task->ss = 0x23;    // ss
+            *(--kernel_stack) = task->kernel_stack; // esp0
+            code_segment = 0x1B;                        // 0x18|0x3=0x1B
+        }
+
+        *(--kernel_stack) = 0x0202; // eflags = interrupts activated and iopl = 0
+        *(--kernel_stack) = code_segment; // cs
+        *(--kernel_stack) = entry_point; // eip
+        *(--kernel_stack) = 0; // error code
+
+        *(--kernel_stack) = 0; // interrupt nummer
+
+        // general purpose registers w/o esp
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+        *(--kernel_stack) = 0;
+
+        if(PRIVILEG == 3) data_segment = 0x23; // 0x20|0x3=0x23
+
+        *(--kernel_stack) = data_segment;
+        *(--kernel_stack) = data_segment;
+        *(--kernel_stack) = data_segment;
+        *(--kernel_stack) = data_segment;
+
+        tss.ss0 = 0x10;
+        tss.esp0 = task->kernel_stack;
+        tss.ss = data_segment;
+
+        task->esp = kernel_stack;
+        task->ebp = 0xdeadbeef; // test value
+        task->ss = data_segment;
+
+        if (!start_task)    //first task to be created
+        {
+            start_task = task;
+            actual_task = start_task;
+        }
+        else
+        {
+            task->next = actual_task->next;
+            actual_task->next = task;
+        }
+        //printl("task created");
+        num_tasks++;
+        return true;
+    };
 
     bool create(uint32_t entry_point)
     {
@@ -132,8 +205,8 @@ namespace task
         }
 
         LPTR task_mem = memory::k_malloc(sizeof(task_t) + USER_STACK_SIZE + KERNEL_STACK_SIZE, 0, nullptr);
-        LPTR kernel_stack   = task_mem     + sizeof(task_t);
-        LPTR user_stack     = kernel_stack + KERNEL_STACK_SIZE;
+        LPTR kernel_stack   = task_mem     + sizeof(task_t) + KERNEL_STACK_SIZE;
+        LPTR user_stack     = kernel_stack + USER_STACK_SIZE;
         if (!task_mem)
             return false;
 
@@ -204,13 +277,14 @@ namespace task
         return true;
     };
 
-    void tss_switch(uint32_t esp0, uint32_t esp, uint32_t ss)
+    void tss_switch(uint32_t esp, uint32_t esp0, uint32_t ebp, uint32_t cr3, uint32_t ss)
     {
         tss.esp0 = esp0;
-        tss.esp = esp;
-        tss.ss = ss;
+        tss.esp  = esp;
+        tss.cr3  = cr3;
+        tss.ebp  = ebp;
+        tss.ss   = ss;
     }
-
     bool activated = false;
     cpu_state_t* schedule(cpu_state_t* cpu)
     {
@@ -224,8 +298,8 @@ namespace task
             activated = true;
 
             if (!actual_task) syshlt("wat");
-            tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
-            switch_paging(actual_task->directory);
+            tss_switch(actual_task->esp, actual_task->kernel_stack +KERNEL_STACK_SIZE, actual_task->ebp, actual_task->directory->physical_address, actual_task->ss); // esp0, esp, ss
+            switch_paging(actual_task->directory->physical_address);
             return actual_task->cpu_state;
         }
 
@@ -240,8 +314,8 @@ namespace task
             actual_task = start_task;
 
         cpu = actual_task->cpu_state;
-        tss_switch(actual_task->kernel_stack_original, actual_task->esp, actual_task->ss); // esp0, esp, ss
-        switch_paging(actual_task->directory);
+        tss_switch(actual_task->esp, actual_task->kernel_stack +KERNEL_STACK_SIZE, actual_task->ebp, actual_task->directory->physical_address, actual_task->ss); // esp0, esp, ss
+        switch_paging(actual_task->directory->physical_address);
 
 		return cpu;
 	};

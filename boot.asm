@@ -15,7 +15,7 @@ org 0x7C00  ; set up start address of bootloader
 	mov es, ax
 	mov ax, 0x7000   ; stack address
 	mov ss, ax
-	xor sp, sp       ; set stackpointer to 0
+	xor sp, sp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; read kernel from floppy disk ;
@@ -38,7 +38,7 @@ load_kernel:
 
 	call read_kernel
 
-	jmp 0x8000   ; address of asm-kernel
+	jmp 0:0x8000   ; address of asm-kernel
 	ret
 
 read_kernel:

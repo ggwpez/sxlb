@@ -5,6 +5,8 @@
 #include "../ui/textmode.hpp"
 #include "../task/task.hpp"
 #include "../gdt.hpp"
+#include "../memory/memory.hpp"
+
 
 namespace idt
 {
@@ -27,6 +29,10 @@ namespace idt
 	int load();
 	/*Call in kernel shut down, to unload IDT (IRSs+IRQs). Not necessary*/
 	int unload();
+    /*Call to register a Hardware Interrupt Handler*/
+    void isr_register_event_handler(uchar_t index, void(*event_handler)(task::cpu_state_t* state));
+    /*Call to remove a Hardware Interrupt Handler*/
+    void isr_del_event_handler(uchar_t index);
 	/*Call to register a Software Interrupt Handler*/
     void irq_register_event_handler(uchar_t index, void(*event_handler)(task::cpu_state_t* state));
 	/*Call to remove a Software Interrupt Handler*/

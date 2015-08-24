@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "types.hpp"
 
 struct gdt_entry

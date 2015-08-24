@@ -2,18 +2,19 @@
 #include "memory.hpp"
 #include "../ui/textmode.hpp"
 
+#define FLAGS B(101)
 #define HEAP_INDEX_SIZE     0x20000
 #define HEAP_MIN_SIZE       0x70000
 #define PHYSICAL_MEMORY  0x20000000
 
 using namespace memory;
 
-heap kheap = *(heap*)0;
+heap    kheap = *(heap*)0;
 uint32_t   NFRAMES = (PHYSICAL_MEMORY / PAGE_SIZE);
 uint32_t*  frames; // pointer to the bitset (functions: set/clear/test)
 uint32_t   ind, offs;
 
-page_directory* kernel_directory, *current_directory;
+page_directory* kernel_directory,* current_directory;
 bool kheap_set = false;
 
 //page_directory* current_directory = 0;
@@ -101,8 +102,10 @@ uint32_t alloc_frame(page* page_, int is_kernel, int is_writeable) // allocate a
 		set_frame(index*PAGE_SIZE);
 
 		page_->swapped_in = 1;
-		page_->access_right = (is_writeable == 1) ? 1 : 0;
-		page_->access_ring = (is_kernel == 1) ? 0 : 1;
+        page_->access_right = 1;
+        page_->access_ring = 1;
+        //page_->access_right = (is_writeable == 1) ? 1 : 0;
+        //page_->access_ring = (is_kernel == 1) ? 0 : 1;
 		page_->frame_address = index;
 		return index;
 	}
@@ -139,7 +142,7 @@ page* set_page(uint32_t address, page_directory* dir)
 		uint32_t phys;
         dir->tables[table_index] = (page_table*)k_malloc_no_heap(sizeof(page_table), 1, &phys);
         memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
-		dir->tables_physical[table_index] = phys | 0x7; // 111b meaning: PRESENT=1, RW=1, USER=1
+        dir->tables_physical[table_index] = phys | FLAGS; // 111b meaning: PRESENT=1, RW=1, USER=1
 	}
 	return &dir->tables[table_index]->pages[address % 1024];
 };
@@ -184,10 +187,10 @@ void paging_install()
         page* page = set_page(i, kernel_directory);
 		if (((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
 		{
-			index = alloc_frame(page, 0, 1); // exclude VRAM
+            index = alloc_frame(page, 0, 1); // exclude VRAM
 		}
 		else
-			index = alloc_frame(page, 1, 0);
+            index = alloc_frame(page, 1, 0);
 		i += PAGE_SIZE; ++counter;
 	}
 
@@ -235,7 +238,7 @@ page* get_page(uint32_t address, uchar_t make, page_directory* dir)
 		uint32_t phys;
         dir->tables[table_index] = (page_table*)k_malloc_no_heap(sizeof(page_table), 1, &phys);
         memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
-		dir->tables_physical[table_index] = phys | 0x7; // 111b meaning: PRESENT=1, RW=1, USER=1
+        dir->tables_physical[table_index] = phys | FLAGS; // 111b meaning: PRESENT=1, RW=1, USER=1
 		return &dir->tables[table_index]->pages[address % 1024];
 	}
 	else
@@ -296,11 +299,11 @@ page_table* clone_table(page_table* source, uint32_t* physAddr)
 
         alloc_frame(&ret->pages[i], 0, 0);
 
-        if (source->pages[i].swapped_in)    ret->pages[i].swapped_in = 1;
-        if (source->pages[i].access_right)  ret->pages[i].access_right = 1;
-        if (source->pages[i].access_ring)   ret->pages[i].access_ring = 1;
-        if (source->pages[i].accessed)      ret->pages[i].accessed = 1;
-        if (source->pages[i].dirty)         ret->pages[i].dirty = 1;
+        ret->pages[i].swapped_in = source->pages[i].swapped_in;
+        ret->pages[i].access_right = source->pages[i].access_right;
+        ret->pages[i].access_ring = source->pages[i].access_ring;
+        ret->pages[i].accessed = source->pages[i].accessed;
+        ret->pages[i].dirty = source->pages[i].dirty;
 
         copy_page_physical(source->pages[i].frame_address*0x1000, ret->pages[i].frame_address*0x1000);
     };
@@ -335,7 +338,7 @@ page_directory* clone_directory(page_directory* src, uint32_t* dir_offset)
         {
             uint32_t phys;
             dir->tables[i] = clone_table(src->tables[i], &phys);
-            dir->tables_physical[i] = phys | 0x07;
+            dir->tables_physical[i] = phys | FLAGS;
         }
     }
 

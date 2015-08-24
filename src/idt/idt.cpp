@@ -1,5 +1,5 @@
 #include "idt.hpp"
-#include "../memory/memory.hpp"
+#include "fault_handler.hpp"
 
 using namespace hw;
 namespace idt
@@ -17,6 +17,7 @@ namespace idt
 	};
 
     void*  irq_functions[128] = { 0 };
+    void*  isr_functions[ 32] = { 0 };
     idt_entry idt[256];	//always 256 needed
     idt_ptr idt_r;		//Interrupt register
     tss_entry tss;
@@ -24,15 +25,17 @@ namespace idt
 	//If a exception_messages exists, it will be printed out.
     void isr_handler(task::cpu_state_t* state)
 	{
-		if (state->int_no < 32)	//ensure that the fired ISR is valid
-        {
-            if (state->int_no == 13 && state->error == 0)       //gpf && nullptr_access
-                state->int_no = 23;                             //set to "Nullptr Exception"
+        void(*handler)(task::cpu_state_t* state) = isr_functions[state->int_no];
 
-            char buffer[60];
-            sprintf_s(buffer, 60, "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
-            syshlt(buffer);	//halts the system
-        }
+        if (handler)
+            return handler(state);
+
+        if (state->int_no == 13 && state->error == 0)       //gpf && nullptr_access
+            state->int_no = 23;                             //set to "Nullptr Exception"
+
+        char buffer[60];
+        sprintf_s(buffer, 60, "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
+        syshlt(buffer);	//halts the system
 	};
 
     task::cpu_state_t* irq_handler(task::cpu_state_t* state)
@@ -40,22 +43,14 @@ namespace idt
         task::cpu_state_t* state_new = state;
 
         if (state->int_no == 32 && task::multitasking_set_enabled)
-        {
             state_new = task::schedule(state);
-        }
-        //thats a delegate with one argument (task::cpu_state_t*)
-        void(*handler)(task::cpu_state_t* state);
 
-        //Look if functionhandler for this IRQ exists
-        handler = irq_functions[state->int_no - 32];
+        void(*handler)(task::cpu_state_t* state) = irq_functions[state->int_no - 32];
+
         if (handler)
-            { handler(state); }	//### <- dont comment this
-        else
-            printf("handler empty for: %u", state->int_no);
-        //If the IRQ was raised by the SLAVE PIC, send EOI to SLAVE controllers
-        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }
+            { handler(state); }
 
-        //In both cases the MASTER PIC needs a EOI, otherwise no IRQ anymore
+        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }      //send all ok too master and slave PIC
         asm_outb(0x20, 0x20);
 
         return state_new;
@@ -78,6 +73,8 @@ namespace idt
 		flush();
 		irq_install();
 		asm volatile("lidt %0" : "=m" (idt_r));
+
+        isr_register_event_handler(14, page_fault_handler);
 		return 1;
 	};
 
@@ -178,8 +175,28 @@ namespace idt
 		idt[index].base_hi = (base >> 16) & 0xffff;
 		idt[index].selector = selector;
         idt[index].zero = 0;
-        idt[index].flags =  flags; //| 0x60;
+        idt[index].flags =  flags;// | 0x60;
 	};
+
+    void isr_register_event_handler(uchar_t event_number, void(*event_handler)(task::cpu_state_t* state))
+    {
+#if __CHECKS_NLPTR
+        if (!event_handler)
+            syshlt("IDT event register!");
+#endif
+        if (event_number > 31)
+            return;
+
+        isr_functions[event_number] = event_handler;
+    };
+
+    void isr_del_event_handler(uchar_t event_number)
+    {
+        if (event_number > 31)
+            return;
+
+        isr_functions[event_number] = NULL;
+    };
 
     void irq_register_event_handler(uchar_t event_number, void(*event_handler)(task::cpu_state_t* state))
 	{
@@ -187,7 +204,7 @@ namespace idt
 		if (!event_handler)
 			syshlt("IDT event register!");
 #endif
-        if (event_number > 128)
+        if (event_number > 127)
             return;
 
 		irq_functions[event_number] = event_handler;
@@ -195,6 +212,9 @@ namespace idt
 
 	void irq_del_event_handler(uchar_t event_number)
 	{
+        if (event_number > 127)
+            return;
+
 		irq_functions[event_number] = NULL;
 	};
 }

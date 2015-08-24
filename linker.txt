@@ -10,6 +10,7 @@ font.o
 sprintf.o
 hwaccess.o
 keyboard.o
+fault_handler.o
 idt.o
 test.o
 syscall.o
