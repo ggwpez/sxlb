@@ -1,5 +1,5 @@
 OUTPUT_FORMAT("binary")
-ENTRY(RealMode)
+ENTRY(protected_mode)
 SECTIONS
 {
   .text 0x8000 : { *(.text) }

@@ -1,4 +1,5 @@
 [BITS 32]
+SECTION .text
 extern _ir_event_handler
 
 ; ISR

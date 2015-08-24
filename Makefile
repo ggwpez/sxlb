@@ -1,15 +1,18 @@
-ASMSOURCES := kernel.asm cpu.asm flush.asm idtList.asm
-SOURCES := $(shell find $(src) -name '*.cpp') $(ASMSOURCES)
+SRCDIR := src/
+
+ASMSOURCES := kernel.asm $(filter-out boot.asm kernel.asm ,$(wildcard *.asm))
+CPPSOURCES := $(shell find $(SRCDIR) -name '*.cpp')
+SOURCES := $(ASMSOURCES) $(CPPSOURCES)
 OBJECTS := $(addsuffix .o,$(basename $(SOURCES)))
 
 ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
 NASM := nasm
 
-CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles
+CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T kernel.ld
 
-all: boot.bin ckernel.bin image	
+all: boot.bin ckernel.bin binary	
 
 boot.bin: boot.asm
 	$(NASM) $(ASFLAGSBIN) $< -o $@
@@ -22,13 +25,9 @@ ckernel.bin: $(OBJECTS)
 
 process.asm: initrd.img	
 	
-image:
+binary:
 	cat boot.bin ckernel.bin > OS.bin
 
 clean:
 	find . -name '*.o' -delete
 	find . -name '*.bin' -delete
-
-#    $<		Erste Abhängigkeit
-#    $+		Liste aller Abhängigkeiten	
-#    $@		Name des Targets

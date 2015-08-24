@@ -38,8 +38,18 @@ load_kernel:
 
 	call read_kernel
 
-	jmp 0:0x8000   ; address of asm-kernel
+	jmp pm   ; address of asm-kernel
 	ret
+
+pm:
+	cli
+	lgdt [gdtr]         	;load gdt.inc into gdt-register
+
+	mov eax, cr0
+	or  eax, 1
+	mov cr0, eax		;set pm bit in CR0
+
+	jmp dword 0x08:0x8000 ;http://www.nasm.us/doc/nasmdo10.hpptml#section-10.1
 
 read_kernel:
 
@@ -92,6 +102,7 @@ read_kernel:
 	jmp .end
 
 	bootdrive db 0    ; boot drive
+	%include "gdt.inc"      	;append gdt
 
 	times 510-($-$$) hlt
 	db 0x55

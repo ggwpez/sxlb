@@ -60,7 +60,7 @@ namespace task
         printf("gs: %x\n", tssEntry->gs);
     }
 
-    #define PRIVILEG 3
+    #define PRIVILEG 0
     task_t* init_task(task_t* task, void* entry, LPTR const kernel_stack, LPTR const user_stack)
 	{
         dword_t code_segment = 0x08, data_segment = 0x10;

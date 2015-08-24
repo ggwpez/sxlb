@@ -1,5 +1,5 @@
 [BITS 32]
-
+SECTION .text
 [global _CPU_CPUID_supported]
 [global _CPU_CPUID_request_00000000h]
 [global _CPU_CPUID_request_00000001h]
