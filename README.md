@@ -1,6 +1,6 @@
 # sxlb
 
-Using this is very easy (on GNU/Linux), you only need the Assembler NASM, the Emulator Bochs and the GNU/g++ Compiler.
+Using this is very easy (on GNU/Linux), you only need the Assembler NASM, the Emulator Bochs and the GNU/g++ Compiler with GNU make.
 
 Qemu as Emulator maybe works too, but I will explain it here for Bochs.
 
@@ -18,6 +18,9 @@ Use these commands only, if you are an advanced user and know what they do.
 
 Open the direcory with: `cd sxlb`
 
+###g++
+`sudo apt-get install g++`
+
 ###NASM
 `sudo apt-get install nasm`
 
@@ -25,11 +28,8 @@ Open the direcory with: `cd sxlb`
 `sudo apt-get install bochs`
 
 ##Testing
-Make it with:
-`sh make`
+Compile it and start bochs with:
+`make start`
 
-And start it with:
-`bochs`
-
-And if you want both at once:
-`sh start`
+Cleanup is done with:
+`make clean`
