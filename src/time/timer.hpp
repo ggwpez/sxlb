@@ -2,7 +2,7 @@
 
 #include "../idt/idt.hpp"
 #include "../ui/textmode.hpp"
-#include "../hw/hwaccess.hpp"
+#include "../io/hwaccess.hpp"
 #include "../ui/video.hpp"
 
 namespace time

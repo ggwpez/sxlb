@@ -2,7 +2,7 @@
 
 #include "../types.hpp"
 #include "../ui/textmode.hpp"
-#include "../hw/hwaccess.hpp"
+#include "../io/hwaccess.hpp"
 
 #define sti __asm__ __volatile__("sti");
 #define cli __asm__ __volatile__("cli");
@@ -29,5 +29,7 @@ namespace system
     /*Call to get information about the CPU*/
     void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer);
     /*Returns the address, where the kernel ends.*/
-    uint32_t sxlb_system_kernel_end_address();
+
+    uint32_t kernel_start_address();
+    uint32_t kernel_end_address();
 }

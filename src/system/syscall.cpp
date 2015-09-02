@@ -4,9 +4,8 @@ namespace system
 {
     void init()
     {
-        idt::irq_register_event_handler(5, syscall_event_handler);
+        idt::isr_register_event_handler(127, syscall_event_handler);
     };
-
     void dump(task::cpu_state_t* state)
     {
         printfl("eax=%u \n\
@@ -19,15 +18,16 @@ namespace system
 
     dword_t test_ret(dword_t arg0, dword_t arg1, dword_t arg2, dword_t arg3, dword_t arg4)
     {
+        print("worked");
         return 654;
     }
 
-    void syscall_event_handler(task::cpu_state_t* state)
+    bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg)
     {
-        if (state->eax >= CALL_NUM_MAX)
+        if (state->eax > (dword_t)CALL::CALL_ENTRYS)
         {
-            printf("out of bounds, eax=%i ", state->eax);
-            return;
+            sprintf_s(kill_msg, 64, "Invalid SYSCALL number: '%u'", state->eax);
+            return true;
         }
 
         void* address = calls[state->eax];
@@ -44,5 +44,7 @@ namespace system
         //TODO: use fastcall
         state->eax = ret;       /*dont return the value, you must write it in the state of the task, otherwiese the old
                                  *eax value would be poped in _irp_tail and would end up without return value.*/
+
+        return false;           //tell the idt that this interrupt is not deadly for a task
     }
 }

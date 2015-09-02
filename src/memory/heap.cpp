@@ -162,7 +162,6 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 			install_footer(new_footer, found_header);
 			found_header->footer_address = new_footer;
             found_header->is_hole = false;
-            printl("delete #1");
             list.remove_by_address(found_header);
 
 			return (void*)((uint32_t)found_header +sizeof(heap_header));
@@ -191,7 +190,6 @@ void* heap::malloc(uint32_t size, bool page_aligned)
         //### maybe check if the heap must be expanded? - nope, will be handled on the next allocation
 		uint32_t ret = (uint32_t)found->header + sizeof(heap_header);	//save it
 
-        printl("delete #6");
         list.remove_by_address(found);
 		list.best_case_order();
 
@@ -215,7 +213,6 @@ void* heap::malloc(uint32_t size, bool page_aligned)
 
 		if (d_size <= OVERHEAD)
 		{
-            printl("delete #7");
             list.remove_by_address(found);	//the new block is to small to hold user data, have to let it free
 			list.best_case_order();
             //printfl("Im not willed to waste memory!");
@@ -301,6 +298,7 @@ bool heap::expand(uint32_t to)
     }
 #endif
 
+    printf("expanded");
     uint32_t mapped = map_heap(this->end_address, to);
     if (mapped != 0)                                    //could not be mapped, to less memory
     {
@@ -357,9 +355,7 @@ uint32_t heap::free(void* ptr)
 			//but its not the only one, because then we would delete the heap!
 			if (found_before != this->start_address)
 			{
-                printl("delete #2");
                 list.remove_by_address(found_before);
-                printl("delete #3");
                 list.remove_by_address(found_after);
 				header->is_hole = false;
 
@@ -369,7 +365,6 @@ uint32_t heap::free(void* ptr)
 			}
 			else	//instead of deleting, we contract him back to min_address
 			{
-                printl("delete #4");
                 list.remove_by_address(found_after);
 
 				contract(this->min_address);
@@ -407,7 +402,6 @@ uint32_t heap::free(void* ptr)
 		found_info->size = found_after->footer_address - (uint32_t)found_before - sizeof(heap_header);
 		found_info->header = found_before;
 		list.best_case_order();
-        printl("delete #5");
         list.remove_by_address(found_after);
 		
 		return tmp_size;

@@ -4,8 +4,8 @@ namespace time
 {
 void install()
 {
-    set_frequenze(100);
 	install_event_handler();
+    set_frequenze(100);
 };
 
 void uninstall()
@@ -36,9 +36,9 @@ void set_frequenze(int32_t hz)
 
     int32_t divisor = 1193182 / hz;                 /* Calculate our divisor */
 
-    hw::asm_outb(0x43, 0x36);                       /* Set our command byte 0x36 */
-    hw::asm_outb(0x40, divisor & 0xFF);             /* Set low byte of divisor */
-    hw::asm_outb(0x40, (divisor >> 8) & 0xff);      /* Set high byte of divisor */
+    io::asm_outb(0x43, 0x36);                       /* Set our command byte 0x36 */
+    io::asm_outb(0x40, divisor & 0xFF);             /* Set low byte of divisor */
+    io::asm_outb(0x40, (divisor >> 8) & 0xff);      /* Set high byte of divisor */
 };
 
 void install_event_handler()

@@ -59,7 +59,7 @@ namespace memory
 
             if (tmp)
             {
-                printfl("Freed(1): %M", tmp);
+                //printfl("Freed(1): %M", tmp);
                 return tmp;
             }
             else
@@ -95,10 +95,10 @@ namespace memory
                 page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
-            if (ret)
+            /*if (ret)
                 printfl("Allocated heap %M", size);
             else
-                printl("Allocation failed");
+                printl("Allocation failed");*/
 
             m_locked = false;
             return ret;

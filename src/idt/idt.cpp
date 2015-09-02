@@ -1,15 +1,15 @@
 #include "idt.hpp"
 #include "fault_handler.hpp"
 
-using namespace hw;
+using namespace io;
 namespace idt
 {
 	const uchar_t* idt_isr_messages[32] =
 	{
-		"Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint",
-		"Into Detected Overflow", "Out of Bounds", "Invalid Opcode", "No Coprocessor",
-		"Double Fault", "Coprocessor Segment Overrun", "Bad TSS", "Segment Not Present",
-		"Stack Fault", "General Protection Fault - check your privileg", "Page Fault", "Unknown Interrupt",
+        "Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint",
+        "Into Detected Overflow", "Out of Bounds", "Invalid Opcode", "No Coprocessor",
+        "Double Fault", "Coprocessor Segment Overrun", "Bad TSS", "Segment Not Present",
+        "Stack Fault", "General Protection Fault", "Page Fault", "Unknown Interrupt",
         "Coprocessor Fault", "Alignment Check", "Machine Check", "SIMD FPU Fault",
         "Virtualization Fault", "Reserved", "Security Fault", "Nullptr Exception",
         "Triple Fault", "Reserved", "Reserved", "Reserved",
@@ -17,33 +17,65 @@ namespace idt
 	};
 
     void*  irq_functions[128] = { 0 };
-    void*  isr_functions[ 32] = { 0 };
+    void*  isr_functions[128] = { 0 };
     idt_entry idt[256];	//always 256 needed
     idt_ptr idt_r;		//Interrupt register
     tss_entry tss;
 
-	//If a exception_messages exists, it will be printed out.
     void isr_handler(task::cpu_state_t* state)
 	{
-        void(*handler)(task::cpu_state_t* state) = isr_functions[state->int_no];
+        bool(*handler)(task::cpu_state_t* state, char* kill_msg) = isr_functions[state->int_no];
 
+        char buffer[64];
         if (handler)
-            return handler(state);
+        {
+            if (handler(state, buffer))     //handler says kill, so it dies
+            {
+                if (task::multitasking_get() && task::get_rpl() == 0)
+                {
+                    sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, buffer);
+                    syshlt(buffer);	//halts the system
+                }
+                else
+                {
+                    printfl("Task '%u' killed for '%s'.", task::get_pid(), buffer);
+                    task::end();
+                }
+            }
+        }
+        else
+        {
+            if (task::multitasking_get() && task::get_rpl() == 0)
+            {
+                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
+                syshlt(buffer);	//halts the system
+            }
+            else
+            {
+                printfl("Task '%u' killed for '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
+                task::end();                    //no handler, and it dies too
+            }
+        }
 
-        if (state->int_no == 13 && state->error == 0)       //gpf && nullptr_access
-            state->int_no = 23;                             //set to "Nullptr Exception"
-
-        char buffer[60];
-        sprintf_s(buffer, 60, "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
-        syshlt(buffer);	//halts the system
-	};
+        /*if (handler)
+        {
+            handler(state);
+        }
+        else
+        {
+            sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, "idt_isr_messages[state->int_no]");
+            syshlt(buffer);	//halts the system
+        }*/
+    };
 
     task::cpu_state_t* irq_handler(task::cpu_state_t* state)
     {
         task::cpu_state_t* state_new = state;
 
-        if (state->int_no == 32 && task::multitasking_set_enabled)
+        if (state->int_no == 32 && task::multitasking_get())
+        {
             state_new = task::schedule(state);
+        }
 
         void(*handler)(task::cpu_state_t* state) = irq_functions[state->int_no - 32];
 
@@ -59,7 +91,7 @@ namespace idt
     //Decides if its an ISR or IRQ
     extern "C" struct task::cpu_state_t* ir_event_handler(struct task::cpu_state_t* state)
     {
-        if (state->int_no >= 32)
+        if (state->int_no >= 32 && state->int_no < 48)
             return irq_handler(state);
 
         isr_handler(state);
@@ -148,6 +180,8 @@ namespace idt
 		entry_set_data(30, (uint32_t)isr30, 0x08, 0x8E);
 		entry_set_data(31, (uint32_t)isr31, 0x08, 0x8E);
 
+        entry_set_data(127,(uint32_t)isr127,0x08, 0x8E);    //hopefully syscalls
+
 		irq_remap();
 
 		entry_set_data(32, (uint32_t)irq0, 0x08, 0x8E);
@@ -175,16 +209,16 @@ namespace idt
 		idt[index].base_hi = (base >> 16) & 0xffff;
 		idt[index].selector = selector;
         idt[index].zero = 0;
-        idt[index].flags =  flags;// | 0x60;
+        idt[index].flags =  flags | 0x60;
 	};
 
-    void isr_register_event_handler(uchar_t event_number, void(*event_handler)(task::cpu_state_t* state))
+    void isr_register_event_handler(uchar_t event_number, bool(*event_handler)(task::cpu_state_t* state, char* kill_msg))
     {
 #if __CHECKS_NLPTR
         if (!event_handler)
             syshlt("IDT event register!");
 #endif
-        if (event_number > 31)
+        if (event_number > 127)
             return;
 
         isr_functions[event_number] = event_handler;
@@ -192,7 +226,7 @@ namespace idt
 
     void isr_del_event_handler(uchar_t event_number)
     {
-        if (event_number > 31)
+        if (event_number > 127)
             return;
 
         isr_functions[event_number] = NULL;

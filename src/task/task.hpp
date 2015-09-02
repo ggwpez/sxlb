@@ -43,20 +43,21 @@ namespace task
     unsigned int eip, cs, eflags, useresp, ss;*/
 
 	//cc
-	void multitasking_set_enabled(bool value);
+    void multitasking_set(bool value);
+    bool multitasking_get();
 	void init();
 
     void dump_tss(tss_entry* tssEntry);
     extern "C" { extern struct tss_entry tss; }
 
-    bool            create(uint32_t entry_point);
-    bool            create2(uint32_t entry_point);
+    bool            create(uint32_t entry_point, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
     void            end() __attribute__((noreturn));
     bool            kill(uint32_t pid);
     bool            kill_at(task_t* target);
 
     uint32_t        get_pid();
+    uint32_t        get_rpl();
     task_t*         get_task();
     uint32_t        get_task_count();
 
@@ -64,14 +65,15 @@ namespace task
     #define KERNEL_STACK_SIZE 4096
 	struct task_t
 	{
-        uint8_t to_dispose = false;
+        uint8_t running;
 		uint32_t pid;
-        uint32_t esp, ebp, ss;
+        uint32_t ebp, eip, ss;
         LPTR user_stack;
         LPTR kernel_stack;
         page_directory* directory;
         uint32_t dir_offset;
         cpu_state_t* cpu_state;
+        uchar_t rpl;
 
         task_t* next;
         ~task_t();

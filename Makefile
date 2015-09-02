@@ -9,7 +9,7 @@ ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
 NASM := nasm
 
-CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nodefaultlibs -nostartfiles -w
+CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T kernel.ld
 
 all: boot.bin ckernel.bin binary	
@@ -30,6 +30,8 @@ process.asm: initrd.img
 	
 binary:
 	cat boot.bin ckernel.bin > OS.bin
+map: LDFLAGS += -map kernel.map
+map: all	
 
 clean:
 	find . -name '*.o' -delete

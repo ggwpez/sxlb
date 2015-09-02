@@ -211,7 +211,7 @@ bool ordered_array::remove_by_address(heap_header_info* address)
 
 bool ordered_array::add(heap_header_info value)
 {
-    printfl("added. s: %u, c: %u", value.size, this->size);
+   // printfl("added. s: %u, c: %u", value.size, this->size);
     if (this->size >= this->capacity)
         syshlt("HEAP-Table out of memory!");
 

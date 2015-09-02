@@ -2,10 +2,8 @@
 #include "memory.hpp"
 #include "../ui/textmode.hpp"
 
-#define FLAGS B(101)
-#define HEAP_INDEX_SIZE     0x20000
-#define HEAP_MIN_SIZE       0x70000
-#define PHYSICAL_MEMORY  0x20000000
+#define FLAGS B(111)
+#define PHYSICAL_MEMORY  0x80000000
 
 using namespace memory;
 
@@ -102,10 +100,10 @@ uint32_t alloc_frame(page* page_, int is_kernel, int is_writeable) // allocate a
 		set_frame(index*PAGE_SIZE);
 
 		page_->swapped_in = 1;
-        page_->access_right = 1;
-        page_->access_ring = 1;
-        //page_->access_right = (is_writeable == 1) ? 1 : 0;
-        //page_->access_ring = (is_kernel == 1) ? 0 : 1;
+        //page_->access_right = RW;
+        //page_->access_ring = SV;
+        page_->access_right = (is_writeable == 1) ? 1 : 0;
+        page_->access_ring = (is_kernel == 1) ? 0 : 1;
 		page_->frame_address = index;
 		return index;
 	}
@@ -127,32 +125,12 @@ internal void bitset_install()
     memory::memset(frames, 0, NFRAMES / 32);
 };
 
-page* set_page(uint32_t address, page_directory* dir)
-{
-	//ULONG tmp = address;
-	address >>= 12; // /= PAGESIZE        // index <== address
-	uint32_t table_index = (address >> 10);  // ==> page table containing this address
-
-	//TODO: check it against Intel Manual 3A !!!
-    if ((((uint32_t)(dir->tables_physical[table_index])) & 0x1)
-        && (dir->tables[table_index]))
-    {}
-	else
-	{
-		uint32_t phys;
-        dir->tables[table_index] = (page_table*)k_malloc_no_heap(sizeof(page_table), 1, &phys);
-        memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
-        dir->tables_physical[table_index] = phys | FLAGS; // 111b meaning: PRESENT=1, RW=1, USER=1
-	}
-	return &dir->tables[table_index]->pages[address % 1024];
-};
-
 uint32_t map_heap(uint32_t start, uint32_t end)
 {
 	uint32_t i = 0;
-	for (i = start; i < end; i += PAGE_SIZE)
-        alloc_frame(set_page(i, kernel_directory), 0, 0);
-        //if (alloc_frame(set_page(i, kernel_directory), 0, 0) == 0)
+    for (i = start; i < end; i += PAGE_SIZE)
+        alloc_frame(get_page(i, 1, kernel_directory), US, RW);
+        //if (alloc_frame(set_page(i, kernel_directory), SV, RW) == 0)
           //  return i;
 
     return 0;
@@ -162,7 +140,7 @@ void unmap_heap(uint32_t start, uint32_t end)
 {
 	uint32_t i = 0;
 	for (i = start; i < end; i -= PAGE_SIZE)
-		free_frame(get_page(i,0, kernel_directory));
+        free_frame(get_page(i, 0, kernel_directory));
 };
 
 void heap_install()
@@ -176,23 +154,35 @@ void paging_install()
 	bitset_install();
 
 	// make a page directory
-	uint32_t phys;
-    kernel_directory = (page_directory*)k_malloc_no_heap(sizeof(page_directory), 1, &phys);
+    kernel_directory = (page_directory*)k_malloc_no_heap(sizeof(page_directory), 1, nullptr);
     memory::memset(kernel_directory, 0, sizeof(page_directory));
-	kernel_directory->physical_address = phys;    
+    kernel_directory->physical_address = kernel_directory->tables_physical;
 
-	uint32_t counter = 0, i = 0, index = 0;
+    uint32_t counter = 0, i = 0, index = 0;
+
+    for( i=KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i+=0x1000 )
+            get_page(i, 1, kernel_directory);
+
+    i = 0;
 	while (i < (placement_address + 0x10000))
 	{
-        page* page = set_page(i, kernel_directory);
 		if (((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
 		{
-            index = alloc_frame(page, 0, 1); // exclude VRAM
+            index = alloc_frame(get_page(i, 1,kernel_directory), US, RW); // exclude VRAM
 		}
 		else
-            index = alloc_frame(page, 1, 0);
+            index = alloc_frame(get_page(i, 1,kernel_directory), SV, RO);
 		i += PAGE_SIZE; ++counter;
 	}
+
+    uint32_t user_space_start = 0x400000;
+    uint32_t user_space_end   = 0x500000;
+    i=user_space_start;
+    while( i < user_space_end )
+    {
+        alloc_frame( get_page(i, 1, kernel_directory), US, RO); // user and read-only
+        i += PAGE_SIZE;
+    }
 
     map_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE);
     current_directory = clone_directory(kernel_directory, nullptr);
@@ -204,10 +194,8 @@ void paging_install()
 
 void enable_paging(page_directory* dir)
 {
-    current_directory = dir;
-
     // cr3: PDBR (Page Directory Base Register)
-    asm volatile("mov %0, %%cr3":: "r"(current_directory->physical_address));    //set page directory base pointer
+    asm volatile("mov %0, %%cr3":: "r"(dir->physical_address));    //set page directory base pointer
     // read cr0, set paging bit, write cr0 back
     uint32_t cr0;
     asm volatile("mov %%cr0, %0": "=r"(cr0));   // read cr0
@@ -226,10 +214,10 @@ void switch_paging(page_directory* dir)
 
 page* get_page(uint32_t address, uchar_t make, page_directory* dir)
 {
-	address /= PAGE_SIZE;                // address ==> index.
-	uint32_t table_index = address / 1024; // ==> page table containing this address
+    address /= PAGE_SIZE;                   // address ==> index.
+    uint32_t table_index = address / 1024;  // ==> page table containing this address
 
-	if (dir->tables[table_index])       // table already assigned
+    if (dir->tables[table_index])           // table already assigned
 	{
 		return &dir->tables[table_index]->pages[address % 1024];
 	}
@@ -238,7 +226,7 @@ page* get_page(uint32_t address, uchar_t make, page_directory* dir)
 		uint32_t phys;
         dir->tables[table_index] = (page_table*)k_malloc_no_heap(sizeof(page_table), 1, &phys);
         memory::memset(dir->tables[table_index], 0, PAGE_SIZE);
-        dir->tables_physical[table_index] = phys | FLAGS; // 111b meaning: PRESENT=1, RW=1, USER=1
+        dir->tables_physical[table_index] = phys | FLAGS;       // 111b meaning: PRESENT=1, RW=1, USER=1
 		return &dir->tables[table_index]->pages[address % 1024];
 	}
 	else
@@ -247,7 +235,7 @@ page* get_page(uint32_t address, uchar_t make, page_directory* dir)
 
 uint32_t show_physical_address(uint32_t virtual_address)
 {
-    page* page = get_page(virtual_address, 0, kernel_directory);
+    page* page = get_page(virtual_address, 0, current_directory);
 	return((page->frame_address)*PAGE_SIZE + (virtual_address & 0xFFF));
 };
 
@@ -259,20 +247,22 @@ void analyze_physical_addresses()
 		for (j = i * 0x18000; j<i * 0x18000 + 0x18000; j += 0x1000)
 		{
 			if (show_physical_address(j) == 0)
-			{
-				k_old = k; k = 1;
-			}
-			else
+            {
+                k_old = k; k = 1;
+            }
+            else
 			{
 				if (show_physical_address(j) - j)
-				{
-					k_old = k; k = 2;
-				}
-				else
-				{
-					k_old = k; k = 3;
-				}
-			}
+                {
+                    k_old = k; k = 2;
+                }
+                else
+                {
+                    k_old = k; k = 3;
+                }
+            }
+            if(k!=k_old)
+                printf("%x %x\n", j, show_physical_address(j));
 		}
 	}
 };
@@ -280,13 +270,7 @@ void analyze_physical_addresses()
 page_table* clone_table(page_table* source, uint32_t* physAddr)
 {
     //### only testing without heap, because heap dosent support alinged allocations yet
-    uint32_t phys;
-
-    LPTR tmp = memory::k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
-    uint32_t offset = PAGE_SIZE - tmp%PAGE_SIZE;
-    LPTR addr = tmp + offset;
-
-    printfl("mod table: %i", addr % PAGE_SIZE);
+    LPTR addr = memory::k_malloc(sizeof(page_table), 0, physAddr);
 
     page_table* ret = (page_table*)addr;
 
@@ -318,11 +302,15 @@ page_directory* clone_directory(page_directory* src, uint32_t* dir_offset)
     off = PAGE_SIZE - tmp % PAGE_SIZE;
     page_directory* dir = (page_directory*)(tmp + off);
 
-    if (dir_offset)
+    memory::memcpy(dir, src, sizeof(page_directory));
+    dir->physical_address = src->physical_address;
+
+    /*if (dir_offset)
         *dir_offset = off;
 
+    uint32_t offset = (uint32_t)dir->tables_physical - (uint32_t)dir;
     memory::memset(dir, 0, sizeof(page_directory));
-    dir->physical_address = phys + off;
+    dir->physical_address = phys + off + offset;
 
     for (uint32_t i = 0; i < 1024; ++i)
     {
@@ -340,7 +328,7 @@ page_directory* clone_directory(page_directory* src, uint32_t* dir_offset)
             dir->tables[i] = clone_table(src->tables[i], &phys);
             dir->tables_physical[i] = phys | FLAGS;
         }
-    }
+    }*/
 
     return dir;
 };

@@ -8,12 +8,21 @@ extern _ir_event_handler
 %macro ISRs 1
     [global _isr%1]
     _isr%1:
+	cli
 	%if (%1!=8) && (%1<10 || %1>14)
 	    push 0
 	%endif
 	push %1
 	jmp ir_common_stub
 %endmacro
+
+[global  _isr127]
+_isr127:
+	cli
+	push 0
+	push 127
+	jmp ir_common_stub
+
 
 %assign routine_nr_s 0
 %rep ISR_C
@@ -27,6 +36,7 @@ extern _ir_event_handler
 %macro IRQs 1
     [global _irq%1]
     _irq%1:
+	cli
 	push 0
 	push %1+32
 	jmp ir_common_stub
@@ -60,9 +70,8 @@ ir_common_stub:
     mov gs, ax
 
     push esp
-    cld
     call _ir_event_handler
-
+[GLOBAL _ir_tail]
 _ir_tail:
     mov esp, eax	;get the new cpu_state_t* as return value from the C method
 
@@ -81,19 +90,7 @@ _ir_tail:
     add esp, 8
     iret		;iret also makes an sti
 
-[global _syscall]
-_syscall:
-	mov eax, [esp+4]
-	mov ebx, [esp+8]
-	mov ecx, [esp+12]
-	mov edx, [esp+16]
-	mov esi, [esp+20]
-	mov edi, [esp+24]
-
-	int 37		;interrupt for syscalls, maybe change the number
+[GLOBAL _nop]
+_nop:
+	nop
 	ret
-
-[global _nop]
-_nop:			;nop
-    nop
-    ret

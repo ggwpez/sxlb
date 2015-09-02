@@ -10,7 +10,6 @@ _CPU_CPUID_supported:
 
 	mov ecx, 1		;prepare 21. bit to be set
 	shl ecx, 21
-	
 	or eax, ecx		;set it
 	push eax		;move it to stack
 
@@ -27,7 +26,7 @@ _CPU_CPUID_request_00000000h:
 	mov ebp, esp	;"
 
 	xor eax, eax
-	 
+
 	cpuid			;perform the request
 
 	mov eax, dword [ebp+8]	;get string pointer

@@ -7,7 +7,6 @@
 #include "../gdt.hpp"
 #include "../memory/memory.hpp"
 
-
 namespace idt
 {
 	struct idt_entry		//IDT entry, 256 in all
@@ -30,7 +29,7 @@ namespace idt
 	/*Call in kernel shut down, to unload IDT (IRSs+IRQs). Not necessary*/
 	int unload();
     /*Call to register a Hardware Interrupt Handler*/
-    void isr_register_event_handler(uchar_t index, void(*event_handler)(task::cpu_state_t* state));
+    void isr_register_event_handler(uchar_t index, bool(*event_handler)(task::cpu_state_t *, char* kill_msg));
     /*Call to remove a Hardware Interrupt Handler*/
     void isr_del_event_handler(uchar_t index);
 	/*Call to register a Software Interrupt Handler*/
@@ -89,6 +88,7 @@ namespace idt
 		extern void isr29();
 		extern void isr30();
 		extern void isr31();
+        extern void isr127();
 
 		extern void irq0();
 		extern void irq1();

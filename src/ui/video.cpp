@@ -33,12 +33,12 @@ namespace2(ui, video)
 	{
 		if (v_sync_enabled)
 		{	//wait for vertical retrace
-            while ((hw::asm_inb(0x03da) & 0x08));
-            while (!(hw::asm_inb(0x03da) & 0x08));
+            while ((io::asm_inb(0x03da) & 0x08));
+            while (!(io::asm_inb(0x03da) & 0x08));
 		}
 
         memory::memcpy(vram, zbuffer, 64000);
-	};
+    }
 
 	/*Clears zBuffer*/
 	void clear_screen(uint16_t color)
@@ -51,11 +51,12 @@ namespace2(ui, video)
 
 		while (--size_tmp)
 			*(tmp_pointer++) = color;
-	};
+    }
 
-	void draw_pixel(uint16_t x, uint16_t y, ubyte_t color)
+    inline void draw_pixel(uint16_t x, uint16_t y, ubyte_t color)
 	{
-		*(zbuffer + x + (y << 8) + (y << 6)) = color;	//= x + y * 320
+        //*(zbuffer + x + (y << 8) + (y << 6)) = color;	//= x + y * 320
+        *(zbuffer + x + y * screen_width) = color;
 	};
 
 	void draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t heigth, ubyte_t color)
@@ -188,10 +189,10 @@ namespace2(ui, video)
 		uint8_t* mask = font->mask + c * 11;
 		//video::draw_rect_filled(x,y, font->H, font->W, bg_color); 	//whipe out the current letter
 
-		for (size_t l = 0; l < font->H; l++)
-			for (size_t w = font->H; w > 0; w--)
-				if (mask[l] & (1 << w))
-					draw_pixel((font->W - w) + x, y + l, color);
+        for (size_t h = 0; h < font->H; h++)
+            for (size_t w = font->W; w > 0; w--)
+                if (mask[h] & (1 << w))
+                    draw_pixel((font->W - w) + x, y + h, color);
 	};
 }
 }

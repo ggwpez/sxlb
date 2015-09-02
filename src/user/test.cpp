@@ -1,5 +1,5 @@
 #include "test.hpp"
-#include "../hw/keyboard.hpp"
+#include "../io/keyboard.hpp"
 #include "../ui/video.hpp"
 #include "../ui/textmode.hpp"
 #include "../system/syscall.hpp"
@@ -41,13 +41,13 @@ namespace user
 
         printl("over");
         memory::dump_info(nullptr);
-        if (hw::keyboard::getc());
+        if (io::keyboard::getc());
         ui::text::clear_screen();
 
         for (int i = 0; i < l; ++i)
             memory::k_free(ptr[i]);
 
-        if (hw::keyboard::getc());
+        if (io::keyboard::getc());
         ui::text::clear_screen();
         memory::dump_info(nullptr);
     }

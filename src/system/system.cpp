@@ -11,7 +11,7 @@ extern void CPU_CPUID_request_00000001h(char_t* flags_out);
 }
 extern uint32_t kernel_end;
 
-using namespace hw;
+using namespace io;
 namespace system
 {
 void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
@@ -25,7 +25,7 @@ void sxlb_system_halt(char_t* error_msg)	//__attribute__((noreturn))
     ui::text::set_fc_all(FC_LIGHTGRAY | FC_MOD_INTENSITY);
     ui::text::set_bc_all(BC_LIGHTBLUE);
 	ui::text::clear_screen();
-	ui::text::set_cursor(0,0);
+    ui::text::set_cursor(0, 0);
 
 	ui::text::writeline("  *****************");
 	ui::text::writeline("  *  FATAL ERROR  *");
@@ -58,7 +58,7 @@ void sxlb_system_dumb()
     printf("   ecx: %u", asm_get_register_ecx()); printfl("\tesp: %u", asm_get_register_esp());
     printf("   edx: %u", asm_get_register_edx()); printfl("\tebp: %u", asm_get_register_ebp());
     printfl("\teip: %u", asm_get_register_eip());
-	ui::text::new_line();
+    ui::text::new_line();
     printfl("   cr0: %u", asm_get_register_ctrl(0));
     printfl("   cr1: <reserved>");                      //not accessable
     printfl("   cr2: %u", asm_get_register_ctrl(2));	//faulting address in cr2
@@ -129,7 +129,17 @@ void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer)
 	}
 };
 
-uint32_t sxlb_system_kernel_end_address()
+extern "C"
+{
+    extern void kernel_start();
+}
+
+uint32_t kernel_start_address()
+{
+    return &kernel_start;
+};
+
+uint32_t kernel_end_address()
 {
 	return &kernel_end;
 };

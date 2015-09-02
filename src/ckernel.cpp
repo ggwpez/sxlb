@@ -1,4 +1,5 @@
 #include "ui/textmode.hpp"
+#include "ui/window.hpp"
 #include "ui/video.hpp"
 #include "idt/idt.hpp"
 #include "types.hpp"
@@ -9,70 +10,95 @@
 #include "memory/memory.hpp"
 #include "sprintf.hpp"
 #include "font.hpp"
-#include "hw/keyboard.hpp"
+#include "io/keyboard.hpp"
 #include "user/test.hpp"
 #include "system/syscall.hpp"
+#include "user/console.hpp"
 
 #define VIDEO_MODE 0
 
-volatile uint32_t v;
 void two();
 void one()
 {
-    task::create2(two);
+    console user_term;
+    user_term.main();
 
-    task::end();
-};
+    EXIT
+}
 
 void three();
 void two()
 {
-    task::create2(three);
+    int i = 0;
+    while(i++ < 10000)
+        SYSCALL1(system::CALL::PUTC, 'a');
 
-    task::end();
-};
+    EXIT
+}
 
 void three()
 {
-    task::create2(one);
+    int i = 0;
+    while(i++ < 10000)
+    {
+        SYSCALL0(system::CALL::NOP);
+    }
 
-    task::end();
-};
-
-void root()
-{
-    memory::dump_info(nullptr);
-
-    stop
+    EXIT
 }
 
+bool brk_handler(task::cpu_state_t* state, char* kill_msg)
+{
+
+}
+
+bool running = true;
+void idle();
+void shut_down();
 int32_t main()
 {
     sxlb_gdt_load();
     idt::load();
-    time::install();
-
-    //finit
-#if VIDEO_MODE == 1
     memory::init();
+    system::init();
+    time::install();  
+    sti
 
+#if VIDEO_MODE == 1
     LPTR zBuffer = memory::k_malloc(64000, 0, nullptr);
-    ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, true);
+    ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, false);
     ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
+    ui::video::clear_screen(ui::video::VC_DARKGRAY);
     ui::video::update();
 #else
-    memory::init();
-    ui::text::init(80, 25, FC_GREEN | BC_BLACK);    //here i can already init textmode, so i see errors from memory::init, maybe do it in VIDEO_MODE as well?
-#endif 
-    //time::set_frequenze(1);
-    //system::init();
+    ui::text::init(80, 25, FC_GREEN | BC_BLACK);
+#endif
+    task::init();
+    //ui::window::init();
 
-    printl("Kernel loaded.");
-    task::create2(one);
+    task::create(one, 3);
+    task::create(two, 3);
+    task::create(two, 3);
+    task::create(two, 3);
+    task::create(two, 3);
+    task::create(two, 3);
+    task::create(two, 3);
 
-    task::multitasking_set_enabled(true);
+    task::multitasking_set(true);
     TASK_SWITCH
-    ui::video::update();
-    stop
+
+    idle();
+    shut_down();
     return 0;
-};
+}
+
+void idle()
+{
+    while (running);
+}
+
+void shut_down()
+{
+    ui::text::clear_screen();
+    printf("System halted.");
+}

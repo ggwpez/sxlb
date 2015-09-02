@@ -1,5 +1,9 @@
 #pragma once
 
+#define __VERSION__ "0.1"
+#define __STABLE__ true
+#define __VERSION_STABLE__  (__STABLE__ ? "stable" : "unstable")
+
 #define __CHECKS 3	//enter check level, lower = unsafer = faster, higher = safer = slower
 
 #if __CHECKS > 0
@@ -42,15 +46,9 @@ typedef char*  va_list;
 
 #define break_point __asm__ __volatile__("xchgw %bx, %bx");
 
-#ifdef __cplusplus
-#define _ADDRESSOF(v)   (&reinterpret_cast<const char &>(v))
-#else  /* __cplusplus */
-#define _ADDRESSOF(v)   (&(v))
-#endif  /* __cplusplus */
-
-#define _2NSIZEOF(n, s)     ((sizeof(n) + s -1) & ~(s - 1))
-#define _INTSIZEOF(n)       ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
-
+#define _2NSIZEOF(n, s) ((sizeof(n) + s -1) & ~(s - 1))
+#define _INTSIZEOF(n)   ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
+#define COUNTOF(arr)     (sizeof(arr) / sizeof(arr[0]))
 
 #define va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )
 #define va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
@@ -91,4 +89,7 @@ typedef char*  va_list;
 #ifndef __cplusplus
 enum { false = 0, true = 1 };
 typedef ubyte_t bool;
+#define _ADDRESSOF(v)   (&(v))
+#else
+#define _ADDRESSOF(v)   (&reinterpret_cast<const char &>(v))
 #endif
