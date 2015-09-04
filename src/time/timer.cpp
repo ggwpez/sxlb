@@ -4,7 +4,7 @@ namespace time
 {
     void init()
     {
-        date_init();
+        //date_init();
         install_event_handler();
         set_frequenze(100);
     };

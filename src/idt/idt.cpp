@@ -34,7 +34,7 @@ namespace idt
             {
                 if (task::multitasking_get() && task::get_rpl() != 0)
                 {
-                    printfl("Task '%u' killed for '%s'.", task::get_pid(), buffer);
+                    printfl("Task '%u' killed for '%s'.", task::get_pid(), kill_msg);
                     task::end();
                 }
                 else
@@ -53,7 +53,7 @@ namespace idt
             }
             else
             {
-                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, kill_msg);
+                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
                 syshlt(buffer);	//halts the system
             }
         }

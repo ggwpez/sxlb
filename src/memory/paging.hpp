@@ -2,8 +2,9 @@
 
 #include "../types.hpp"
 
-#define SV   1   // supervisor
-#define US   0   // user
+//TODO:
+#define SV   0   // supervisor
+#define US   1   // user
 
 #define RW   1   // read-write
 #define RO   0   // read-only

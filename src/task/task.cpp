@@ -128,7 +128,7 @@ namespace task
         task->pid = pid++;
         task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE,0,0) + KERNEL_STACK_SIZE;
         uint32_t* kernel_stack = task->kernel_stack;
-        printfl("end: %x", task->kernel_stack+KERNEL_STACK_SIZE);
+        //printfl("end: %x", task->kernel_stack+KERNEL_STACK_SIZE);
 
         uint32_t code_segment=0x08, data_segment=0x10;
         *(--kernel_stack) = 0;  // return address dummy

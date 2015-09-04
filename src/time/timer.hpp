@@ -8,7 +8,7 @@
 
 namespace time
 {
-    void install();
+    void init();
     void uninstall();
 
     uint32_t get_seconds();

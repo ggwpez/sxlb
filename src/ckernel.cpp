@@ -17,39 +17,10 @@
 
 #define VIDEO_MODE 0
 
-void two();
-void one()
+extern "C"
 {
-    console user_term;
-    user_term.main();
-
-    EXIT
-}
-
-void three();
-void two()
-{
-    int i = 0;
-    while(i++ < 10000)
-        SYSCALL1(system::CALL::PUTC, 'a');
-
-    EXIT
-}
-
-void three()
-{
-    int i = 0;
-    while(i++ < 10000)
-    {
-        SYSCALL0(system::CALL::NOP);
-    }
-
-    EXIT
-}
-
-bool brk_handler(task::cpu_state_t* state, char* kill_msg)
-{
-
+    extern void data_start();
+    extern void data_end  ();
 }
 
 bool running = true;
@@ -72,12 +43,20 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    //task::init();
+    task::init();
     //io::keyboard::init();
     //sti
     //ui::window::init();
 
-    //time_t t = time::d
+    size_t program_size = &data_end - &data_start;
+    LPTR mem = memory::k_malloc(program_size, 0, 0);
+
+    memory::memcpy(mem, &data_start, program_size);
+
+    task::create(mem, 0);
+
+    task::multitasking_set(true);
+    TASK_SWITCH
 
     idle();
     shut_down();
