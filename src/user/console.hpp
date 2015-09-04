@@ -35,4 +35,5 @@ private:
     void cmd_mem_info();
     void cmd_con_info();
     void cmd_reboot();
+    void cmd_quit();
 };

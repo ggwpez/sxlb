@@ -12,10 +12,13 @@ NASM := nasm
 CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T kernel.ld
 
-all: boot.bin ckernel.bin binary	
+all: boot.bin ckernel.bin binary
 
 start: all
 	bochs -q
+
+debug: all
+	bochsdbg -q
 
 boot.bin: boot.asm
 	$(NASM) $(ASFLAGSBIN) $< -o $@

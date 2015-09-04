@@ -460,6 +460,7 @@ namespace2(ui, text)
        // if (TEXT)
             //vram[((text_mode.col + text_mode.row*text_mode.columns) << 1) -1] = text_mode.text_color;   //set the text color, should put this in PUT_C but cant get it working with (uint16_t*)vram ...
 
+        if (c)
         switch(c)
         {
             case ' ':

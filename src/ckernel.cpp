@@ -61,8 +61,7 @@ int32_t main()
     idt::load();
     memory::init();
     system::init();
-    time::install();  
-    sti
+    time::init();
 
 #if VIDEO_MODE == 1
     LPTR zBuffer = memory::k_malloc(64000, 0, nullptr);
@@ -73,19 +72,12 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    task::init();
+    //task::init();
+    //io::keyboard::init();
+    //sti
     //ui::window::init();
 
-    task::create(one, 3);
-    task::create(two, 3);
-    task::create(two, 3);
-    task::create(two, 3);
-    task::create(two, 3);
-    task::create(two, 3);
-    task::create(two, 3);
-
-    task::multitasking_set(true);
-    TASK_SWITCH
+    //time_t t = time::d
 
     idle();
     shut_down();

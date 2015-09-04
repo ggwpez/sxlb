@@ -8,7 +8,8 @@
 
 namespace idt
 {
-    bool page_fault_handler(task::cpu_state_t* state, char* kill_msg)
+    //14
+    bool pf_handler(task::cpu_state_t* state, char* kill_msg)
     {
         uint32_t err = state->error;
 
@@ -27,6 +28,13 @@ namespace idt
     bool gpf_handler(task::cpu_state_t* state, char* kill_msg)
     {
         sprintf_s(kill_msg, 64, "General Protection fault");
+        return true;
+    }
+
+    //2
+    bool nmi_handler(task::cpu_state_t* state, char* kill_msg)
+    {
+        sprintf_s(kill_msg, 64, "NMI: Severe hardware failure.");
         return true;
     }
 }

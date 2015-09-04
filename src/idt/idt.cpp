@@ -26,46 +26,37 @@ namespace idt
 	{
         bool(*handler)(task::cpu_state_t* state, char* kill_msg) = isr_functions[state->int_no];
 
-        char buffer[64];
+        char buffer[64] = { 0 };
+        char kill_msg[64];
         if (handler)
         {
-            if (handler(state, buffer))     //handler says kill, so it dies
+            if (handler(state, kill_msg))     //handler says kill, so it dies
             {
-                if (task::multitasking_get() && task::get_rpl() == 0)
-                {
-                    sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, buffer);
-                    syshlt(buffer);	//halts the system
-                }
-                else
+                if (task::multitasking_get() && task::get_rpl() != 0)
                 {
                     printfl("Task '%u' killed for '%s'.", task::get_pid(), buffer);
                     task::end();
                 }
+                else
+                {
+                    sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, kill_msg);
+                    syshlt(buffer);	//halts the system
+                }
             }
         }
         else
         {
-            if (task::multitasking_get() && task::get_rpl() == 0)
-            {
-                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
-                syshlt(buffer);	//halts the system
-            }
-            else
+            if (task::multitasking_get() && task::get_rpl() != 0)
             {
                 printfl("Task '%u' killed for '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
                 task::end();                    //no handler, and it dies too
             }
+            else
+            {
+                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, kill_msg);
+                syshlt(buffer);	//halts the system
+            }
         }
-
-        /*if (handler)
-        {
-            handler(state);
-        }
-        else
-        {
-            sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, "idt_isr_messages[state->int_no]");
-            syshlt(buffer);	//halts the system
-        }*/
     };
 
     task::cpu_state_t* irq_handler(task::cpu_state_t* state)
@@ -82,9 +73,6 @@ namespace idt
         if (handler)
             { handler(state); }
 
-        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }      //send all ok too master and slave PIC
-        asm_outb(0x20, 0x20);
-
         return state_new;
     };
 
@@ -92,9 +80,13 @@ namespace idt
     extern "C" struct task::cpu_state_t* ir_event_handler(struct task::cpu_state_t* state)
     {
         if (state->int_no >= 32 && state->int_no < 48)
-            return irq_handler(state);
+            state = irq_handler(state);
+        else
+            isr_handler(state);
 
-        isr_handler(state);
+        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }      //send all ok too master and slave PIC
+        asm_outb(0x20, 0x20);
+
         return state;
     };
 
@@ -106,7 +98,9 @@ namespace idt
 		irq_install();
 		asm volatile("lidt %0" : "=m" (idt_r));
 
-        isr_register_event_handler(14, page_fault_handler);
+        isr_register_event_handler( 2, nmi_handler);
+        isr_register_event_handler(13, gpf_handler);
+        isr_register_event_handler(14, pf_handler);
 		return 1;
 	};
 
@@ -238,7 +232,7 @@ namespace idt
 		if (!event_handler)
 			syshlt("IDT event register!");
 #endif
-        if (event_number > 127)
+        if (event_number > 15)
             return;
 
 		irq_functions[event_number] = event_handler;

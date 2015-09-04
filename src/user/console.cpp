@@ -72,7 +72,7 @@ bool strcmp(char* str1, char* str2)
 
 char* cmds[] =
 {
-    "help", "clear", "sys_info", "pag_info", "tss_info", "mem_info", "con_info", "reboot"
+    "help", "clear", "sys_info", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
 };
 
 #define cmp(str) else if(strcmp(buffer, str))
@@ -96,6 +96,8 @@ void console::interpret_cmd()
         cmd_con_info();
     else if(strcmp(buffer, cmds[7]))
         cmd_reboot();
+    else if (strcmp(buffer, cmds[8]))
+        cmd_quit();
     else
         SYSCALL2(system::CALL::PRINTFL, "command '%s' not found", buffer);
 
@@ -152,4 +154,9 @@ void console::cmd_con_info()
 void console::cmd_reboot()
 {
     io::reboot();
+}
+
+void console::cmd_quit()
+{
+    EXIT
 }
