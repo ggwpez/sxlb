@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../string.hpp"
 #include "../io/keyboard.hpp"
 #include "../io/hwaccess.hpp"
 #include "../task/task.hpp"

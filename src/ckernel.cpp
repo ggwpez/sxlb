@@ -6,6 +6,7 @@
 #include "time/timer.hpp"
 #include "convert.hpp"
 
+#include "fs/fs.hpp"
 #include "gdt.hpp"
 #include "memory/memory.hpp"
 #include "sprintf.hpp"
@@ -45,15 +46,23 @@ int32_t main()
 #endif
     task::init();
     //io::keyboard::init();
-    //sti
+    sti
     //ui::window::init();
 
     size_t program_size = &data_end - &data_start;
-    LPTR mem = memory::k_malloc(program_size, 0, 0);
-
+    LPTR mem = 0x400000;
     memory::memcpy(mem, &data_start, program_size);
 
-    task::create(mem, 0);
+    fs_t* fs = fs_install(mem);
+
+    fs_node_t* found = fs->find_file("test.dat");
+    if (found == nullptr)
+        printfl("not found");
+    else
+    {
+        printfl("found: %x", found);
+        task::create(found->data, 3);
+    }
 
     task::multitasking_set(true);
     TASK_SWITCH

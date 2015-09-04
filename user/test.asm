@@ -2,9 +2,14 @@
 
 [BITS 32]
 main:
-	mov byte [0xb8000], 'l'
-	mov byte [0xb8002], 'o'
-	mov byte [0xb8004], 'o'
-	xor eax, eax				;ret 0
-	jmp $
+	xor eax, ebx
+	mov ebx, eax
+
+	mov al, 1 		;putc('1')
+	mov bl, '1'
+	int 0x7f
+
+	mov al, 15
+	xor ebx, ebx	;exit(0)
+	int 0x7f
 	ret

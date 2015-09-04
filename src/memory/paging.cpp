@@ -91,7 +91,7 @@ internal uint32_t first_frame() // find the first free frame in frames bitset
 	return (uint32_t)-1; // no free page frames
 };
 
-uint32_t alloc_frame(page* page_, int is_kernel, int is_writeable) // allocate a frame
+uint32_t alloc_frame(page* page_, int user, int read_write) // allocate a frame
 {
 	if (!(page_->frame_address))
 	{
@@ -100,10 +100,8 @@ uint32_t alloc_frame(page* page_, int is_kernel, int is_writeable) // allocate a
 		set_frame(index*PAGE_SIZE);
 
 		page_->swapped_in = 1;
-        //page_->access_right = RW;
-        //page_->access_ring = SV;
-        page_->access_right = (is_writeable == 1) ? 1 : 0;
-        page_->access_ring = (is_kernel == 1) ? 0 : 1;
+        page_->user = user;
+        page_->read_write = read_write;
 		page_->frame_address = index;
 		return index;
 	}
@@ -180,7 +178,7 @@ void paging_install()
     i=user_space_start;
     while( i < user_space_end )
     {
-        alloc_frame( get_page(i, 1, kernel_directory), US, RO); // user and read-only
+        alloc_frame( get_page(i, 1, kernel_directory), US, RW); // user and read-only
         i += PAGE_SIZE;
     }
 
@@ -284,8 +282,8 @@ page_table* clone_table(page_table* source, uint32_t* physAddr)
         alloc_frame(&ret->pages[i], 0, 0);
 
         ret->pages[i].swapped_in = source->pages[i].swapped_in;
-        ret->pages[i].access_right = source->pages[i].access_right;
-        ret->pages[i].access_ring = source->pages[i].access_ring;
+        ret->pages[i].read_write = source->pages[i].read_write;
+        ret->pages[i].user = source->pages[i].user;
         ret->pages[i].accessed = source->pages[i].accessed;
         ret->pages[i].dirty = source->pages[i].dirty;
 

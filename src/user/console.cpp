@@ -56,20 +56,6 @@ uint32_t console::get_line()
     return i;
 }
 
-bool strcmp(char* str1, char* str2)
-{
-    uint32_t i = 0;
-
-    while (str1[i] == str2[i])
-    {
-        if (!str1[i])
-            return true;
-        i++;
-    }
-    return false;
-}
-
-
 char* cmds[] =
 {
     "help", "clear", "sys_info", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
@@ -80,23 +66,23 @@ void console::interpret_cmd()
 {
     SYSCALL1(system::CALL::UI_TEXT_SET_COLOR, usr_fc | usr_bc);
 
-    if(strcmp(buffer, cmds[0]))
+    if(!strcmp(buffer, cmds[0]))
         cmd_help();
-    else if(strcmp(buffer, cmds[1]))
+    else if(!strcmp(buffer, cmds[1]))
         cmd_clear();
-    else if(strcmp(buffer, cmds[2]))
+    else if(!strcmp(buffer, cmds[2]))
         cmd_sys_info();
-    else if(strcmp(buffer, cmds[3]))
+    else if(!strcmp(buffer, cmds[3]))
         cmd_pag_info();
-    else if(strcmp(buffer, cmds[4]))
+    else if(!strcmp(buffer, cmds[4]))
         cmd_tss_info();
-    else if(strcmp(buffer, cmds[5]))
+    else if(!strcmp(buffer, cmds[5]))
         cmd_mem_info();
-    else if(strcmp(buffer, cmds[6]))
+    else if(!strcmp(buffer, cmds[6]))
         cmd_con_info();
-    else if(strcmp(buffer, cmds[7]))
+    else if(!strcmp(buffer, cmds[7]))
         cmd_reboot();
-    else if (strcmp(buffer, cmds[8]))
+    else if (!strcmp(buffer, cmds[8]))
         cmd_quit();
     else
         SYSCALL2(system::CALL::PRINTFL, "command '%s' not found", buffer);
