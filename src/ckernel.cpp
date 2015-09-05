@@ -55,13 +55,13 @@ int32_t main()
 
     fs_t* fs = fs_install(mem);
 
-    fs_node_t* found = fs->find_file("test.dat");
+    fs_node_t* found = fs->find_file("test.o");
     if (found == nullptr)
         printfl("not found");
     else
     {
         printfl("found: %x", found);
-        task::create(found->data, 3);
+        task::create(found->data, 0);
     }
 
     task::multitasking_set(true);

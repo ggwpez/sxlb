@@ -7,6 +7,7 @@ USERSRCFILES   := $(shell find $(SRCDIRUSER) -name '*.asm')
 USROBJECTS := $(addsuffix .dat, $(basename $(USERSRCFILES)))
 SOURCES := $(ASMSOURCES) $(CPPSOURCES)
 OBJECTS := $(addsuffix .o, $(basename $(SOURCES)))
+IMAGE := $(SRCDIRUSER)/data.img
 
 ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
@@ -17,7 +18,7 @@ LDFLAGS := -m elf_i386 -T kernel.ld
 
 all: boot.bin ckernel.bin OS.bin
 
-user: $(USERSRCFILES)
+$(IMAGE): $(USERSRCFILES)
 	$(MAKE) -C $(SRCDIRUSER)
 
 start: all
@@ -26,7 +27,7 @@ start: all
 debug: all
 	bochsdbg -q
 
-payload.o: user $(USROBJECTS) payload.asm
+payload.o: $(IMAGE) payload.asm
 	$(NASM) $(ASFLAGSOBJ) payload.asm -o payload.o
 
 boot.bin: boot.asm
