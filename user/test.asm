@@ -5,8 +5,8 @@ main:
 	xor eax, ebx
 	mov ebx, eax
 
-	mov al, 2 		;putc('1')
-	mov ebx, msg
+	mov al, 1 		;putc('1')
+	mov ebx, '5'
 	int 0x7f
 
 	mov al, 15

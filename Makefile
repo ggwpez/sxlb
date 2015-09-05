@@ -46,5 +46,6 @@ map: LDFLAGS += -map kernel.map
 map: all	
 
 clean:
-	find . -name '*.o' -delete
-	find . -name '*.bin' -delete
+	@find . -name '*.o' -delete
+	@find . -name '*.bin' -delete
+	$(MAKE) -C $(SRCDIRUSER) clean 
