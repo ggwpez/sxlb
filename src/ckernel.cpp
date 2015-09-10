@@ -45,23 +45,22 @@ int32_t main()
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
     task::init();
-    //io::keyboard::init();
+    io::keyboard::init();
     sti
     //ui::window::init();
 
-    size_t program_size = &data_end - &data_start;
     LPTR mem = 0x400000;
-    memory::memcpy(mem, &data_start, program_size);
+    memory::memcpy(mem, &data_start, &data_end - &data_start);
 
     fs_t* fs = fs_install(mem);
 
-    fs_node_t* found = fs->find_file("test.o");
+    fs_node_t* found = fs->find_file("c_test.dat");
     if (found == nullptr)
         printfl("not found");
     else
     {
         printfl("found: %x", found);
-        task::create(found->data, 0);
+        task::create(found->data + 0x90, 0);
     }
 
     task::multitasking_set(true);

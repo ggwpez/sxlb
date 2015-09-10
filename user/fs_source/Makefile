@@ -1,9 +1,9 @@
-CXXFLAGS := -fpermissive
+CXXFLAGS := -std=c++11 -fpermissive
 FS := ../fs
 
 all: $(FS)
 
-$(FS): main.cpp fs.cpp fs.hpp
+$(FS): main.cpp fs.hpp
 	$(CXX) $(CXXFLAGS) main.cpp -o $@
 
 clean:

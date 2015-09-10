@@ -22,7 +22,7 @@ namespace time
 
     uint32_t get_seconds()
     {
-        return ticks /1000;
+        return ticks /100;
     };
 
     void event_handler(task::cpu_state_t* state)

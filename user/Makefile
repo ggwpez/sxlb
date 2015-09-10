@@ -1,22 +1,27 @@
-ASMSOURCES := $(wildcard *.asm)
-SOURCES := $(ASMSOURCES) $(CPPSOURCES)
-FSSRCDIR := fs_source/
-OBJECTS := $(addsuffix .o,$(basename $(SOURCES)))
+DIRS := $(wildcard */)
+USRSRCFILES := $(patsubst %.c, %.o, $(wildcard **/*.c))
+LIBS := $(patsubst %/, %.dat, $(DIRS))
 
-ASFLAGSBIN := -O32 -f bin
-NASM := nasm
+IMAGE := data.img
+FILES := c_test.dat $(wildcard *.dat)
 
-all: data.img
+FS := fs
 
-data.img: fs $(OBJECTS)
-	./fs $(OBJECTS) $@
+all: user_programs $(IMAGE)
 
-fs:
-	$(MAKE) -C $(FSSRCDIR)
+user_programs: $(LIBS)
 
-%.o: %.asm
-	$(NASM) $(ASFLAGSBIN) $< -o $@
+$(DIRS):
+	$(MAKE) -C $@
+
+$(IMAGE): $(FS) $(FILES)
+	./$(FS) $(FILES) $@
+
+$(FS):
+	$(MAKE) -C fs_source/
+
+%.dat:
+	$(MAKE) -C $(patsubst %.dat, %/, $@)
 
 clean:
 	@find . -name '*.dat' -delete
-	$(MAKE) -C $(FSSRCDIR) clean

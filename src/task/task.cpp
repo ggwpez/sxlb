@@ -1,4 +1,5 @@
 #include "task.hpp"
+#include "../time/timer.hpp"
 
 namespace task
 {
@@ -72,6 +73,11 @@ namespace task
     uint32_t get_rpl()
     {
         return actual_task->rpl;
+    }
+
+    uint32_t get_spawn_time()
+    {
+        return actual_task->spawn_time;
     }
 
     task_t* get_task()
@@ -174,6 +180,7 @@ namespace task
         task->ss = data_segment;
         task->rpl = privileg;
         task->running = true;
+        task->spawn_time = time::get_ticks();
 
         task->next = actual_task->next;
         actual_task->next = task;
@@ -187,6 +194,9 @@ namespace task
 
     void end()  //terminates the actual working task
     {
+        if (!multitasking_enabled)
+            return;
+
         if (num_tasks == 1)
             syshlt("Last task ended.");
 

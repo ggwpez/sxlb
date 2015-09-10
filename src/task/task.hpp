@@ -6,6 +6,8 @@
 #include "../memory/memory.hpp"
 #include "../gdt.hpp"
 
+#define ELF_OFFSET 0x110
+
 namespace task
 {
     struct task_t;
@@ -58,6 +60,7 @@ namespace task
 
     uint32_t        get_pid();
     uint32_t        get_rpl();
+    uint32_t        get_spawn_time();
     task_t*         get_task();
     uint32_t        get_task_count();
 
@@ -68,12 +71,12 @@ namespace task
         uint8_t running;
 		uint32_t pid;
         uint32_t ebp, eip, ss;
-        LPTR user_stack;
         LPTR kernel_stack;
         page_directory* directory;
         uint32_t dir_offset;
         cpu_state_t* cpu_state;
         uchar_t rpl;
+        uint32_t spawn_time;
 
         task_t* next;
         ~task_t();

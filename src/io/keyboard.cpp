@@ -13,8 +13,8 @@ namespace2(io, keyboard)
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
-        idt::irq_register_event_handler(1, keyboard_interrupt_handler);
-        idt::irq_register_event_handler(4, mouse_interrupt_handler);
+        //idt::irq_register_event_handler(1, keyboard_interrupt_handler);
+        //idt::irq_register_event_handler(4, mouse_interrupt_handler);
     }
 
     void keyboard_interrupt_handler(task::cpu_state_t* state)

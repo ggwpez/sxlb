@@ -29,7 +29,7 @@ namespace idt
 	/*Call in kernel shut down, to unload IDT (IRSs+IRQs). Not necessary*/
 	int unload();
     /*Call to register a Hardware Interrupt Handler*/
-    void isr_register_event_handler(uchar_t index, bool(*event_handler)(task::cpu_state_t *, char* kill_msg));
+    void isr_register_event_handler(uchar_t event_number, bool(*event_handler)(task::cpu_state_t* state, char* kill_msg));
     /*Call to remove a Hardware Interrupt Handler*/
     void isr_del_event_handler(uchar_t index);
 	/*Call to register a Software Interrupt Handler*/

@@ -8,13 +8,24 @@
 
 namespace idt
 {
+    //no interrupt equivalent
+    bool nullptr_handler(task::cpu_state_t* state, char* kill_msg)
+    {
+        sprintf_s(kill_msg, 64, "Nullptr access");
+        return true;
+    }
+
     //14
     bool pf_handler(task::cpu_state_t* state, char* kill_msg)
     {
         uint32_t err = state->error;
+        uint32_t faulting_address = io::asm_get_register_ctrl(2);
+
+        if (!faulting_address)
+            return nullptr_handler(state, kill_msg);
 
         sprintf_s(kill_msg, 64, "Page fault @%x (%s|%s|%s|%s|%s)",
-                  io::asm_get_register_ctrl(2),
+                  faulting_address,
                   err & PROTECTED_NOT_PRESENT ? "Protected" : "Not Present",
                   err & WRITE_NOT_READ ? "Write" : "Read",
                   err & US_NOT_SV ? "User" : "Su User",

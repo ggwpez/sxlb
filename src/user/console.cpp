@@ -2,7 +2,7 @@
 
 console::console()
 {
-    SYSCALL_RET0(system::CALL::TASK_GET_RPL, this->rpl);
+    SYSCALL_RET0(SYSCNUM_TASK_GET_RPL, this->rpl);
 
     bang = "$ ";
     s = COUNTOF(buffer);
@@ -11,18 +11,18 @@ console::console()
     usr_fc = FC_TURQUOISE; usr_bc = BC_BLACK;
     fc = FC_GREEN; bc = BC_BLACK;
 
-    SYSCALL1(system::CALL::UI_TEXT_SET_COLOR, fc | bc);
+    SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
 }
 
 int console::main()
 {
-    SYSCALL0(system::CALL::UI_TEXT_CLEAR_SCREEN);
+    SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);
 
     while (1)
     {
-        SYSCALL1(system::CALL::PRINT, bang);
+        SYSCALL1(SYSCNUM_PRINT, bang);
         uint32_t l = this->get_line();
-        SYSCALL1(system::CALL::PUTC, '\n');
+        SYSCALL1(SYSCNUM_PUTC, '\n');
 
         buffer[l] = 0;
 
@@ -37,20 +37,20 @@ uint32_t console::get_line()
     while (i < this->s-1)
     {
         uchar_t in;
-        SYSCALL_RET0(system::CALL::GETC, in);
+        SYSCALL_RET0(SYSCNUM_GETC, in);
 
         if (in == BACKSPACE)
         {
             if (i != 0)
             {
                 i--;
-                SYSCALL1(system::CALL::PUTC, BACKSPACE);
+                SYSCALL1(SYSCNUM_PUTC, BACKSPACE);
             }
         }
         else if (in == ENTER)
             return i;
         else
-            SYSCALL1(system::CALL::PUTC, this->buffer[i++] = in);
+            SYSCALL1(SYSCNUM_PUTC, this->buffer[i++] = in);
     }
 
     return i;
@@ -64,7 +64,7 @@ char* cmds[] =
 #define cmp(str) else if(strcmp(buffer, str))
 void console::interpret_cmd()
 {
-    SYSCALL1(system::CALL::UI_TEXT_SET_COLOR, usr_fc | usr_bc);
+    SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, usr_fc | usr_bc);
 
     if(!strcmp(buffer, cmds[0]))
         cmd_help();
@@ -85,9 +85,9 @@ void console::interpret_cmd()
     else if (!strcmp(buffer, cmds[8]))
         cmd_quit();
     else
-        SYSCALL2(system::CALL::PRINTFL, "command '%s' not found", buffer);
+        SYSCALL2(SYSCNUM_PRINTFL, "command '%s' not found", buffer);
 
-    SYSCALL1(system::CALL::UI_TEXT_SET_COLOR, fc | bc);
+    SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
 }
 
 //cmd functions
@@ -95,18 +95,18 @@ void console::cmd_help()
 {
     uint32_t c = COUNTOF(cmds);
 
-    SYSCALL2(system::CALL::PRINTFL, "Commands(%u):", c);
+    SYSCALL2(SYSCNUM_PRINTFL, "Commands(%u):", c);
     for (int i = 0; i < c; ++i)
     {
-        SYSCALL1(system::CALL::PUTC, '\t');
-        SYSCALL1(system::CALL::PRINTL, cmds[i]);
+        SYSCALL1(SYSCNUM_PUTC, '\t');
+        SYSCALL1(SYSCNUM_PRINTL, cmds[i]);
     }
 }
 
 void console::cmd_clear()
 {
-    SYSCALL1(system::CALL::UI_TEXT_SET_COLOR, fc | bc);
-    SYSCALL0(system::CALL::UI_TEXT_CLEAR_SCREEN);
+    SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
+    SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);
 }
 
 void console::cmd_sys_info()
@@ -134,7 +134,7 @@ void console::cmd_mem_info()
 
 void console::cmd_con_info()
 {
-    SYSCALL2(system::CALL::PRINTFL, "This console runns in %s mode.", this->rpl ? "user" : "kernel");
+    SYSCALL2(SYSCNUM_PRINTFL, "This console runns in %s mode.", this->rpl ? "user" : "kernel");
 }
 
 void console::cmd_reboot()
@@ -144,5 +144,5 @@ void console::cmd_reboot()
 
 void console::cmd_quit()
 {
-    EXIT
+    SYSCALL0(SYSCNUM_TASK_EXIT);
 }
