@@ -3,7 +3,7 @@ OUTPUT_FORMAT(elf32-i386)
  
 SECTIONS
 {
-    . = 0x400000;
+    . = 0x400004;
     
     .text :
     {

@@ -25,3 +25,4 @@ $(FS):
 
 clean:
 	@find . -name '*.dat' -delete
+	@find . -name '*.img' -delete

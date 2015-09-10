@@ -14,7 +14,7 @@ $(OUT): $(ASOBJ)
 	$(AR) $(ARFLAGS) $(OUT) $(ASOBJ)
 
 %.o: %.asm
-	$(AS) $< $(ASFLAGS) -o $@
+	$(AS) $< $(ASFLAGS)	 -o $@
 
 clean:
 	@find . -name '*.o' -delete

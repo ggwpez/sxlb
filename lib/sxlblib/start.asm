@@ -4,6 +4,8 @@ extern main
 [GLOBAL _start]
 
 _start:
+	cli
+	hlt
 	call main
 
 	mov ebx, eax	;return eax->ebx

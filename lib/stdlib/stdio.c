@@ -9,7 +9,9 @@ int putchar(int c)
 int puts(const char* str)
 {
 	while (*str)
-		putchar(*(str--));
+		putchar(*(str++));
+
+	putchar('\n');
 }
 
 int printf(const char* format, ...)

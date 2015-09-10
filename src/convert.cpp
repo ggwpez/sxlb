@@ -43,7 +43,8 @@ void sxlb_convert_itoa_u8_hex(uint8_t number, char_t* string)
 	if (number == 0)	//0 || -0
 	{
 		string[0] = '0';
-		string[1] = '\0';
+        string[1] = '0';
+        string[2] = '\0';
 		return;
 	}
 

@@ -15,6 +15,7 @@
 #include "user/test.hpp"
 #include "system/syscall.hpp"
 #include "user/console.hpp"
+#include "user/elf.hpp"
 
 #define VIDEO_MODE 0
 
@@ -44,9 +45,9 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    task::init();
-    io::keyboard::init();
-    sti
+    //task::init();
+    //io::keyboard::init();
+    cli
     //ui::window::init();
 
     LPTR mem = 0x400000;
@@ -59,12 +60,22 @@ int32_t main()
         printfl("not found");
     else
     {
-        printfl("found: %x", found);
-        task::create(found->data + 0x90, 0);
+        elf::elf_status_t s;
+        LPTR entry = elf::load_file(found->data, &s);
+
+        if (s != elf::elf_status_t::Ok)
+            printfl("failed with %b @%x", s, entry);
+        else
+        {
+            printfl("ok with %b @%x", s, entry);
+
+            void(*delegate)() = found->data + 0x100;
+            delegate();
+        }
     }
 
-    task::multitasking_set(true);
-    TASK_SWITCH
+    //task::multitasking_set(true);
+    //TASK_SWITCH
 
     idle();
     shut_down();
