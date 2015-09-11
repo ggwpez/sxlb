@@ -2,8 +2,7 @@
 
 int main()
 {
-	puts("eiilmao!!!");
-
+	puts("this gonb gud");	
 
 	return 1337;
 }

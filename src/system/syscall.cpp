@@ -6,6 +6,7 @@ namespace system
     {
         idt::isr_register_event_handler(127, syscall_event_handler);
     };
+
     void dump(task::cpu_state_t* state)
     {
         printfl("eax=%u \n\
@@ -14,12 +15,6 @@ namespace system
                 edx=%u \n\
                 esi=%u \n\
                 edi=%u", state->eax, state->ebx, state->ecx, state->edx, state->esi, state->edi);
-    }
-
-    dword_t test_ret(dword_t arg0, dword_t arg1, dword_t arg2, dword_t arg3, dword_t arg4)
-    {
-        print("worked");
-        return 654;
     }
 
     bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg)

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../types.hpp"
+#include "../memory/memory.hpp"
+#include "../ui/textmode.hpp"
 
 namespace elf
 {
-    enum class elf_bin_type : uint8_t
+    enum class elf_bin_type : uint16_t
     {
         relocatable = 1,
         executable  = 2,
@@ -24,7 +26,7 @@ namespace elf
         big     = 2
     };
 
-    enum class elf_version : uint16_t
+    enum class elf_version : uint32_t
     {
         original = 1
     };
@@ -43,7 +45,7 @@ namespace elf
         AArch64 = 0xb7
     };
 
-    enum class elf_progr_type
+    enum class elf_ph_type
     {
         Invalid     = 0,
         Load        = 1,
@@ -79,22 +81,22 @@ namespace elf
         uint32_t pht_off;       //program header table offset
         uint32_t sht_off;       //section header table offset
 
-        uint16_t flags;         //architecture dependent
-        uint8_t this_size;     //size of this header
-        uint8_t pht_entry_s;   //pht entry size
-        uint8_t pht_entry_c;   //pht entrys count
-        uint8_t sht_entry_s;   //sht entry size
-        uint8_t sht_entry_c;   //sht entrys count
-        uint8_t shstrndx;
+        uint32_t flags;         //architecture dependent
+        uint16_t this_size;     //size of this header
+        uint16_t pht_entry_s;   //pht entry size
+        uint16_t pht_entry_c;   //pht entrys count
+        uint16_t sht_entry_s;   //sht entry size
+        uint16_t sht_entry_c;   //sht entrys count
+        uint16_t shstrndx;
     };
 
     struct elf_ph_t
     {
-        elf_progr_type type;
+        elf_ph_type type;
         uint32_t offset;
         uint32_t v_addr;
         uint32_t p_addr;
-        uint32_t file_s;
+        uint32_t size;
         uint32_t mem_s;
         uint32_t flags;
         uint32_t align;

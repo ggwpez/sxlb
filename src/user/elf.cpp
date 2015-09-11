@@ -1,4 +1,5 @@
 #include "elf.hpp"
+
 namespace elf
 {
     elf_status_t check_file(elf_header_t* h)
@@ -25,6 +26,18 @@ namespace elf
         *result = check_file(h);
         if (*result != elf_status_t::Ok)
             return (LPTR)h->cpu;
+
+        elf_ph_t* ph = nullptr;
+
+        for (int i = 0; i < h->pht_entry_c; ++i)
+        {
+            ph = (uint32_t)h + h->pht_off + i*h->pht_entry_s;
+
+            if (ph->type != elf_ph_type::Load)
+                continue;
+
+            memory::memcpy(ph->p_addr, (uint32_t)h +ph->offset, ph->size);
+        }
 
         return h->entry;
     }

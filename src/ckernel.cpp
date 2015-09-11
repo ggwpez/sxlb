@@ -61,15 +61,17 @@ int32_t main()
     else
     {
         elf::elf_status_t s;
-        LPTR entry = elf::load_file(found->data, &s);
+        elf::elf_header_t* h = found->data;
+        LPTR entry = elf::load_file(h, &s);
 
         if (s != elf::elf_status_t::Ok)
             printfl("failed with %b @%x", s, entry);
         else
         {
-            printfl("ok with %b @%x", s, entry);
+            //printfl("type: %u\ncpu: %u\nversion: %u\nentry:%x\npht_off: %u\nsht_off: %u\nflags: %u\nsize: %u\npht_entry_s: %u\npht_entry_c: %u\nsht_entry_s: %u\nsht_entry_c: %u\nshstrndx: %u",
+            //        h->type, h->cpu, h->version, h->entry, h->pht_off, h->sht_off, h->flags, h->this_size, h->pht_entry_s, h->pht_entry_c, h->sht_entry_s, h->sht_entry_c, h->shstrndx);
 
-            void(*delegate)() = found->data + 0x100;
+            void(*delegate)() = entry;
             delegate();
         }
     }
