@@ -4,7 +4,7 @@ COBJ := $(addsuffix .o,$(basename $(CSRC)))
 LD := ld
 AS := nasm
 
-CCFLAGS := -m32 -c -std=gnu99 -Wall -ffunction-sections -fdata-sections -fno-pic -nostdinc -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common
+CCFLAGS := -m32 -c -std=gnu99 -w -ffunction-sections -fdata-sections -fno-pic -nostdinc -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common
 ARFLAGS := rs
 
 OUT := ../bin/stdlib.a

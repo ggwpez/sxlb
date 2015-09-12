@@ -45,9 +45,8 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    //task::init();
+    task::init();
     //io::keyboard::init();
-    cli
     //ui::window::init();
 
     LPTR mem = 0x400000;
@@ -71,13 +70,12 @@ int32_t main()
             //printfl("type: %u\ncpu: %u\nversion: %u\nentry:%x\npht_off: %u\nsht_off: %u\nflags: %u\nsize: %u\npht_entry_s: %u\npht_entry_c: %u\nsht_entry_s: %u\nsht_entry_c: %u\nshstrndx: %u",
             //        h->type, h->cpu, h->version, h->entry, h->pht_off, h->sht_off, h->flags, h->this_size, h->pht_entry_s, h->pht_entry_c, h->sht_entry_s, h->sht_entry_c, h->shstrndx);
 
-            void(*delegate)() = entry;
-            delegate();
+            task::create(entry, 3);
         }
     }
 
-    //task::multitasking_set(true);
-    //TASK_SWITCH
+    task::multitasking_set(true);
+    TASK_SWITCH
 
     idle();
     shut_down();

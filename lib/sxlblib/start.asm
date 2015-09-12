@@ -2,11 +2,11 @@
 extern main
 
 [GLOBAL _start]
+extern exit
 
 _start:
 	call main
 
-	mov ebx, eax	;return eax->ebx
-	mov eax, 15		;exit(main)
-	int 0x7f
+	push eax
+	call exit	;== exit(main())
 	jmp $
