@@ -1,5 +1,9 @@
 #include "string.h"
-#include "stdbool.h"
+#include "../stdbool.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void* memcpy(void* dest, void const* src, size_t length)
 {
@@ -41,3 +45,7 @@ int strcmp(char const* str1, char const* str2)
 
 	return (unsigned char)*str1 - (unsigned char)*str2;
 }
+
+#ifdef __cplusplus
+}
+#endif

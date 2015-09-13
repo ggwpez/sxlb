@@ -1,15 +1,15 @@
 DIRS := $(wildcard */)
 USRSRCFILES := $(patsubst %.c, %.o, $(wildcard **/*.c))
-LIBS := $(patsubst %/, %.dat, $(DIRS))
+EXECS := $(patsubst %/, %.target, $(DIRS))
 
 IMAGE := data.img
-FILES := c_test.dat $(wildcard *.dat)
+FILES := $(wildcard *.dat)
 
 FS := fs
 
-all: user_programs $(IMAGE)
+all: $(EXECS) $(IMAGE)
 
-user_programs: $(LIBS)
+user_programs: $(EXECS)
 
 $(DIRS):
 	$(MAKE) -C $@
@@ -20,8 +20,8 @@ $(IMAGE): $(FS) $(FILES)
 $(FS):
 	$(MAKE) -C fs_source/
 
-%.dat:
-	$(MAKE) -C $(patsubst %.dat, %/, $@)
+%.target:
+	$(MAKE) -C $(patsubst %.target, %/, $@)
 
 clean:
 	@find . -name '*.dat' -delete

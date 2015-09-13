@@ -38,13 +38,7 @@ namespace task
 		uint32_t   ss;
         //uint32_t   return_address;
 	}__attribute__((packed));
-/*
-	unsigned int gs, fs, es, ds;
-    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    unsigned int int_no, err_code;
-    unsigned int eip, cs, eflags, useresp, ss;*/
 
-	//cc
     void multitasking_set(bool value);
     bool multitasking_get();
 	void init();
@@ -54,7 +48,7 @@ namespace task
 
     bool            create(uint32_t entry_point, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
-    void            end() __attribute__((noreturn));
+    void            end(uint32_t status) __attribute__((noreturn));
     bool            kill(uint32_t pid);
     bool            kill_at(task_t* target);
 

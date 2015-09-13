@@ -18,9 +18,12 @@ AS := nasm
 CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T kernel.ld
 
-all: lib.d boot.bin ckernel.bin OS.bin
+all: lib.target user.target boot.bin ckernel.bin OS.bin
 
-lib.d:
+user.target: 
+	$(MAKE) -C $(SRCDIRUSER)
+
+lib.target:
 	$(MAKE) -C $(LIBDIR)
 
 $(IMAGE):

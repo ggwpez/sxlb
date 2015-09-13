@@ -77,7 +77,7 @@ namespace task
 
     uint32_t get_spawn_time()
     {
-        return actual_task->spawn_time;
+        return time::get_ticks() - actual_task->spawn_time;
     }
 
     task_t* get_task()
@@ -192,7 +192,7 @@ namespace task
         return true;
     };
 
-    void end()  //terminates the actual working task
+    void end(uint32_t status)           //terminates the actual working task
     {
         if (!multitasking_enabled)
             return;
@@ -200,6 +200,7 @@ namespace task
         if (num_tasks == 1)
             syshlt("Last task ended.");
 
+        actual_task->cpu_state->eax = status;   //return code
         kill_at(actual_task);
         idle_swap_in();
         TASK_SWITCH

@@ -1,23 +1,24 @@
 LIBDIR := ../../lib/bin/
 LIBS := $(LIBDIR)sxlblib.a $(LIBDIR)stdlibc.a
 
-CSRC := $(wildcard *.c)
+CSRC := $(wildcard *.cpp)
 COBJ := $(addsuffix .o,$(basename $(CSRC)))
 
 LD := ld
 
-CCFLAGS := -m32 -c -std=c99 -march=i386 -Wshadow -w -nostdinc -fno-pic -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common -I../../lib/stdlibc/
+CXX := g++ 
+CCXXFLAGS := -m32 -c -std=c99 -march=i386 -w -nostdinc -fno-pic -fpermissive -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common -I../../lib/stdlibc/
 LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common -nmagic -gc-sections -s
 
-OUT := ../c_test.dat
+OUT := ../console.dat
 
 all: $(OUT)
 
 $(OUT): $(COBJ) $(LIBS)
 	$(LD) $(COBJ) $(LIBS) -T user.ld $(LDFLAGS) -o $(OUT)
 
-%.o: %.c
-	$(CC) $(CCFLAGS) $< -o $@
+%.o: %.cpp
+	$(CXX) $(CCXXFLAGS) $< -o $@
 
 clean:
 	@find . -name '*.o' -delete

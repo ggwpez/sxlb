@@ -1,6 +1,10 @@
 #ifndef _STDARG_H
 #define _STDARG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _VA_LIST 1
 
 typedef __builtin_va_list va_list;
@@ -10,4 +14,7 @@ typedef __builtin_va_list va_list;
 #define va_end(ap)      __builtin_va_end(ap)
 #define __GNUC_VA_LIST 1
 
+#ifdef __cplusplus
+}
+#endif
 #endif

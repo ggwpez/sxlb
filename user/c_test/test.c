@@ -1,21 +1,25 @@
-#include "../../lib/stdlib/stdio.h"
-#include "../../lib/stdlib/stdlib.h"
+#include "stdio/stdio.h"
+#include "stdlib/stdlib.h"
+#include "time/time.h"
 
-void dtor1()
+sig_atomic_t signaled = 0;
+
+void my_handler (int param)
 {
-	puts("dtor1 did died.");
+	signaled = 1;
 }
 
-void dtor2()
+int main ()
 {
-	puts("dtor2 did died.");
-}
+	void (*prev_handler)(int);
 
-int main()
-{
-	puts("this gonb gud");
-	atexit(&dtor1);
-	atexit(&dtor2);
+	prev_handler = signal (SIGINT, my_handler);
 
-	return 1337;
+	/* ... */
+	raise(SIGINT);
+	/* ... */
+
+	printf ("signaled is %u.\n",signaled);
+	
+	return 0;
 }

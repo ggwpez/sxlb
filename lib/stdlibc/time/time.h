@@ -1,3 +1,13 @@
+#ifndef _STDTIME_H
+#define _STDTIME_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define NULL ((void*)0)
+typedef unsigned int size_t;
+
 typedef struct tm_t tm;
 struct tm_t
 {
@@ -18,3 +28,8 @@ typedef unsigned int  time_t;
 
 clock_t clock();
 double difftime(time_t t1, time_t t2);
+
+#ifdef __cplusplus
+}
+#endif
+#endif

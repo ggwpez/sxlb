@@ -35,7 +35,7 @@ namespace idt
                 if (task::multitasking_get() && task::get_rpl() != 0)
                 {
                     printfl("Task '%u' killed for '%s'.", task::get_pid(), kill_msg);
-                    task::end();
+                    task::end(-1);
                 }
                 else
                 {
@@ -49,7 +49,7 @@ namespace idt
             if (task::multitasking_get() && task::get_rpl() != 0)
             {
                 printfl("Task '%u' killed for '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
-                task::end();                    //no handler, and it dies too
+                task::end(-1);                    //no handler, and it dies too
             }
             else
             {

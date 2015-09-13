@@ -54,14 +54,13 @@ int32_t main()
 
     fs_t* fs = fs_install(mem);
 
-    fs_node_t* found = fs->find_file("c_test.dat");
+    fs_node_t* found = fs->find_file("console.dat");
     if (found == nullptr)
         printfl("not found");
     else
     {
         elf::elf_status_t s;
-        elf::elf_header_t* h = found->data;
-        LPTR entry = elf::load_file(h, &s);
+        LPTR entry = elf::load_file(found->data, &s);
 
         if (s != elf::elf_status_t::Ok)
             printfl("failed with %b @%x", s, entry);

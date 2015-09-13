@@ -1,5 +1,9 @@
 #include "signal.h"
-#include "../../src/system/syscall_defs.hpp"
+#include "../../../src/system/syscall_defs.hpp"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void default_handler(int sig);
 void ignore_handler (int sig);
@@ -47,11 +51,10 @@ void default_handler(int sig)
 		case SIGFPE:
 			break;
 	}
-
-	return 0;
 }
 
-void ignore_handler(int sig)
-{
-	return 0;
+void ignore_handler(int sig) { }
+
+#ifdef __cplusplus
 }
+#endif
