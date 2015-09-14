@@ -4,14 +4,14 @@
 extern "C" {
 #endif
 
-int printf(const char* format, ...)
+int printf(char* const format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
-	return vprintf(format, ap);
-	//va_end(ap);
+    int ret =  vprintf(format, ap);
+    va_end(ap);
 
-	//return ret;
+    return ret;
 }
 
 #ifdef __cplusplus

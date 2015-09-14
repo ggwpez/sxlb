@@ -9,3 +9,4 @@ all: $(LIBS)
 
 clean:
 	@find ./bin/ -name '*.a' -delete
+	@find ./bin/ -name '*.o' -delete

@@ -7,7 +7,7 @@ namespace2(ui, text)
     #define CHECK_INIT if (!initialized) return 0;
     #define VIDEO text_mode.font
     #define TEXT !text_mode.font
-    #define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | c)
+    #define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | (c & 0xff))
 
     struct text
     {
@@ -48,6 +48,15 @@ namespace2(ui, text)
         set_bc_all(default_color);
         update();
     };
+
+    void scroll_down()
+    {
+        for (int i = 1; i < text_mode.rows; i++)
+            memory::memcpy(vram + (((i-1)* text_mode.columns) << 1), vram + ((i* text_mode.columns)<<1), text_mode.columns << 1);
+
+        for (int i = 0; i < text_mode.columns << 1; i += 2)
+            *(vram + i +(((text_mode.rows -1)* text_mode.columns) << 1)) = ' ';
+    }
 
     void tm_newline()
     {
@@ -532,8 +541,11 @@ namespace2(ui, text)
         }
         if (text_mode.col >= text_mode.columns)
             text_mode.col = 0;
-        if(text_mode.row>=text_mode.rows)
-            text_mode.row = 0;
+        if(text_mode.row >= text_mode.rows)
+        {
+            scroll_down();
+            text_mode.row = text_mode.rows -1;
+        }
 
         if (TEXT)
         {

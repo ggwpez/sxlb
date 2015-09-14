@@ -65,9 +65,11 @@ int _fillbuff(FILE* fp);
 int _flushbuff(FILE* fp, size_t l);
 
 int putchar(int c);
+int getchar();
+
 int puts(const char* str);
-int printf(const char* format, ...);
-int vprintf(const char* args, va_list ap);
+int printf(char* const format, ...);
+int vprintf(const char* format, va_list arg);
 
 #ifdef __cplusplus
 }

@@ -6,8 +6,8 @@ COBJ := $(addsuffix .o,$(basename $(CSRC)))
 
 LD := ld
 
-CCFLAGS := -m32 -c -std=c99 -march=i386 -Wshadow -w -nostdinc -fno-pic -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common -I../../lib/stdlibc/
-LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common -nmagic -gc-sections -s
+CCFLAGS := -m32 -c -std=gnu99 -march=i386 -Wshadow -w -nostdinc -fno-pic -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common -I../../lib/stdlibc/
+LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common -s
 
 OUT := ../c_test.dat
 

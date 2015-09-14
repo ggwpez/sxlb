@@ -8,10 +8,17 @@ extern "C" {
 #define _VA_LIST 1
 
 typedef __builtin_va_list va_list;
-#define va_start(ap, v)  __builtin_va_start(ap, v)
-#define va_arg(ap, t)    __builtin_va_arg(ap, t)
-#define va_copy(d, s)    __builtin_va_copy(d, s)
-#define va_end(ap)      __builtin_va_end(ap)
+#define _INTSIZEOF(n)   ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
+
+#ifndef __cplusplus
+#define _ADDRESSOF(v)   (&(v))
+#else
+#define _ADDRESSOF(v)   (&reinterpret_cast<const char &>(v))
+#endif
+
+#define va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )
+#define va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
+#define va_end(ap)      ( ap = (va_list)0 )
 #define __GNUC_VA_LIST 1
 
 #ifdef __cplusplus

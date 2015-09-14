@@ -3,11 +3,6 @@
 
 namespace2(io, keyboard)
 {
-    uint8_t get_key(bool& pressed);
-    void init();
-    void flush();
-    uchar_t getc();
-
     enum Keys : unsigned char
     {
         ESC = 27,
@@ -64,13 +59,20 @@ namespace2(io, keyboard)
     #define RETURN      '\r'
     #define NEWLINE     ENTER
 
-    #define META_ALT    0x0200
-    #define META_CTRL   0x0400
-    #define META_SHIFT  0x0800
+    #define META_ALT    B(00000001)
+    #define META_CTRL   B(00000010)
+    #define META_SHIFT  B(00000100)
     #define META_ANY    (META_ALT | META_CTRL | META_SHIFT)
-    #define META_CAPS   0x1000
-    #define META_NUM    0x2000
-    #define META_SCRL   0x4000
+    #define META_CAPS   B(00001000)
+    #define META_NUM    B(00010000)
+    #define META_SCRL   B(00100000)
+
+    #define KEY_CODE(k)    ( k & 0xff)
+    #define KEY_PRESSED(k) ((k & 0xff00)   !=  0)
+    #define KEY_METAS(k)   ((k & 0xff0000) >> 16)
+    //| Reserved|META_KEYS|IsPressed| Scancode|
+    //|0000 0000|0000 0000|0000 0000|0000 0000|
+    typedef unsigned int key_state_t;
 
     static const unsigned char asciiNonShift[128] = {
         0, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', BACKSPACE,
@@ -87,4 +89,9 @@ namespace2(io, keyboard)
         'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, 0, 0, ' ', 0,
         F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, 0, 0,
         POS1, UP, PGUP, '-', LEFT, '5', RIGHT, '+', END, DOWN, PGDN, INS, DEL, 0, 0, 0, F11, F12 };
+
+    void init();
+    void flush();
+    key_state_t get_key();
+    uchar_t state_to_char(key_state_t state);
 }}

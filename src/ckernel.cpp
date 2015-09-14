@@ -45,16 +45,18 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    task::init();
-    //io::keyboard::init();
-    //ui::window::init();
+    sti;
+    io::keyboard::init();
+
+    /*task::init();
+    //
 
     LPTR mem = 0x400000;
     memory::memcpy(mem, &data_start, &data_end - &data_start);
 
     fs_t* fs = fs_install(mem);
 
-    fs_node_t* found = fs->find_file("console.dat");
+    fs_node_t* found = fs->find_file("c_test.dat");
     if (found == nullptr)
         printfl("not found");
     else
@@ -74,7 +76,7 @@ int32_t main()
     }
 
     task::multitasking_set(true);
-    TASK_SWITCH
+    TASK_SWITCH*/
 
     idle();
     shut_down();

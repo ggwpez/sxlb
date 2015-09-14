@@ -72,6 +72,7 @@ namespace task
         uchar_t rpl;
         uint32_t spawn_time;
 
+
         task_t* next;
         ~task_t();
 	}__attribute__((packed));

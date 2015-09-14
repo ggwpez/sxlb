@@ -5,9 +5,11 @@
 extern "C" {
 #endif
 
-int putchar(int c)
+int getchar()
 {
-    SYSCALL1(SYSCNUM_PUTC, c & 0xff);
+    int c;
+    SYSCALL_RET0(SYSCNUM_GETC, c);
+    return c & 0xff;
 }
 
 #ifdef __cplusplus

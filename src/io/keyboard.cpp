@@ -13,7 +13,7 @@ namespace2(io, keyboard)
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
-        //idt::irq_register_event_handler(1, keyboard_interrupt_handler);
+        idt::irq_register_event_handler(1, keyboard_interrupt_handler);
         //idt::irq_register_event_handler(4, mouse_interrupt_handler);
     }
 
@@ -30,7 +30,6 @@ namespace2(io, keyboard)
         printl("mouse!");
     }
 
-
     void flush()
     {
         //clear buffer
@@ -38,31 +37,30 @@ namespace2(io, keyboard)
             io::asm_inb(0x60);
     }
 
-    uint8_t get_key(bool& pressed)
+    key_state_t get_key()
     {
         while (!(io::asm_inb(0x64) & 1));
         uint8_t code = io::asm_inb(0x60), key = code & B(01111111);
+        bool pressed = !(code & B(10000000));               //sing bit indicates if the key was pressed or released
 
         uchar_t port_value = io::asm_inb(0x61);	//Let the keyboard know, that we got it
         io::asm_outb(0x61, port_value | 0x80);	// 0->1
         io::asm_outb(0x61, port_value &~0x80);	// 1->0
 
         if (code == 0xe0 || code == 0xe1 || code == 0xe2)
-        {
-            pressed = false;
             return 0;
-        }
 
-        pressed = !(code & B(10000000));		//sing bit indicates if the key was pressed or released
-
-        if (key == Keys::RCAPS_LOCK)
+        if (key == Keys::RCAPS_LOCK || key == Keys::RNUM_LOCK || key == Keys::RSCROLL_LOCK)
         {
             if (pressed)                                    //toggle only on pressed
                 keys_pressed[Keys::RCAPS_LOCK] ^= true;
 
             return 0;
         }
-        else if (key == Keys::RRIGHT_SHIFT || key == Keys::RLEFT_SHIFT) //toggle also on release
+        else if (key == Keys::RRIGHT_SHIFT ||
+                 key == Keys::RLEFT_SHIFT ||
+                 key == Keys::RLEFT_CTRL ||
+                 key == Keys::RLEFT_ALT)                    //toggle also on release
         {
             keys_pressed[key] ^= true;
             return 0;
@@ -70,23 +68,25 @@ namespace2(io, keyboard)
         else
             keys_pressed[key] ^= true;
 
-        return key;
+        ubyte_t metas;                              //set meta keys, for key_state_t
+        metas = keys_pressed[RLEFT_ALT]     << 0 |
+                keys_pressed[RLEFT_CTRL]    << 1 |
+                (keys_pressed[RLEFT_SHIFT] | keys_pressed[RRIGHT_SHIFT])   << 2 |
+                keys_pressed[RCAPS_LOCK]    << 3 |
+                keys_pressed[RNUM_LOCK]     << 4 |
+                keys_pressed[RSCROLL_LOCK]  << 5;
+
+        return key_state_t(metas << 16 | (pressed ? 0xff : 0) << 8 | code);
     }
 
-    uchar_t getc()
+    uchar_t state_to_char(key_state_t state)
     {
-        bool was_pressed;
-        uint8_t c = get_key(was_pressed);
+        //wont check for is_pressed
+        ubyte_t metas = KEY_METAS(state);
 
-        while (true)
-        if (was_pressed && c != 0)
-            break;
+        if ((META_CAPS & metas) ^ (META_SHIFT & metas))
+            return asciiShift[KEY_CODE(state)];
         else
-            c = get_key(was_pressed);
-
-        if (keys_pressed[Keys::RCAPS_LOCK] ^ (keys_pressed[Keys::RLEFT_SHIFT] || keys_pressed[Keys::RRIGHT_SHIFT]))
-            return asciiShift[c];
-        else
-            return asciiNonShift[c];
+            return asciiNonShift[KEY_CODE(state)];
     }
 }}

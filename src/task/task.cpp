@@ -5,7 +5,7 @@ namespace task
 {
     uint32_t pid = 1;
     int num_tasks = 0, capacity = 20;
-    task_t* start_task = nullptr,* actual_task = nullptr;
+    task_t* start_task = nullptr,* actual_task = nullptr,* focused_task = nullptr;
     task_t* idle_task;
     bool multitasking_enabled = false;
     extern "C" struct tss_entry tss;

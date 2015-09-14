@@ -5,64 +5,59 @@
 extern "C" {
 #endif
 
-int vprintf(const char* args, va_list ap)
+#define print(str) i = 0; while (str[i]) putchar(str[i++]); i
+
+int vprintf(const char* format, va_list arg)
 {
-    uint32_t u;
-    int32_t i = -1;
+    char buffer[64]; // Larger is not needed at the moment
 
-    while (args[++i])
+    int pos = 0, i;
+    for (; *format; format++)
     {
-        if (args[i] == '%')
+        switch (*format)
         {
-            char buffer[20];
-            switch (args[++i])
-            {
-                case 'u':
+            case '%':
+                switch (*(++format))
                 {
-                    u = va_arg(ap, uint32_t);
-                    convert_itoa_u32_dec(u, buffer);
-
-                    for (int i = 0; buffer[i]; ++i)
-                        putchar(buffer[i]);
-                } break;
-                case 'i':
-                {
-                    u = va_arg(ap, int32_t);
-                    convert_itoa_s32_dec(u, buffer);
-
-                    for (int i = 0; buffer[i]; ++i)
-                        putchar(buffer[i]);
-                } break;
-                case 'x':
-                {
-                    u = va_arg(ap, uint32_t);
-                    convert_itoa_u32_hex(u, buffer);
-
-                    for (int i = 0; buffer[i]; ++i)
-                        putchar(buffer[i]);
-                } break;
-                case 'b':
-                {
-                    u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
-                    convert_itoa_u8_hex((uint8_t)(0xff & u), buffer);
-
-                    for (int i = 0; buffer[i]; ++i)
-                        putchar(buffer[i]);         //cant use puts, because it append a new line -_-
-                } break;
-                case 's':
-                {
-                    u = va_arg(ap, LPTR);			//cant pass a byte, implicit dword
-                    puts((char*)u);              //actuallisy is char_t*
-                } break;
+                    case 'u':
+                        convert_itoa_u32_dec(va_arg(arg, uint32_t), buffer);
+                        pos += print(buffer);
+                        break;
+                    case 'i': case 'd':
+                        convert_itoa_s32_dec(va_arg(arg, int32_t), buffer);
+                        pos += print(buffer);
+                        break;
+                    case 'x': case 'X':
+                        convert_itoa_u32_hex(va_arg(arg, uint32_t), buffer);
+                        pos += print(buffer);
+                        break;
+                    case 's':
+                    {
+                        char* str = va_arg(arg, char*);
+                        pos += print(str);
+                        break;
+                    }
+                    case 'c':
+                        putchar((int8_t)va_arg(arg, int32_t));
+                        pos++;
+                        break;
+                    case '%':
+                        putchar('%');
+                        pos++;
+                        break;
+                    default:
+                        --format;
+                        --pos;
+                        break;
+                    }
+                    break;
                 default:
-                    putchar('%');
-                    putchar('?');
+                    putchar(*format);
+                    pos++;
                     break;
             }
-        }
-        else
-            putchar(args[i]);
     }
+    return (pos);
 }
 
 #ifdef __cplusplus
