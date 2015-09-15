@@ -14,9 +14,11 @@ OUT := ../bin/stdlibc.a
 all: $(OUT)
 
 $(OUT): $(COBJ)
+	mkdir -p $(@D)
 	$(AR) $(ARFLAGS) $(OUT) $(COBJ)
 
 bin/%.o: %.c
+	mkdir -p $(@D)
 	$(CC) $(CCFLAGS) $< -o $@
 
 clean:

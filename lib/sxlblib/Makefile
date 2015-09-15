@@ -11,6 +11,7 @@ OUT := ../bin/sxlblib.a
 all: $(OUT)
 
 $(OUT): $(ASOBJ)
+	mkdir -p $(@D)
 	$(AR) $(ARFLAGS) $(OUT) $(ASOBJ)
 
 %.o: %.asm
