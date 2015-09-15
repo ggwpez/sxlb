@@ -45,6 +45,7 @@ OS.bin: boot.o $(OBJECTS) payload.o
 	$(LD) $(LDFLAGS) $+ -o $@
 
 OS.iso: OS.bin
+	mkdir -p isodir/boot/
 	cp OS.bin isodir/boot/OS.bin
 	grub-mkrescue -o OS.iso isodir
 
