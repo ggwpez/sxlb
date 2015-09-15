@@ -68,7 +68,7 @@ namespace2(io, keyboard)
     #define META_SCRL   B(00100000)
 
     #define KEY_CODE(k)    ( k & 0xff)
-    #define KEY_PRESSED(k) ((k & 0xff00)   !=  0)
+    #define KEY_PRESSED(k) ((k & 0xff00))
     #define KEY_METAS(k)   ((k & 0xff0000) >> 16)
     //| Reserved|META_KEYS|IsPressed| Scancode|
     //|0000 0000|0000 0000|0000 0000|0000 0000|
@@ -93,5 +93,6 @@ namespace2(io, keyboard)
     void init();
     void flush();
     key_state_t get_key();
+    uchar_t getc();
     uchar_t state_to_char(key_state_t state);
 }}

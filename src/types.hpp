@@ -1,6 +1,6 @@
 #pragma once
 
-#define __VERSION__ "0.1"
+#define __VERSION__ "0.1 - now with GNU GRUB"
 #define __STABLE__ true
 #define __VERSION_STABLE__  (__STABLE__ ? "stable" : "unstable")
 

@@ -1,7 +1,7 @@
 SRCDIR := src/
 SRCDIRUSER := user/
 
-ASMSOURCES := kernel.asm $(filter-out payload.asm boot.asm kernel.asm ,$(wildcard *.asm))
+ASMSOURCES := $(filter-out payload.asm ,$(wildcard *.asm))
 CPPSOURCES := $(shell find $(SRCDIR) -name '*.cpp')
 USERSRCFILES   := $(shell find $(SRCDIRUSER) -name '*.c')
 USROBJECTS := $(addsuffix .dat, $(basename $(USERSRCFILES)))
@@ -16,9 +16,9 @@ ASFLAGSOBJ := -O32 -f elf32
 AS := nasm
 
 CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
-LDFLAGS := -m elf_i386 -T kernel.ld
+LDFLAGS := -m elf_i386 -T linker.ld
 
-all: lib.target user.target boot.bin ckernel.bin OS.bin
+all: lib.target user.target boot.o OS.iso
 
 user.target: 
 	$(MAKE) -C $(SRCDIRUSER)
@@ -30,25 +30,23 @@ $(IMAGE):
 	$(MAKE) -C $(SRCDIRUSER)
 
 start: all
-	bochs -q
-
-debug: all
-	bochsdbg -q
+	sudo qemu-system-i386 -hda OS.iso -d cpu_reset -no-reboot
 
 payload.o: $(IMAGE) payload.asm
 	$(AS) $(ASFLAGSOBJ) payload.asm -o payload.o
 
-boot.bin: boot.asm
-	$(AS) $(ASFLAGSBIN) $< -o $@	
+boot.o: boot.s
+	gcc -m32 boot.s -o boot.o -c	
 
 %.o: %.asm
 	$(AS) $(ASFLAGSOBJ) $< -o $@
 
-ckernel.bin: $(OBJECTS) payload.o
+OS.bin: boot.o $(OBJECTS) payload.o
 	$(LD) $(LDFLAGS) $+ -o $@
 
-OS.bin: boot.bin ckernel.bin
-	cat boot.bin ckernel.bin > OS.bin
+OS.iso: OS.bin
+	cp OS.bin isodir/boot/OS.bin
+	grub-mkrescue -o OS.iso isodir
 
 map: LDFLAGS += -map kernel.map
 map: all	
@@ -58,5 +56,6 @@ clean:
 	@find . -name '*.a' -delete
 	@find . -name '*.dat' -delete
 	@find . -name '*.img' -delete
+	@find . -name '*.iso' -delete
 	@find . -name '*.bin' -delete
 	$(MAKE) -C $(SRCDIRUSER) clean 

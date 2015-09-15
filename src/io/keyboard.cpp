@@ -13,7 +13,7 @@ namespace2(io, keyboard)
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
-        idt::irq_register_event_handler(1, keyboard_interrupt_handler);
+        //idt::irq_register_event_handler(1, keyboard_interrupt_handler);
         //idt::irq_register_event_handler(4, mouse_interrupt_handler);
     }
 
@@ -69,14 +69,14 @@ namespace2(io, keyboard)
             keys_pressed[key] ^= true;
 
         ubyte_t metas;                              //set meta keys, for key_state_t
-        metas = keys_pressed[RLEFT_ALT]     << 0 |
+        metas = keys_pressed[RLEFT_ALT]          |
                 keys_pressed[RLEFT_CTRL]    << 1 |
                 (keys_pressed[RLEFT_SHIFT] | keys_pressed[RRIGHT_SHIFT])   << 2 |
                 keys_pressed[RCAPS_LOCK]    << 3 |
                 keys_pressed[RNUM_LOCK]     << 4 |
                 keys_pressed[RSCROLL_LOCK]  << 5;
 
-        return key_state_t(metas << 16 | (pressed ? 0xff : 0) << 8 | code);
+        return key_state_t(metas << 16 | pressed << 8 | code);
     }
 
     uchar_t state_to_char(key_state_t state)
@@ -88,5 +88,14 @@ namespace2(io, keyboard)
             return asciiShift[KEY_CODE(state)];
         else
             return asciiNonShift[KEY_CODE(state)];
+    }
+
+    uchar_t getc()
+    {
+        key_state_t key = get_key();
+        while (!KEY_PRESSED(key))
+            key = get_key();
+
+        return state_to_char(key);
     }
 }}

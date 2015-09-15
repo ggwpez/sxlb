@@ -45,12 +45,13 @@ int32_t main()
 #else
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
-    sti;
+    cli;
     io::keyboard::init();
 
-    /*task::init();
-    //
+    console term;
+    term.main();
 
+    /*task::init();
     LPTR mem = 0x400000;
     memory::memcpy(mem, &data_start, &data_end - &data_start);
 

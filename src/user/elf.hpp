@@ -35,7 +35,7 @@ namespace elf
     {
         M32     = 0x01,
         SPARC   = 0x02,
-        i386    = 0x03,
+        _i386    = 0x03,
         MIPS    = 0x08,
         PowerPC = 0x14,
         ARM     = 0x28,
