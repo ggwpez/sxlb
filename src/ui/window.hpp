@@ -6,10 +6,10 @@
 
 namespace2 (ui, window)
 {
-    #define START_WINDOWS 2
+    #define MAX_WINDOWS 6
 
     void init();
-    void switch_window(ubyte_t window_index);
+    bool switch_window(ubyte_t window_index);
 
     struct window_t
     {

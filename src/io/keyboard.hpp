@@ -1,5 +1,6 @@
 #pragma once
 #include "../types.hpp"
+#include "../utils/queue.hpp"
 
 namespace2(io, keyboard)
 {
@@ -72,9 +73,11 @@ namespace2(io, keyboard)
     #define KEY_METAS(k)   ((k & 0xff0000) >> 16)
     //| Reserved|META_KEYS|IsPressed| Scancode|
     //|0000 0000|0000 0000|0000 0000|0000 0000|
-    typedef unsigned int key_state_t;
+    typedef unsigned int key_state_t; 
 
-    static const unsigned char asciiNonShift[128] = {
+    typedef ::queue<key_state_t, 64> key_queue_t;
+
+    static const uchar_t asciiNonShift[128] = {
         0, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', BACKSPACE,
         TAB, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', ENTER, 0,
         'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\',
@@ -82,7 +85,7 @@ namespace2(io, keyboard)
         F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, 0, 0,
         POS1, UP, PGUP, '-', LEFT, '5', RIGHT, '+', END, DOWN, PGDN, INS, DEL, 0, 0, 0, F11, F12 };
 
-    static const unsigned char asciiShift[128] = {
+    static const uchar_t asciiShift[128] = {
         0, ESC, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', BACKSPACE,
         TAB, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', ENTER, 0,
         'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '\"', '~', 0, '|',

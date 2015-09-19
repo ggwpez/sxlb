@@ -1,7 +1,7 @@
 #pragma once
 
-#include "memory/heap_he.hpp"
-#include "types.hpp"
+#include "../memory/heap_he.hpp"
+#include "../types.hpp"
 
 class ordered_array
 {

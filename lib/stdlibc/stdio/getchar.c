@@ -7,8 +7,10 @@ extern "C" {
 
 int getchar()
 {
-    int c;
-    SYSCALL_RET0(SYSCNUM_GETC, c);
+    int c = 0;
+    while (!c)
+        SYSCALL_RET0(SYSCNUM_GETC, c);
+
     return c & 0xff;
 }
 

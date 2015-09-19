@@ -6,7 +6,7 @@ LD := ld
 AS := nasm
 
 CC := gcc
-CCFLAGS := -I. -m32 -c -std=gnu99 -w -ffunction-sections -fdata-sections -fno-pic -nostdinc -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common
+CCFLAGS := -I. -m32 -c -std=gnu11 -w -ffunction-sections -fdata-sections -fno-pic -nostdinc -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common
 ARFLAGS := rs
 
 OUT := ../bin/stdlibc.a

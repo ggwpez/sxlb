@@ -16,15 +16,14 @@
     #define __CHECKS_DBG true
 #endif
 
-#ifndef __BITS
-#define __BITS 32		//enter bits
-#endif
-
 #define nullptr 0
 #define NULL 0
 
 #define sgn(x) ((x < 0) ? -1 : ((x > 0) ? 1 : 0))
 #define abs(x) ((x < 0) ? -x: x)
+
+//#define assert(expr) ((expr) ? (void)0 : (syshlt("Assertion failed: " #expr ", file " __FILE__ ", line " __LINE__);))
+#define assert(e)
 
 #define TASK_SWITCH __asm__ __volatile__("int $32");
 #define hlt asm("hlt");

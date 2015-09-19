@@ -6,7 +6,7 @@ namespace elf
     {
         if (*(uint32_t*)h->magic != ELF_MAGIC)
             return elf_status_t::Magic_err;
-        if (h->cpu != elf_cpu::_i386)
+        if (h->cpu != elf_cpu::i386)
             return elf_status_t::CPU_err;
         if (h->type != elf_bin_type::executable)
             return elf_status_t::Type_err;

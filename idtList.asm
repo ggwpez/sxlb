@@ -88,6 +88,7 @@ _ir_tail:
     pop ebx
     pop eax
     add esp, 8
+	sti
     iret		;iret also makes an sti
 
 [GLOBAL _nop]

@@ -5,14 +5,14 @@
 extern "C" {
 #endif
 
-#define _DTOR_C 64
+#define _DTORS_C 64
 
-void (*dtors[_DTOR_C])() = { 0 };
+void (*dtors[_DTORS_C])() = { 0 };
 int i = 0;
 
 int atexit(void (*func)(void))
 {
-	if (i >= _DTOR_C)
+    if (i >= _DTORS_C)
 		return -1;
 
 	dtors[i++] = func;

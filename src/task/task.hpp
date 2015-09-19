@@ -5,11 +5,12 @@
 #include "../system/system.hpp"
 #include "../memory/memory.hpp"
 #include "../gdt.hpp"
-
-#define ELF_OFFSET 0x110
+#include "../io/keyboard.hpp"
 
 namespace task
 {
+    extern io::keyboard::key_queue_t* key_queue;
+
     struct task_t;
 	struct cpu_state_t
 	{
@@ -58,8 +59,17 @@ namespace task
     task_t*         get_task();
     uint32_t        get_task_count();
 
+    uint32_t poll_key();        //returns EOF on fail
+    uint32_t poll_char();       //   "     "   "  "
+    uint32_t poll_key_buffer_s(io::keyboard::key_state_t* buffer, size_t s);
+    uint32_t poll_char_buffer_s(char* buffer, size_t s);
+
+    bool change_focus(uint32_t pid);
+    bool change_focus(task_t* task);
+
     #define USER_STACK_SIZE 4096
     #define KERNEL_STACK_SIZE 4096
+
 	struct task_t
 	{
         uint8_t running;
@@ -70,8 +80,9 @@ namespace task
         uint32_t dir_offset;
         cpu_state_t* cpu_state;
         uchar_t rpl;
-        uint32_t spawn_time;
 
+        uint32_t spawn_time;
+        io::keyboard::key_queue_t* key_queue;
 
         task_t* next;
         ~task_t();

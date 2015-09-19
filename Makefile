@@ -15,10 +15,14 @@ ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
 AS := nasm
 
-CXXFLAGS := -m32 -std=c++11 -fpermissive -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
+#CXX := g++
+#CXXFLAGS := -m32 -fpermissive -w
+CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T linker.ld
 
 all: lib.target user.target boot.o OS.iso
+
+test: lib.target user.target boot.o OS.bin
 
 user.target: 
 	$(MAKE) -C $(SRCDIRUSER)
@@ -30,7 +34,7 @@ $(IMAGE):
 	$(MAKE) -C $(SRCDIRUSER)
 
 start: all
-	sudo qemu-system-i386 -hda OS.iso -d cpu_reset -no-reboot
+	qemu-system-i386 -hda OS.iso -d cpu_reset -no-reboot
 
 payload.o: $(IMAGE) payload.asm
 	$(AS) $(ASFLAGSOBJ) payload.asm -o payload.o

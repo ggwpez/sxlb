@@ -25,9 +25,8 @@ namespace system
         &ui::text::set_bc_all,
         &ui::text::set_fc,
         &ui::text::set_fc_all,
-        &io::keyboard::get_key,
-        //&io::keyboard::getc,
-        &io::keyboard::getc,     //TODO
+        &task::poll_key,
+        &task::poll_char,
         &task::end,
         &task::get_rpl,
         &task::get_pid,

@@ -1,6 +1,6 @@
 #include "array_or.hpp" 
-#include "system/system.hpp"
-#include "memory/memory.hpp"
+#include "../system/system.hpp"
+#include "../memory/memory.hpp"
 
 ordered_array::ordered_array()
 { }

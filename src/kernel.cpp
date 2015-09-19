@@ -6,7 +6,7 @@
 #include "time/timer.hpp"
 #include "convert.hpp"
 
-#include "fs/fs.hpp"
+#include "fs/initrd.hpp"
 #include "gdt.hpp"
 #include "memory/memory.hpp"
 #include "sprintf.hpp"
@@ -23,6 +23,14 @@ extern "C"
 {
     extern void data_start();
     extern void data_end  ();
+}
+
+void one()
+{
+    console term;
+    term.main();
+
+    EXIT(0);
 }
 
 bool running = true;
@@ -46,13 +54,27 @@ int32_t main()
     ui::text::init(80, 25, FC_GREEN | BC_BLACK);
 #endif
     cli;
-    io::keyboard::init();
+    //io::keyboard::init();
 
-    console term;
-    term.main();
+    //task::init();
+    //task::create(one, 0);
 
-    /*task::init();
-    LPTR mem = 0x400000;
+    LPTR initrd_start = &data_start;
+    vfs::fs_node_t* initrd = initrd::fs_install(initrd_start);
+
+    for (int i = 0; i < initrd->length; ++i)
+    {
+        vfs::dir_ent_t* ent = vfs::read_dir(initrd, i);
+        vfs::fs_node_t* node = vfs::find_dir(initrd, ent->name);
+
+        if ((char)node->type & (char)vfs::node_type::Dir)
+            printfl("%s/\t\t\t\te: %u", node->name, node->length);
+        else
+            printfl("./%s\t\ts: %m", node->name, node->length);
+    }
+
+
+    /*LPTR mem = 0x400000;
     memory::memcpy(mem, &data_start, &data_end - &data_start);
 
     fs_t* fs = fs_install(mem);
@@ -74,10 +96,10 @@ int32_t main()
 
             task::create(entry, 3);
         }
-    }
+    }*/
 
-    task::multitasking_set(true);
-    TASK_SWITCH*/
+    //task::multitasking_set(true);
+   // TASK_SWITCH
 
     idle();
     shut_down();

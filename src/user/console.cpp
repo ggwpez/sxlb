@@ -1,5 +1,13 @@
 #include "console.hpp"
 
+int console_main()
+{
+    console term;
+    term.main();
+
+    EXIT(0)
+}
+
 console::console()
 {
     SYSCALL_RET0(SYSCNUM_TASK_GET_RPL, this->rpl);
@@ -29,6 +37,8 @@ int console::main()
         if (l)
             this->interpret_cmd();
     }
+
+    return 0;
 }
 
 uint32_t console::get_line()
@@ -36,8 +46,9 @@ uint32_t console::get_line()
     uint32_t i = 0;
     while (i < this->s-1)
     {
-        uchar_t in;
-        SYSCALL_RET0(SYSCNUM_GETC, in);
+        uchar_t in = 0;
+        while (!in)
+            SYSCALL_RET0(SYSCNUM_GETC, in);
 
         if (in == BACKSPACE)
         {
@@ -113,7 +124,7 @@ void console::cmd_sys_info()
 {
     uint32_t start = system::kernel_start_address(), end = system::kernel_end_address();
 
-    printfl("Version: %s (%s)\nSize of the OS: %m\nSize of the Kernel: %m",
+    printfl("Version: %s (%s)\nSize of the OS: %m\nSize of the Kernel: %m\nBuild On: " __TIME__ " " __DATE__,
             __VERSION__, __VERSION_STABLE__,  end, end - start);
 }
 
@@ -144,5 +155,5 @@ void console::cmd_reboot()
 
 void console::cmd_quit()
 {
-    SYSCALL0(SYSCNUM_TASK_EXIT);
+    EXIT(0);
 }

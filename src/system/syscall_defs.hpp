@@ -40,3 +40,5 @@ enum CALL
 #define SYSCALL3(num, arg0, arg1, arg2) asm volatile("int $0x7F" : : "a" (num), "b" (arg0), "c" (arg1), "d" (arg2))
 #define SYSCALL4(num, arg0, arg1, arg2, arg3) asm volatile("int $0x7F" : : "a" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3))
 #define SYSCALL5(num, arg0, arg1, arg2, arg3, arg4) asm volatile("int $0x7F": : "a" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3), "D" (arg4))
+
+#define EXIT(status) SYSCALL1(SYSCNUM_TASK_EXIT, status);

@@ -8,6 +8,8 @@
 #include "../memory/paging.hpp"
 #include "../system/syscall.hpp"
 
+int console_main();
+
 class console
 {
 public:

@@ -35,7 +35,7 @@ namespace elf
     {
         M32     = 0x01,
         SPARC   = 0x02,
-        _i386    = 0x03,
+        i386    = 0x03,
         MIPS    = 0x08,
         PowerPC = 0x14,
         ARM     = 0x28,
@@ -63,7 +63,7 @@ namespace elf
 
     //#define ELF_MAGIC 0x7F454C46
     #define ELF_MAGIC 0x464c457f
-    struct elf_header_t
+    typedef struct elf_header
     {
         /*uint32_t magic;
         ubyte_t class_;
@@ -88,9 +88,9 @@ namespace elf
         uint16_t sht_entry_s;   //sht entry size
         uint16_t sht_entry_c;   //sht entrys count
         uint16_t shstrndx;
-    };
+    } elf_header_t;
 
-    struct elf_ph_t
+    typedef struct elf_ph
     {
         elf_ph_type type;
         uint32_t offset;
@@ -100,7 +100,7 @@ namespace elf
         uint32_t mem_s;
         uint32_t flags;
         uint32_t align;
-    };
+    } elf_ph_t;
 
     enum class elf_status_t
     {

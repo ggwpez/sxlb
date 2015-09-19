@@ -4,6 +4,9 @@
 
 #include "console.h"
 
+char* bang;
+uchar_t buffer[s];
+
 int main()
 {
     memset(buffer, 0, s);

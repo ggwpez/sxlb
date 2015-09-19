@@ -32,6 +32,7 @@ int main(int files_count, char** files)
         nodes[i].data = off;
         nodes[i].data_length = ftell(input);
         nodes[i].magic = FS_MAGIC;
+        nodes[i].inode = i+1;
         strcpy(nodes[i].name, files[i]);
 
         off += nodes[i].data_length;

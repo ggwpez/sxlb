@@ -9,6 +9,7 @@ namespace task
     task_t* idle_task;
     bool multitasking_enabled = false;
     extern "C" struct tss_entry tss;
+    io::keyboard::key_queue_t* key_queue = nullptr;
 
     void idle_swap_in();
     void idle_create();
@@ -47,6 +48,7 @@ namespace task
         idle_task->next = nullptr;
         idle_task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE, 0, 0) + KERNEL_STACK_SIZE;
         idle_task->running = true;
+        idle_task->key_queue = nullptr;
     }
 
     void multitasking_set(bool value)
@@ -61,8 +63,26 @@ namespace task
 
     task_t* find_by_pid(uint32_t pid)
 	{
-        syshlt("find_by_pid not implemented");
-        return nullptr;
+        task_t* ret = start_task;
+
+        while (ret->pid != pid)
+            if (!ret->next)
+                return nullptr;
+            else
+                ret = ret->next;
+
+        return ret;
+    }
+
+    bool change_focus(uint32_t pid)
+    {
+        change_focus(find_by_pid(pid));
+    }
+
+    bool change_focus(task_t* task)
+    {
+        focused_task = task;
+        key_queue = focused_task->key_queue;
     }
 	
 	uint32_t get_pid()
@@ -88,6 +108,48 @@ namespace task
     uint32_t get_task_count()
     {
         return num_tasks;
+    }
+
+    uint32_t poll_key()
+    {
+        io::keyboard::key_queue_t* queue = actual_task->key_queue;
+
+        if (!queue || queue->empty())
+            return 0;
+
+        return queue->pop_front();
+    }
+
+    uint32_t poll_key_buffer_s(io::keyboard::key_state_t* buffer, size_t s)
+    {
+        io::keyboard::key_queue_t* queue = actual_task->key_queue;
+
+        if (!queue || queue->empty())
+            return 0;
+
+        while (!queue->empty() && s--)
+            *buffer++ = queue->pop_front();
+    }
+
+    uint32_t poll_char()
+    {
+        io::keyboard::key_queue_t* queue = actual_task->key_queue;
+
+        if (!queue || queue->empty())
+            return 0;
+
+        return io::keyboard::state_to_char(actual_task->key_queue->pop_front());
+    }
+
+    uint32_t poll_char_buffer_s(char *buffer, size_t s)
+    {
+        io::keyboard::key_queue_t* queue = actual_task->key_queue;
+
+        if (!queue || queue->empty())
+            return 0;
+
+        while (!queue->empty() && s--)
+            *buffer++ = io::keyboard::state_to_char(queue->pop_front());
     }
 
     void dump_tss(tss_entry* tssEntry)
@@ -124,17 +186,21 @@ namespace task
             return false;
         }
 
-        //LPTR mem = memory::k_malloc(sizeof(task_t) + KERNEL_STACK_SIZE, 0, 0);
+        LPTR mem = memory::k_malloc(sizeof(task_t) + KERNEL_STACK_SIZE + sizeof(io::keyboard::key_queue_t), 0, 0);
 
-        task_t* task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
+        task_t* task = mem;
+        //task_t* task = memory::k_malloc(sizeof(task_t), 0, 0);
         task->next = nullptr;
         task->directory = clone_directory(current_directory, &task->dir_offset);
-        //task->directory = current_directory;
 
         task->pid = pid++;
-        task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE,0,0) + KERNEL_STACK_SIZE;
+        task->kernel_stack = mem + sizeof(task_t) + KERNEL_STACK_SIZE;
+        //task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE,0,0) + KERNEL_STACK_SIZE;
         uint32_t* kernel_stack = task->kernel_stack;
-        //printfl("end: %x", task->kernel_stack+KERNEL_STACK_SIZE);
+
+        //task->key_queue = memory::k_malloc(sizeof(io::keyboard::key_queue_t),0,0);
+        task->key_queue = task->kernel_stack + sizeof(io::keyboard::key_queue_t);
+        task->key_queue->create();
 
         uint32_t code_segment=0x08, data_segment=0x10;
         *(--kernel_stack) = 0;  // return address dummy
@@ -185,9 +251,9 @@ namespace task
         task->next = actual_task->next;
         actual_task->next = task;
 
-        num_tasks++;
+        if (num_tasks++ == 1)   //first user task to be craeted
+            change_focus(task);
         idle_swap_out();
-        //printfl("Task created, id=%u, count=%u", task->pid, num_tasks);
         sti
         return true;
     };
@@ -284,6 +350,7 @@ namespace task
 
         switch_paging(actual_task->directory);
         tss_switch(actual_task->cpu_state, actual_task->kernel_stack +KERNEL_STACK_SIZE, actual_task->ebp, actual_task->directory->physical_address, actual_task->ss); // esp0, esp, ss        switch_paging(actual_task->directory);
+        key_queue = actual_task->key_queue;
 
         return actual_task->cpu_state;
 	};
@@ -291,7 +358,6 @@ namespace task
     task_t::~task_t()
     {
         memory::k_free(this);
-        memory::k_free(this->kernel_stack - KERNEL_STACK_SIZE);
-        //memory::k_free((uint32_t)directory - this->dir_offset);
+        memory::k_free((uint32_t)directory - this->dir_offset);   //TODO
     };
 }

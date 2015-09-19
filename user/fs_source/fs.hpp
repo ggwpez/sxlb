@@ -22,4 +22,5 @@ struct fs_node_t
     char name[64];
     unsigned int data_length;
     unsigned int data;   //after init() its absolute
+    unsigned int inode;
 };

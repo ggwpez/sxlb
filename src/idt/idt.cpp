@@ -1,6 +1,10 @@
 #include "idt.hpp"
 #include "fault_handler.hpp"
 
+#ifdef __LP64__
+#pragma error This is 32bit asm code, but you assume its 64bit.
+#endif
+
 using namespace io;
 namespace idt
 {
@@ -71,7 +75,7 @@ namespace idt
         void(*handler)(task::cpu_state_t* state) = irq_functions[state->int_no - 32];
 
         if (handler)
-            { handler(state); }
+            handler(state);
 
         return state_new;
     };
@@ -233,7 +237,10 @@ namespace idt
 			syshlt("IDT event register!");
 #endif
         if (event_number > 15)
+        {
+            syshlt("registered irq number too hight");
             return;
+        }
 
 		irq_functions[event_number] = event_handler;
 	};

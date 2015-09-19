@@ -2,27 +2,32 @@
 #include "hwaccess.hpp"
 #include "../task/task.hpp"
 #include "../idt/idt.hpp"
+#include "syskey_handler.hpp"
 
 namespace2(io, keyboard)
 {
     void keyboard_interrupt_handler(task::cpu_state_t* state);
     void mouse_interrupt_handler   (task::cpu_state_t* state);
+
     bool keys_pressed[256] = { false };
 
     void init()
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
-        //idt::irq_register_event_handler(1, keyboard_interrupt_handler);
+        idt::irq_register_event_handler(1, keyboard_interrupt_handler);
         //idt::irq_register_event_handler(4, mouse_interrupt_handler);
+        syskey_init();
     }
 
     void keyboard_interrupt_handler(task::cpu_state_t* state)
     {
-        uint8_t scan = io::asm_inb(0x60);
+        key_state_t key = get_key();
 
-        if (scan)
-            printfl("k: %x ", scan);
+        if (KEY_PRESSED(key) && (KEY_METAS(key) & META_CTRL))       //ctrl is pressed, so its a system command
+            syskey_handler(key);
+        else if (KEY_PRESSED(key) && task::key_queue)
+            task::key_queue->push_back(key);                        //queue ignores it, if shes full TODO: add key_queue full logging event
     }
 
     void mouse_interrupt_handler(task::cpu_state_t* state)
@@ -32,14 +37,13 @@ namespace2(io, keyboard)
 
     void flush()
     {
-        //clear buffer
-        while (io::asm_inb(0x64) & 1)
+        while (io::asm_inb(0x64) & 1)       //clear buffer
             io::asm_inb(0x60);
     }
 
     key_state_t get_key()
     {
-        while (!(io::asm_inb(0x64) & 1));
+        //while (!(io::asm_inb(0x64) & 1)); //called by interrupt, so no checking needed
         uint8_t code = io::asm_inb(0x60), key = code & B(01111111);
         bool pressed = !(code & B(10000000));               //sing bit indicates if the key was pressed or released
 

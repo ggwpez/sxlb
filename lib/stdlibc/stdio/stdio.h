@@ -38,7 +38,7 @@ typedef struct _iobuff
     int left;
     char* ptr;
 	char* base;
-	char access;
+    char access;
 	char state;
 	LPTR fd;
 } FILE;

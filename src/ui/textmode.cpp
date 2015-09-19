@@ -362,6 +362,11 @@ namespace2(ui, text)
                     sxlb_convert_itoa_u8_hex((uint8_t)(0xff & u), buffer);
                     write(buffer);
                 } break;
+                case 'c':
+                {
+                    u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
+                    put_char(u & 0xff);
+                } break;
                 case 's':
                 {
                     u = va_arg(ap, LPTR);			//cant pass a byte, implicit dword

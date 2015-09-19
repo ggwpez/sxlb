@@ -3,7 +3,7 @@ USRSRCFILES := $(patsubst %.c, %.o, $(wildcard **/*.c))
 EXECS := $(patsubst %/, %.target, $(DIRS))
 
 IMAGE := data.img
-FILES := c_test.dat $(wildcard *.dat)
+FILES := $(wildcard *.dat)
 
 FS := fs
 
@@ -14,7 +14,7 @@ user_programs: $(EXECS)
 $(DIRS):
 	$(MAKE) -C $@
 
-$(IMAGE): $(FS) $(FILES)
+$(IMAGE): c_test.dat $(FS) $(FILES)
 	./$(FS) $(FILES) $@
 
 $(FS):

@@ -14,6 +14,9 @@ typedef unsigned int size_t;
 
 void abort();
 
+#define EXIT_FAILURE 'fail'
+#define EXIT_SUCCESS 'succ'
+
 //dtor.c
 int atexit(void (*func)(void));
 void exit(int status);

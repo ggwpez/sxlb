@@ -164,12 +164,12 @@ void paging_install()
     i = 0;
 	while (i < (placement_address + 0x10000))
 	{
-		if (((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
+        if (((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
 		{
             index = alloc_frame(get_page(i, 1,kernel_directory), US, RW); // exclude VRAM
 		}
 		else
-            index = alloc_frame(get_page(i, 1,kernel_directory), SV, RO);
+            index = alloc_frame(get_page(i, 1,kernel_directory), US, RW);
 		i += PAGE_SIZE; ++counter;
 	}
 
@@ -299,6 +299,9 @@ page_directory* clone_directory(page_directory* src, uint32_t* dir_offset)
     LPTR tmp = memory::k_malloc(sizeof(page_directory) + PAGE_SIZE, 0, &phys);
     off = PAGE_SIZE - tmp % PAGE_SIZE;
     page_directory* dir = (page_directory*)(tmp + off);
+
+    if (dir_offset)
+        *dir_offset = off;
 
     memory::memcpy(dir, src, sizeof(page_directory));
     dir->physical_address = src->physical_address;
