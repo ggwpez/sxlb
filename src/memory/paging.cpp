@@ -119,8 +119,10 @@ void free_frame(page* page) // dellocate a frame
 
 internal void bitset_install()
 {
+    logINF("installing frames...");
     frames = (uint32_t*)k_malloc_no_heap(NFRAMES / 32, 0, 0);
     memory::memset(frames, 0, NFRAMES / 32);
+    logINF("(%u)", NFRAMES / 32);logDONE;
 };
 
 uint32_t map_heap(uint32_t start, uint32_t end)
@@ -151,7 +153,7 @@ void paging_install()
 {
 	bitset_install();
 
-	// make a page directory
+    logINF("creating page dirs + mapping memory...");
     kernel_directory = (page_directory*)k_malloc_no_heap(sizeof(page_directory), 1, nullptr);
     memory::memset(kernel_directory, 0, sizeof(page_directory));
     kernel_directory->physical_address = kernel_directory->tables_physical;
@@ -184,6 +186,7 @@ void paging_install()
 
     map_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE);
     current_directory = clone_directory(kernel_directory, nullptr);
+    logDONE;
 
     enable_paging(kernel_directory);
 
@@ -192,6 +195,7 @@ void paging_install()
 
 void enable_paging(page_directory* dir)
 {
+    logINF("enabling pagin...");
     // cr3: PDBR (Page Directory Base Register)
     asm volatile("mov %0, %%cr3":: "r"(dir->physical_address));    //set page directory base pointer
     // read cr0, set paging bit, write cr0 back
@@ -199,6 +203,7 @@ void enable_paging(page_directory* dir)
     asm volatile("mov %%cr0, %0": "=r"(cr0));   // read cr0
     cr0 |= 0x80000000;                          // set the paging bit in CR0 to enable paging
     asm volatile("mov %0, %%cr0":: "r"(cr0));   // write cr0
+    logDONE;
 }
 
 void switch_paging(page_directory* dir)

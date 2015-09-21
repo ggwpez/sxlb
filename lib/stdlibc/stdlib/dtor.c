@@ -1,4 +1,4 @@
-#include "../stdlib/stdlib.h"
+#include "stdlib.h"
 #include "../../../src/system/syscall_defs.hpp"
 
 #ifdef __cplusplus

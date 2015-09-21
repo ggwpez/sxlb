@@ -9,6 +9,7 @@ SOURCES := $(ASMSOURCES) $(CPPSOURCES)
 OBJECTS := $(addsuffix .o, $(basename $(SOURCES)))
 
 IMAGE := $(SRCDIRUSER)data.img
+GRUBCFG := isodir/boot/grub/grub.cfg
 LIBDIR := lib/
 
 ASFLAGSBIN := -O32 -f bin
@@ -33,7 +34,13 @@ lib.target:
 $(IMAGE):
 	$(MAKE) -C $(SRCDIRUSER)
 
-start: all
+bochs: all
+	bochs -q
+
+bochsdbg: all
+	bochsdbg -q
+
+qemu: all
 	qemu-system-i386 -hda OS.iso -d cpu_reset -no-reboot
 
 payload.o: $(IMAGE) payload.asm
@@ -48,14 +55,24 @@ boot.o: boot.s
 OS.bin: boot.o $(OBJECTS) payload.o
 	$(LD) $(LDFLAGS) $+ -o $@
 
-OS.iso: OS.bin
-	mkdir -p isodir/boot/grub
-	cp grub.cfg isodir/boot/grub/grub.cfg 
-	cp OS.bin isodir/boot/OS.bin
+$(GRUBCFG): grub.cfg
+	cp grub.cfg $@
+
+isodir/boot/grub:
+	mkdir -p $@
+
+isodir/boot/OS.bin: OS.bin
+	cp OS.bin $@
+
+OS.iso: $(GRUBCFG) isodir/boot/grub isodir/boot/OS.bin
 	grub-mkrescue -o OS.iso isodir
 
 map: LDFLAGS += -map kernel.map
-map: all	
+map: all
+
+deploy: all
+	sudo dd if=OS.iso of=$(filter-out $@,$(MAKECMDGOALS))
+	sync	
 
 clean:
 	@find . -name '*.o' -delete

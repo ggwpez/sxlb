@@ -1,5 +1,5 @@
 #include "convert.h"
-#include "../macro.h"
+#include "macro.h"
 
 #ifdef __cplusplus
 extern "C" {

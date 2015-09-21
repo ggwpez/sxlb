@@ -1,0 +1,1 @@
+typedef unsigned int ino_t;

@@ -1,21 +1,26 @@
-#include "stdio/stdio.h"
-#include "stdlib/stdlib.h"
-#include "string/string.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "../../lib/posixc/dirent.h"
 
 #include "console.h"
 
 char* bang;
 uchar_t buffer[s];
 
+uchar_t path[NAME_MAX];
+uint32_t path_l = 0;
+
 int main()
 {
-    memset(buffer, 0, s);
-    //SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);
-    bang = "$ ";
+    int rpl = 0;
+    char* user = rpl ? "user" : "root";
+    strcpy(path, ".");
+    strcpy(bang, "$ ");
 
     while (1)
     {
-        printf(bang);
+        printf("%s@%s%s", user, path, bang);
         uint32_t l = get_line();
         putchar('\n');
 
@@ -55,14 +60,13 @@ uint32_t get_line()
 
 char* cmds[] =
 {
-    "help", "clear", "sys_info", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
+    "help", "clear", "uname", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
 };
 
 void interpret_cmd()
 {
-    //SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, usr_fc | usr_bc);
-
-    if(!strcmp(buffer, cmds[0]))
+    cmd_ls();
+    /*if(!strcmp(buffer, cmds[0]))
         cmd_help();
     else if(!strcmp(buffer, cmds[1]))
         cmd_clear();
@@ -81,9 +85,7 @@ void interpret_cmd()
     else if(!strcmp(buffer, cmds[8]))
         cmd_quit();
     else
-        printf("command '%s' not found\n", buffer);
-
-    //SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
+        printf("command '%s' not found\n", buffer);*/
 }
 
 //cmd functions
@@ -100,13 +102,24 @@ void cmd_help()
     }
 }
 
+void cmd_ls()
+{
+    DIR* dir = opendir(".");
+
+    dirent_t* ent;
+    while (ent = readdir(dir))
+        printf("%s\n", ent->d_name);
+
+    closedir(dir);
+}
+
 void cmd_clear()
 {
     /*SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
     SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);*/
 }
 
-void cmd_sys_info()
+void cmd_uname()
 {
     /*uint32_t start = system::kernel_start_address(), end = system::kernel_end_address();
 

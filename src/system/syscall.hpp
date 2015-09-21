@@ -5,6 +5,7 @@
 #include "../user/test.hpp"
 #include "../task/task.hpp"
 #include "../io/keyboard.hpp"
+#include "../fs/vfs.hpp"
 #include "syscall_defs.hpp"
 
 namespace system
@@ -22,15 +23,24 @@ namespace system
         &ui::text::set_color,
         &ui::text::set_color_all,
         &ui::text::set_bc,
-        &ui::text::set_bc_all,
+        &ui::text::set_bc_all,          //10
         &ui::text::set_fc,
         &ui::text::set_fc_all,
         &task::poll_key,
         &task::poll_char,
-        &task::end,
+        &task::end,                     //15
         &task::get_rpl,
         &task::get_pid,
-        &task::get_spawn_time
+        &task::get_spawn_time,
+        &task::get_working_dir,
+        &task::set_working_dir,
+        &vfs::get_root,
+        &vfs::read,                     //20
+        &vfs::write,
+        &vfs::open,
+        &vfs::close,
+        &vfs::read_dir,
+        &vfs::find_dir                  //25
 	};
 	
     void init();

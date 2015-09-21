@@ -13,6 +13,7 @@ heap::heap() = delete;
 
 heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
 {
+    logINF("initalizing heap...");
 #if __CHECKS_ADVNCD
 	if (Start_address + OVERHEAD > End_address || Max_address < End_address)
 		syshlt("HEAP initialization error!");
@@ -43,6 +44,7 @@ heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, u
 
     if (this->list.size != 1)
 		syshlt("HEAP internal error! 20");
+    logINF("(l: 0x%x from: 0x%x to: 0x%x)", this->end_address - this->start_address, this->start_address, this->end_address); logDONE;
 }
 
 void heap::dump_info()

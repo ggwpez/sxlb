@@ -4,10 +4,11 @@
 
 namespace vfs
 {
-    #define VFS_NODE_NAME_L 64
+    #define VFS_NODE_NAME_L 255
 
     typedef struct fs_node fs_node_t;
     typedef struct dir_ent dir_ent_t;
+    extern fs_node_t root_node;
 
     //define all delegates
     typedef uint32_t (*read_delegate_t)(fs_node_t*, uint32_t, uint32_t, LPTR);
@@ -17,7 +18,7 @@ namespace vfs
     typedef dir_ent_t* (*read_dir_delegate_t)(fs_node_t*, uint32_t);
     typedef fs_node_t* (*find_dir_delegate_t)(fs_node_t*, char*);
 
-    enum class node_type : char
+    enum class node_type : uint32_t
     {
         File        = 1,
         Dir         = 2,
@@ -43,15 +44,27 @@ namespace vfs
         close_delegate_t close;
         read_dir_delegate_t read_dir;
         find_dir_delegate_t find_dir;
+
+        fs_node(char const* Name, node_type Type, uint32_t Length, uint32_t Reserved, uint32_t Inode, fs_node_t* Ptr,
+                read_delegate_t Read,
+                write_delegate_t Write,
+                open_delegate_t Open,
+                close_delegate_t Close,
+                read_dir_delegate_t Read_dir,
+                find_dir_delegate_t Find_dir);
+        fs_node();
     };
 
     typedef struct dir_ent
     {
-        char name[VFS_NODE_NAME_L];
         uint32_t inode;
         node_type type;
+        char name[VFS_NODE_NAME_L];
     } dir_ent_t;
 
+    void init(fs_node_t* initrd);
+
+    fs_node_t* get_root();
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     uint32_t write(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     void open(fs_node_t* node);

@@ -1,7 +1,7 @@
 #pragma once
 
 #define __VERSION__ "0.1 - now with GNU GRUB"
-#define __STABLE__ true
+#define __STABLE__ false
 #define __VERSION_STABLE__  (__STABLE__ ? "stable" : "unstable")
 
 #define __CHECKS 3	//enter check level, lower = unsafer = faster, higher = safer = slower
@@ -24,7 +24,7 @@
 
 //#define assert(expr) ((expr) ? (void)0 : (syshlt("Assertion failed: " #expr ", file " __FILE__ ", line " __LINE__);))
 #define assert(e)
-
+#define NAME_MAX 255
 #define TASK_SWITCH __asm__ __volatile__("int $32");
 #define hlt asm("hlt");
 extern "C" { extern void nop(); }

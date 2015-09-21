@@ -6,6 +6,7 @@
 #include "../memory/memory.hpp"
 #include "../gdt.hpp"
 #include "../io/keyboard.hpp"
+#include "../fs/vfs.hpp"
 
 namespace task
 {
@@ -44,8 +45,8 @@ namespace task
     bool multitasking_get();
 	void init();
 
-    void dump_tss(tss_entry* tssEntry);
-    extern "C" { extern struct tss_entry tss; }
+    void dump_tss(gdt::tss_entry* tssEntry);
+    extern struct gdt::tss_entry tss;
 
     bool            create(uint32_t entry_point, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
@@ -58,6 +59,8 @@ namespace task
     uint32_t        get_spawn_time();
     task_t*         get_task();
     uint32_t        get_task_count();
+    vfs::fs_node_t* get_working_dir();
+    int             set_working_dir(vfs::fs_node_t* path);
 
     uint32_t poll_key();        //returns EOF on fail
     uint32_t poll_char();       //   "     "   "  "
@@ -67,7 +70,6 @@ namespace task
     bool change_focus(uint32_t pid);
     bool change_focus(task_t* task);
 
-    #define USER_STACK_SIZE 4096
     #define KERNEL_STACK_SIZE 4096
 
 	struct task_t
@@ -80,6 +82,7 @@ namespace task
         uint32_t dir_offset;
         cpu_state_t* cpu_state;
         uchar_t rpl;
+        vfs::fs_node_t* working_dir;
 
         uint32_t spawn_time;
         io::keyboard::key_queue_t* key_queue;

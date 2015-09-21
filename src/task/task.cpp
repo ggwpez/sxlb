@@ -1,5 +1,6 @@
 #include "task.hpp"
 #include "../time/timer.hpp"
+#include "../string.hpp"
 
 namespace task
 {
@@ -8,7 +9,7 @@ namespace task
     task_t* start_task = nullptr,* actual_task = nullptr,* focused_task = nullptr;
     task_t* idle_task;
     bool multitasking_enabled = false;
-    extern "C" struct tss_entry tss;
+    struct gdt::tss_entry tss;
     io::keyboard::key_queue_t* key_queue = nullptr;
 
     void idle_swap_in();
@@ -18,9 +19,11 @@ namespace task
 	void init()
 	{
         idle_create();
+        logINF("finalizing tasking...");
         actual_task = start_task = idle_task;
 
         num_tasks++;
+        logDONE;
     }
 
     void idle_swap_in()
@@ -41,6 +44,7 @@ namespace task
 
     void idle_create()
     {
+        logINF("creating idle task...");
         idle_task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
         idle_task->pid = pid++;
         idle_task->cpu_state = actual_task->ebp = idle_task->eip = idle_task->rpl = 0;
@@ -49,6 +53,7 @@ namespace task
         idle_task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE, 0, 0) + KERNEL_STACK_SIZE;
         idle_task->running = true;
         idle_task->key_queue = nullptr;
+        logINF("(pid: %u)", idle_task->pid); logDONE;
     }
 
     void multitasking_set(bool value)
@@ -110,6 +115,16 @@ namespace task
         return num_tasks;
     }
 
+    vfs::fs_node_t* get_working_dir()
+    {
+        return actual_task->working_dir;
+    }
+
+    int set_working_dir(vfs::fs_node_t* path)
+    {
+        actual_task->working_dir = path;
+    }
+
     uint32_t poll_key()
     {
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
@@ -152,7 +167,7 @@ namespace task
             *buffer++ = io::keyboard::state_to_char(queue->pop_front());
     }
 
-    void dump_tss(tss_entry* tssEntry)
+    void dump_tss(gdt::tss_entry* tssEntry)
     {
         printf("eax: %x ", tssEntry->eax);
         printf("ecx: %x ", tssEntry->ecx);
@@ -201,6 +216,7 @@ namespace task
         //task->key_queue = memory::k_malloc(sizeof(io::keyboard::key_queue_t),0,0);
         task->key_queue = task->kernel_stack + sizeof(io::keyboard::key_queue_t);
         task->key_queue->create();
+        task->working_dir = vfs::get_root();
 
         uint32_t code_segment=0x08, data_segment=0x10;
         *(--kernel_stack) = 0;  // return address dummy

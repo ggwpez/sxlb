@@ -1,5 +1,5 @@
 LIBDIR := ../../lib/bin/
-LIBS := $(LIBDIR)sxlblib.a $(LIBDIR)stdlibc.a
+LIBS := $(LIBDIR)sxlblib.a $(LIBDIR)stdlibc.a $(LIBDIR)posixc.a
 
 CSRC := $(wildcard *.c)
 COBJ := $(addsuffix .o,$(basename $(CSRC)))

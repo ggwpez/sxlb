@@ -2,7 +2,6 @@
 
 namespace initrd
 {
-    LPTR first_node;
     vfs::fs_node_t root_node;
     fs_t* fs;
     vfs::dir_ent_t tmp_dir_ent;
@@ -14,22 +13,22 @@ namespace initrd
         for (int i = 0; i < headers_c; ++i)
         {
             fs_node_t* node = address + 4 + i*sizeof(fs_node_t);
-            node->inode = i+1;
+            node->inode = i;
             node->data += address;
         }
         fs = (fs_t*)address;
         fs->files = address + 4;
 
-        first_node = fs->files;
         root_node.length = fs->files_c+1;   //[0] is the directory name
+        strcpy(root_node.name, "initrd");
         root_node.read_dir = &read_dir;
         root_node.find_dir = &find_dir;
-        root_node.read = &read;
+        root_node.read = 0;
         root_node.type = vfs::node_type::Dir;
 
         tmp_node_t.read = &read;
-        tmp_node_t.read_dir = &read_dir;
-        tmp_node_t.find_dir = &find_dir;
+        tmp_node_t.read_dir = nullptr;
+        tmp_node_t.find_dir = nullptr;
 
         return &root_node;
     }
@@ -46,17 +45,27 @@ namespace initrd
         return size;
     }
 
+    void open(fs_node_t* node)
+    {
+
+    }
+
+    void close(fs_node_t* node)
+    {
+
+    }
+
     vfs::fs_node_t* find_dir(vfs::fs_node_t* node, char* name)
     {
         if (node != &root_node)
             return nullptr;
 
-        if (!strcmp(name, "initrd"))
+        if (!strcmp(name, root_node.name))
         {
             tmp_node_t.type = vfs::node_type::Dir;
             tmp_node_t.length = fs->files_c;
             tmp_node_t.inode = 0;
-            strcpy(tmp_node_t.name, "initrd");
+            strcpy(tmp_node_t.name, root_node.name);
             return &tmp_node_t;
         }
 
@@ -82,7 +91,7 @@ namespace initrd
 
         if (i == 0)
         {
-            strcpy(tmp_dir_ent.name, "initrd");
+            strcpy(tmp_dir_ent.name, root_node.name);
             tmp_dir_ent.inode = 0;
             tmp_dir_ent.type = vfs::node_type::Dir;
             return &tmp_dir_ent;

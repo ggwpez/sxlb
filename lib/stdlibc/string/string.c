@@ -1,5 +1,5 @@
 #include "string.h"
-#include "../stdbool.h"
+#include "stdbool.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +44,14 @@ int strcmp(char const* str1, char const* str2)
 		str1++, str2++;
 
 	return (unsigned char)*str1 - (unsigned char)*str2;
+}
+
+size_t strlen(char const* str)
+{
+    unsigned int i = 0;
+
+    while (str[i]) i++;
+    return i;
 }
 
 #ifdef __cplusplus

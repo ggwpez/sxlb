@@ -1,9 +1,9 @@
 #ifndef _STDLIB_H
 #define _STDLIB_H
 
-#include "../signal/signal.h"
-#include "../stddef.h"
-#include "../stdint.h"
+#include "signal.h"
+#include "stddef.h"
+#include "stdint.h"
 
 #ifdef __cplusplus
 extern "C" {

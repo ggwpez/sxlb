@@ -3,7 +3,7 @@
 
 int main();
 
-#define s 128
+#define s 6
 
 //style
 uchar_t fc, bc;
@@ -15,8 +15,9 @@ void interpret_cmd();
 
 //cmd functions
 void cmd_help();
+void cmd_ls();
 void cmd_clear();
-void cmd_sys_info();
+void cmd_uname();
 void cmd_pag_info();
 void cmd_tss_info();
 void cmd_mem_info();

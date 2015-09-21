@@ -8,6 +8,7 @@ namespace2(ui, text)
     #define VIDEO text_mode.font
     #define TEXT !text_mode.font
     #define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | (c & 0xff))
+    ubyte_t def_color;
 
     struct text
     {
@@ -26,7 +27,8 @@ namespace2(ui, text)
         text_mode.col = 0;
         text_mode.row = 0;
         text_mode.tab_size = 4;
-        text_mode.text_color = default_color;
+        def_color = default_color;
+        text_mode.text_color = def_color;
         text_mode.font = font;
         initialized = true;
         update();
@@ -39,6 +41,7 @@ namespace2(ui, text)
         text_mode.col = 0;
         text_mode.row = 0;
         text_mode.tab_size = 4;
+        def_color = default_color;
         text_mode.text_color = default_color;
         text_mode.font = nullptr;
 
@@ -179,6 +182,11 @@ namespace2(ui, text)
         set_cursor(0,line);
         write(message);
     };
+
+    void set_color_reset()
+    {
+        set_color(def_color);
+    }
 
     void set_color(uchar_t color)
     {
@@ -581,7 +589,7 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        col = text_mode.col;
-        row = text_mode.row;
+        *col = text_mode.col;
+        *row = text_mode.row;
     }
 }}

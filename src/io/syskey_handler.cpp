@@ -7,11 +7,17 @@ namespace2(io, keyboard)
     bool inited = false;
     void syskey_init()
     {
-        if (inited) return;
+        logINF("initializing syskey hander...");
+        if (inited)
+        {
+            logWAR("already done?!");
+            return;
+        }
         else inited = true;
 
         focused = 0;
         w_count = 1;
+        logDONE;
     }
 
     void syskey_handler(key_state_t key)

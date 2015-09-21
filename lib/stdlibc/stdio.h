@@ -1,9 +1,9 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
-#include "../stdarg.h"
-#include "../stdint.h"
-#include "../macro.h"
+#include "stdarg.h"
+#include "stdint.h"
+#include "macro.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +12,7 @@ extern "C" {
 #define NULL ((void*)0)
 typedef unsigned int size_t;
 
-#define NAME_MAX 64
+#define NAME_MAX 255
 #define FILENAME_MAX NAME_MAX
 #define EOF ((int32_t)'EOF '*-1)
 #define _FILE_C 16                  //simultaneously open file streams

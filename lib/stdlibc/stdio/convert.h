@@ -1,7 +1,7 @@
 #ifndef _CONVERT_H
 #define _CONVERT_H
 
-#include "../stdint.h"
+#include "stdint.h"
 
 #ifdef __cplusplus
 extern "C" {

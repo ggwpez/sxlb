@@ -15,8 +15,10 @@ namespace2(io, keyboard)
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
+        logINF("registering key irq...(1)");
         idt::irq_register_event_handler(1, keyboard_interrupt_handler);
         //idt::irq_register_event_handler(4, mouse_interrupt_handler);
+        logDONE;
         syskey_init();
     }
 
@@ -37,8 +39,10 @@ namespace2(io, keyboard)
 
     void flush()
     {
+        logINF("flushing keyboard queue...");
         while (io::asm_inb(0x64) & 1)       //clear buffer
             io::asm_inb(0x60);
+        logDONE;
     }
 
     key_state_t get_key()
@@ -94,7 +98,7 @@ namespace2(io, keyboard)
             return asciiNonShift[KEY_CODE(state)];
     }
 
-    uchar_t getc()
+    uchar_t get_char()
     {
         key_state_t key = get_key();
         while (!KEY_PRESSED(key))

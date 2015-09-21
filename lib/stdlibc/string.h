@@ -1,7 +1,7 @@
 #ifndef _STDSTRING_H
 #define _STDSTRING_H
 
-#include "../stddef.h"
+#include "stddef.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +16,7 @@ int   memcmp(void const* mem1, void const* mem2, size_t length);
 
 char* strcpy(char* dest, char const* src);
 int   strcmp(char const* str1, char const* str2);
+size_t strlen(char const* str);
 
 #ifdef __cplusplus
 }

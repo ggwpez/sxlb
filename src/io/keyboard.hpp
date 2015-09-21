@@ -2,6 +2,7 @@
 #include "../types.hpp"
 #include "../utils/queue.hpp"
 
+#define getc (io::keyboard::get_char())
 namespace2(io, keyboard)
 {
     enum Keys : unsigned char
@@ -96,6 +97,6 @@ namespace2(io, keyboard)
     void init();
     void flush();
     key_state_t get_key();
-    uchar_t getc();
+    uchar_t get_char();
     uchar_t state_to_char(key_state_t state);
 }}

@@ -24,7 +24,7 @@ namespace idt
     void*  isr_functions[128] = { 0 };
     idt_entry idt[256];	//always 256 needed
     idt_ptr idt_r;		//Interrupt register
-    tss_entry tss;
+    gdt::tss_entry tss;
 
     void isr_handler(task::cpu_state_t* state)
 	{
@@ -100,11 +100,14 @@ namespace idt
 		idt_r.base = (uint32_t)&idt;
 		flush();
 		irq_install();
+        logINF("loading idt...");
 		asm volatile("lidt %0" : "=m" (idt_r));
 
+        logDONE; logINF("registering default isrs...(2,13,14)");
         isr_register_event_handler( 2, nmi_handler);
         isr_register_event_handler(13, gpf_handler);
         isr_register_event_handler(14, pf_handler);
+        logDONE;
 		return 1;
 	};
 
@@ -127,6 +130,7 @@ namespace idt
 	/*Remaps the IRQ from offset=0 to offset=31, so the IRS wont overide user IRQ.*/
 	void irq_remap()
 	{
+        logINF("remapping pic1...(to 40)");
 		asm_outb(0x20, 0x11);	//master PIC command-port
 		asm_outb(0xA0, 0x11);	//slave  PIC command-port
 
@@ -140,11 +144,13 @@ namespace idt
 		asm_outb(0xA1, 0x01);
 		asm_outb(0x21, 0x00);
 		asm_outb(0xA1, 0x00);
+        logDONE;
 	};
 
 	/*Calls the constructor for all IRS and IRQ*/
 	void irq_install()
 	{
+        logINF("setting isrs vectors...(0-31,127)");
 		entry_set_data(0, (uint32_t)isr0, 0x08, 0x8E);
 		entry_set_data(1, (uint32_t)isr1, 0x08, 0x8E);
 		entry_set_data(2, (uint32_t)isr2, 0x08, 0x8E);
@@ -179,9 +185,10 @@ namespace idt
 		entry_set_data(31, (uint32_t)isr31, 0x08, 0x8E);
 
         entry_set_data(127,(uint32_t)isr127,0x08, 0x8E);    //hopefully syscalls
-
+        logDONE;
 		irq_remap();
 
+        logINF("setting irqs vectors...(0,15)");
 		entry_set_data(32, (uint32_t)irq0, 0x08, 0x8E);
 		entry_set_data(33, (uint32_t)irq1, 0x08, 0x8E);
 		entry_set_data(34, (uint32_t)irq2, 0x08, 0x8E);
@@ -198,6 +205,7 @@ namespace idt
 		entry_set_data(45, (uint32_t)irq13, 0x08, 0x8E);
 		entry_set_data(46, (uint32_t)irq14, 0x08, 0x8E);
 		entry_set_data(47, (uint32_t)irq15, 0x08, 0x8E);
+        logDONE;
 	};
 
 	/*Constructs an idt_entry, at the given index.*/

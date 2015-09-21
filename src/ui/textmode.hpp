@@ -14,6 +14,14 @@
 #define vprintf 		(ui::text::v_write_f)
 #define printf_arr32 	(ui::text::write_f_array32)
 
+//#define logFILE         printf("%s: ", __FILE__); ui::text::write_f
+#define logINF          ui::text::set_color_reset(); ui::text::write_f
+#define logDBG          logINF
+#define logOK           ui::text::set_fc(FC_GREEN);  ui::text::write_f
+#define logWAR          ui::text::set_fc(FC_MAGENTA | FC_MOD_INTENSITY); ui::text::write_f
+#define logERR          ui::text::set_fc(FC_RED); ui::text::write_f
+#define logDONE         logOK("done\n");
+
 enum background_color : uchar_t
 {
     BC_BLACK			= 0,
@@ -76,6 +84,7 @@ namespace2(ui, text)
      * @param foreground_color
      */
     void		set_fc_all                  (uchar_t foreground_color);
+    void        set_color_reset             ();
     void        set_color                   (uchar_t color);
     void        set_color_all               (uchar_t color);
     void		write_f                     (const char* args, ...);

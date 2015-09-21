@@ -4,7 +4,9 @@ namespace system
 {
     void init()
     {
+        logINF("registering syscall isr...");
         idt::isr_register_event_handler(127, syscall_event_handler);
+        logDONE;
     };
 
     void dump(task::cpu_state_t* state)

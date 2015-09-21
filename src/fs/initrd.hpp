@@ -31,6 +31,8 @@ namespace initrd
 
     vfs::fs_node_t *fs_install(LPTR address);
     uint32_t read(vfs::fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
+    void open(fs_node_t* node);
+    void close(fs_node_t* node);
     vfs::fs_node_t* find_dir(vfs::fs_node_t* node, char* name);
     vfs::dir_ent_t* read_dir(vfs::fs_node_t* node, uint32_t i);
 }
