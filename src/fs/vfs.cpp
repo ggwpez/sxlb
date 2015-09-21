@@ -13,10 +13,9 @@ namespace vfs
 
     void init(fs_node_t* initrd)
     {
-        root_node = fs_node("/", node_type::Dir, 0, 0, 0, 0, 0, 0, 0, 0, &read_dir, &find_dir);
+        root_node = fs_node("/", node_type::Dir, 2, 0, 0, 0, 0, 0, 0, 0, &read_dir, &find_dir);
         root_nodes[0] = &root_node;
         root_nodes[1] = initrd;
-        root_node.length = 2;
     }
 
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer)

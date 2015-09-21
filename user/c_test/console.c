@@ -5,22 +5,23 @@
 
 #include "console.h"
 
-char* bang;
+char* bang = "$ ";
 uchar_t buffer[s];
+uchar_t cmd_buffer[s];
 
+#define PATH_APP(str) (strcpy(path +path_l, str))
+#define PATH_SET(str) (strcpy(path, str))
 uchar_t path[NAME_MAX];
 uint32_t path_l = 0;
 
 int main()
 {
-    int rpl = 0;
-    char* user = rpl ? "user" : "root";
     strcpy(path, ".");
-    strcpy(bang, "$ ");
 
     while (1)
     {
-        printf("%s@%s%s", user, path, bang);
+        //printf("%s@%s%s", user, path, bang);
+        printf(bang);
         uint32_t l = get_line();
         putchar('\n');
 
@@ -29,8 +30,6 @@ int main()
         if (l)
             interpret_cmd();
     }
-
-    printf("end\n");
     return 0;
 }
 
@@ -58,34 +57,63 @@ uint32_t get_line()
     return i;
 }
 
+uint32_t b_off = 0;
+char* get_next_arg()
+{
+    uint32_t ret = NULL;
+    if (!buffer[b_off] || b_off >= s)
+        return NULL;
+
+    if (buffer[b_off] != ' ')
+    {
+        ret = b_off;
+        while (buffer[b_off] != ' ' && buffer[b_off]) b_off++;
+        uint32_t i;
+        for (i = 0; i +ret < b_off; ++i)
+            cmd_buffer[i] = buffer[i +ret];
+        cmd_buffer[i] = 0;
+
+        while (buffer[b_off] == ' ' && buffer[b_off]) b_off++;
+        return cmd_buffer;
+    }
+    else                //malformatted command, like ' cd /'
+        return NULL;
+}
+
 char* cmds[] =
 {
-    "help", "clear", "uname", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
+    "help", "clear", "cd", "ls", "uname", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
 };
 
 void interpret_cmd()
 {
-    cmd_ls();
-    /*if(!strcmp(buffer, cmds[0]))
+    b_off = 0;
+    char* cmd = get_next_arg();
+
+    if(!strcmp(cmd, cmds[0]))
         cmd_help();
-    else if(!strcmp(buffer, cmds[1]))
+    else if(!strcmp(cmd, cmds[1]))
         cmd_clear();
-    else if(!strcmp(buffer, cmds[2]))
-        cmd_sys_info();
-    else if(!strcmp(buffer, cmds[3]))
+    else if(!strcmp(cmd, cmds[2]))
+        cmd_cd();
+    else if(!strcmp(cmd, cmds[3]))
+        cmd_ls();
+    else if(!strcmp(cmd, cmds[4]))
+        cmd_uname();
+    else if(!strcmp(cmd, cmds[5]))
         cmd_pag_info();
-    else if(!strcmp(buffer, cmds[4]))
+    else if(!strcmp(cmd, cmds[6]))
         cmd_tss_info();
-    else if(!strcmp(buffer, cmds[5]))
+    else if(!strcmp(cmd, cmds[7]))
         cmd_mem_info();
-    else if(!strcmp(buffer, cmds[6]))
+    else if(!strcmp(cmd, cmds[8]))
         cmd_con_info();
-    else if(!strcmp(buffer, cmds[7]))
+    else if(!strcmp(cmd, cmds[9]))
         cmd_reboot();
-    else if(!strcmp(buffer, cmds[8]))
+    else if(!strcmp(cmd, cmds[10]))
         cmd_quit();
     else
-        printf("command '%s' not found\n", buffer);*/
+        printf("Command '%s' unknown.\n", cmd);
 }
 
 //cmd functions
@@ -111,6 +139,19 @@ void cmd_ls()
         printf("%s\n", ent->d_name);
 
     closedir(dir);
+}
+
+void cmd_cd()
+{
+    char* target_dir = get_next_arg();
+    if (!target_dir)
+        return (printf("cd needs a target directory\n") | 1);  //| 1 if printf fails too
+
+    if (chdir(target_dir))
+        return (printf("could not open %s\n", target_dir) | 1);
+
+    //worked
+    PATH_SET(target_dir);
 }
 
 void cmd_clear()

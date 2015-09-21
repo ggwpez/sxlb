@@ -60,7 +60,7 @@ namespace task
     task_t*         get_task();
     uint32_t        get_task_count();
     vfs::fs_node_t* get_working_dir();
-    int             set_working_dir(vfs::fs_node_t* path);
+    int             set_working_dir(vfs::fs_node_t* dir);
 
     uint32_t poll_key();        //returns EOF on fail
     uint32_t poll_char();       //   "     "   "  "

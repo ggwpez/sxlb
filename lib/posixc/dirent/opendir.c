@@ -17,16 +17,21 @@ DIR* opendir(const char* name)
     uint32_t name_l = strlen(name);
     if (!strcmp(name, "."))
     {
-        SYSCALL_RET0(SYSCNUM_TASK_GET_WORKING_DIR, dir);
+        SYSCALL_RET0(SYSCNUM_TASK_GET_WORKING_DIR, tmp_dir.fs_node);
 
-        tmp_dir.fs_node = dir;
         tmp_dir.i = 0;
         return &tmp_dir;
     }
     if (name[0] != '/')
-        return NULL;
+        return 0;
 
     SYSCALL_RET0(SYSCNUM_VFS_GET_ROOT, dir);
+    /*if (!strcmp(name, "/"))
+    {
+        tmp_dir.fs_node = dir;
+        tmp_dir.i = 0;
+        return &tmp_dir;
+    }*/
 
     buffer_i = 1;
     while (1)
@@ -48,7 +53,7 @@ DIR* opendir(const char* name)
 
     tmp_dir.fs_node = dir;
     tmp_dir.i = 0;
-    return dir;
+    return &tmp_dir;
 }
 
 #ifdef __cplusplus

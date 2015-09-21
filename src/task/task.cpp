@@ -120,9 +120,14 @@ namespace task
         return actual_task->working_dir;
     }
 
-    int set_working_dir(vfs::fs_node_t* path)
+    int set_working_dir(vfs::fs_node_t* dir)
     {
-        actual_task->working_dir = path;
+        if (!dir)
+             return -1;
+
+        actual_task->working_dir = dir;
+        logINF("working dir set to: %u\n", dir);
+        return 0;
     }
 
     uint32_t poll_key()
@@ -216,7 +221,7 @@ namespace task
         //task->key_queue = memory::k_malloc(sizeof(io::keyboard::key_queue_t),0,0);
         task->key_queue = task->kernel_stack + sizeof(io::keyboard::key_queue_t);
         task->key_queue->create();
-        task->working_dir = vfs::get_root();
+        task->working_dir = &vfs::root_node;
 
         uint32_t code_segment=0x08, data_segment=0x10;
         *(--kernel_stack) = 0;  // return address dummy

@@ -57,6 +57,7 @@ int32_t main()
     task::init();
     for (int i = 0; i < 80; ++i) { logINF("="); }
     printfl("Kernel loaded. Press any key to continue.");
+    getc;
 
     ui::text::clear_screen();
 

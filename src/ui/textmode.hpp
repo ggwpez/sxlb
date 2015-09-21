@@ -14,13 +14,23 @@
 #define vprintf 		(ui::text::v_write_f)
 #define printf_arr32 	(ui::text::write_f_array32)
 
-//#define logFILE         printf("%s: ", __FILE__); ui::text::write_f
+#define LOG
+#ifdef LOG
 #define logINF          ui::text::set_color_reset(); ui::text::write_f
 #define logDBG          logINF
 #define logOK           ui::text::set_fc(FC_GREEN);  ui::text::write_f
 #define logWAR          ui::text::set_fc(FC_MAGENTA | FC_MOD_INTENSITY); ui::text::write_f
 #define logERR          ui::text::set_fc(FC_RED); ui::text::write_f
 #define logDONE         logOK("done\n");
+#endif
+#ifndef LOG
+#define logINF
+#define logDBG
+#define logOK
+#define logWAR
+#define logERR
+#define logDONE
+#endif
 
 enum background_color : uchar_t
 {
