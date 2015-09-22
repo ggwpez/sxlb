@@ -26,12 +26,12 @@ DIR* opendir(const char* name)
         return 0;
 
     SYSCALL_RET0(SYSCNUM_VFS_GET_ROOT, dir);
-    /*if (!strcmp(name, "/"))
+    if (!strcmp(name, "/"))
     {
         tmp_dir.fs_node = dir;
         tmp_dir.i = 0;
         return &tmp_dir;
-    }*/
+    }
 
     buffer_i = 1;
     while (1)

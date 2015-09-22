@@ -7,6 +7,7 @@
 #include "../io/keyboard.hpp"
 #include "../fs/vfs.hpp"
 #include "syscall_defs.hpp"
+#include "../utils/version.hpp"
 
 namespace system
 {    
@@ -40,7 +41,8 @@ namespace system
         &vfs::open,
         &vfs::close,
         &vfs::read_dir,
-        &vfs::find_dir                  //25
+        &vfs::find_dir,                  //25
+        &utils::get_version
 	};
 	
     void init();

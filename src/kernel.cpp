@@ -14,7 +14,6 @@
 #include "io/keyboard.hpp"
 #include "user/test.hpp"
 #include "system/syscall.hpp"
-#include "user/console.hpp"
 #include "user/elf.hpp"
 
 #define VIDEO_MODE 0
@@ -24,14 +23,6 @@ extern "C"
 {
     extern void data_start();
     extern void data_end  ();
-}
-
-void one()
-{
-    console term;
-    term.main();
-
-    EXIT(0);
 }
 
 bool running = true;
@@ -56,11 +47,9 @@ int32_t main()
     logINF("tasking:\n");
     task::init();
     for (int i = 0; i < 80; ++i) { logINF("="); }
-    printfl("Kernel loaded. Press any key to continue.");
-    getc;
+    logINF("Kernel loaded. Press any key to continue.");
 
     ui::text::clear_screen();
-
 
     LPTR initrd_start = &data_start;
     vfs::fs_node_t* initrd = initrd::fs_install(initrd_start);
@@ -114,30 +103,6 @@ int32_t main()
                 putc(data[j]);
 
             ui::text::new_line();
-        }
-    }*/
-
-    /*LPTR mem = 0x400000;
-    memory::memcpy(mem, &data_start, &data_end - &data_start);
-
-    fs_t* fs = fs_install(mem);
-
-    fs_node_t* found = fs->find_file("c_test.dat");
-    if (found == nullptr)
-        printfl("not found");
-    else
-    {
-        elf::elf_status_t s;
-        LPTR entry = elf::load_file(found->data, &s);
-
-        if (s != elf::elf_status_t::Ok)
-            printfl("failed with %b @%x", s, entry);
-        else
-        {
-            //printfl("type: %u\ncpu: %u\nversion: %u\nentry:%x\npht_off: %u\nsht_off: %u\nflags: %u\nsize: %u\npht_entry_s: %u\npht_entry_c: %u\nsht_entry_s: %u\nsht_entry_c: %u\nshstrndx: %u",
-            //        h->type, h->cpu, h->version, h->entry, h->pht_off, h->sht_off, h->flags, h->this_size, h->pht_entry_s, h->pht_entry_c, h->sht_entry_s, h->sht_entry_c, h->shstrndx);
-
-            task::create(entry, 3);
         }
     }*/
 

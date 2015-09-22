@@ -2,26 +2,25 @@
 #include "stdlib.h"
 #include "string.h"
 #include "../../lib/posixc/dirent.h"
+#include "../../lib/posixc/sys/utsname.h"
 
 #include "console.h"
 
-char* bang = "$ ";
+char bang[6];
 uchar_t buffer[s];
 uchar_t cmd_buffer[s];
 
-#define PATH_APP(str) (strcpy(path +path_l, str))
-#define PATH_SET(str) (strcpy(path, str))
 uchar_t path[NAME_MAX];
-uint32_t path_l = 0;
 
 int main()
 {
-    strcpy(path, ".");
+    strcpy(path, "/");
+    strcpy(bang, ":~$ ");
+    char* user = "root";
 
     while (1)
     {
-        //printf("%s@%s%s", user, path, bang);
-        printf(bang);
+        printf("%s@%s%s", user, path, bang);
         uint32_t l = get_line();
         putchar('\n');
 
@@ -88,36 +87,41 @@ char* cmds[] =
 void interpret_cmd()
 {
     b_off = 0;
+    uint32_t err = 0;
     char* cmd = get_next_arg();
 
     if(!strcmp(cmd, cmds[0]))
-        cmd_help();
+        err = cmd_help();
     else if(!strcmp(cmd, cmds[1]))
-        cmd_clear();
+        err = cmd_clear();
     else if(!strcmp(cmd, cmds[2]))
-        cmd_cd();
+        err = cmd_cd();
     else if(!strcmp(cmd, cmds[3]))
-        cmd_ls();
+        err = cmd_ls();
     else if(!strcmp(cmd, cmds[4]))
-        cmd_uname();
+        err = cmd_uname();
     else if(!strcmp(cmd, cmds[5]))
-        cmd_pag_info();
+        err = cmd_pag_info();
     else if(!strcmp(cmd, cmds[6]))
-        cmd_tss_info();
+        err = cmd_tss_info();
     else if(!strcmp(cmd, cmds[7]))
-        cmd_mem_info();
+        err = cmd_mem_info();
     else if(!strcmp(cmd, cmds[8]))
-        cmd_con_info();
+        err = cmd_con_info();
     else if(!strcmp(cmd, cmds[9]))
-        cmd_reboot();
+        err = cmd_reboot();
     else if(!strcmp(cmd, cmds[10]))
-        cmd_quit();
+        err = cmd_quit();
     else
+    {
         printf("Command '%s' unknown.\n", cmd);
+        err = 1;
+    }
+    if (err) printf("ERROR\n");
 }
 
 //cmd functions
-void cmd_help()
+uint32_t cmd_help()
 {
     uint32_t c = sizeof(cmds) / sizeof(cmds[0]);
 
@@ -128,20 +132,23 @@ void cmd_help()
         printf(cmds[i]);
         putchar('\n');
     }
+    return 0;
 }
 
-void cmd_ls()
+uint32_t cmd_ls()
 {
     DIR* dir = opendir(".");
 
     dirent_t* ent;
+    dir->i = 1;                 //skip the name entry in a directory
     while (ent = readdir(dir))
         printf("%s\n", ent->d_name);
 
     closedir(dir);
+    return 0;
 }
 
-void cmd_cd()
+uint32_t cmd_cd()
 {
     char* target_dir = get_next_arg();
     if (!target_dir)
@@ -151,49 +158,57 @@ void cmd_cd()
         return (printf("could not open %s\n", target_dir) | 1);
 
     //worked
-    PATH_SET(target_dir);
+    strcpy(path, target_dir);
+    return 0;
 }
 
-void cmd_clear()
+uint32_t cmd_clear()
 {
     /*SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
     SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);*/
+    return 0;
 }
 
-void cmd_uname()
+uint32_t cmd_uname()
 {
-    /*uint32_t start = system::kernel_start_address(), end = system::kernel_end_address();
-
-    printfl("Version: %s (%s)\nSize of the OS: %m\nSize of the Kernel: %m",
-            __VERSION__, __VERSION_STABLE__,  end, end - start);*/
+    utsname_t buf;
+    uname(&buf);
+    printf("%s %s%s (%s)\n", buf.sysname, buf.version, buf.release, buf.machine);
+    
+    return 0;
 }
 
-void cmd_pag_info()
+uint32_t cmd_pag_info()
 {
     //analyze_physical_addresses();
+    return 0;
 }
 
-void cmd_tss_info()
+uint32_t cmd_tss_info()
 {
     //task::dump_tss(&task::tss);
+    return 0;
 }
 
-void cmd_mem_info()
+uint32_t cmd_mem_info()
 {
     //memory::dump_info(nullptr);
+    return 0;
 }
 
-void cmd_con_info()
+uint32_t cmd_con_info()
 {
     //printf("This console runns in %s mode.", this->rpl ? "user" : "kernel");)
+    return 0;
 }
 
-void cmd_reboot()
+uint32_t cmd_reboot()
 {
     //io::reboot();
+    return 0;
 }
 
-void cmd_quit()
+uint32_t cmd_quit()
 {
     exit(0);
 }

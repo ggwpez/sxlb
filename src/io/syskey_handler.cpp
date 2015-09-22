@@ -31,7 +31,6 @@ namespace2(io, keyboard)
             if (w_count < MAX_WINDOWS)
             {
                 focused = w_count++;
-                task::create(console_main, 0);
 
                 ui::window::switch_window(focused);
                 printfl("Created: %u", focused);

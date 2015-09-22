@@ -1,9 +1,5 @@
 #pragma once
 
-#define __VERSION__ "0.1 - now with GNU GRUB"
-#define __STABLE__ false
-#define __VERSION_STABLE__  (__STABLE__ ? "stable" : "unstable")
-
 #define __CHECKS 3	//enter check level, lower = unsafer = faster, higher = safer = slower
 
 #if __CHECKS > 0

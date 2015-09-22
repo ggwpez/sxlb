@@ -2,7 +2,6 @@
 
 #include "keyboard.hpp"
 #include "../ui/window.hpp"
-#include "../user/console.hpp"
 #include "../task/task.hpp"
 
 namespace2(io, keyboard)

@@ -72,7 +72,6 @@ static uint32_t test_frame(uint32_t frame_addr)
     return( frames[ind] & (1<<offs) );
 }
 */
-/***********************************************************/
 
 internal uint32_t first_frame() // find the first free frame in frames bitset
 {
@@ -161,7 +160,7 @@ void paging_install()
     uint32_t counter = 0, i = 0, index = 0;
 
     for( i=KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i+=0x1000 )
-            get_page(i, 1, kernel_directory);
+        get_page(i, 1, kernel_directory);
 
     i = 0;
 	while (i < (placement_address + 0x10000))

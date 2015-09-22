@@ -9,7 +9,6 @@ extern "C" {
 int chdir(const char* path)
 {
     DIR* new_dir = opendir(path);
-    printf("got open with: %s return: %u\n", path, new_dir);
     if (!new_dir)
         return -1;                  //TODO return error in errno
 

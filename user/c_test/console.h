@@ -14,14 +14,14 @@ uint32_t get_line();
 void interpret_cmd();
 
 //cmd functions
-void cmd_help();
-void cmd_ls();
-void cmd_cd();
-void cmd_clear();
-void cmd_uname();
-void cmd_pag_info();
-void cmd_tss_info();
-void cmd_mem_info();
-void cmd_con_info();
-void cmd_reboot();
-void cmd_quit();
+uint32_t cmd_help();
+uint32_t cmd_ls();
+uint32_t cmd_cd();
+uint32_t cmd_clear();
+uint32_t cmd_uname();
+uint32_t cmd_pag_info();
+uint32_t cmd_tss_info();
+uint32_t cmd_mem_info();
+uint32_t cmd_con_info();
+uint32_t cmd_reboot();
+uint32_t cmd_quit();

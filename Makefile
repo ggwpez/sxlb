@@ -7,6 +7,7 @@ USERSRCFILES   := $(shell find $(SRCDIRUSER) -name '*.c')
 USROBJECTS := $(addsuffix .dat, $(basename $(USERSRCFILES)))
 SOURCES := $(ASMSOURCES) $(CPPSOURCES)
 OBJECTS := $(addsuffix .o, $(basename $(SOURCES)))
+BUILD_NUMBER_FILE=build_number.md
 
 IMAGE := $(SRCDIRUSER)data.img
 GRUBCFG := isodir/boot/grub/grub.cfg
@@ -21,7 +22,7 @@ AS := nasm
 CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T linker.ld
 
-all: lib.target user.target boot.o OS.iso
+all: lib.target user.target boot.o OS.iso build_number.target 
 
 test: lib.target user.target boot.o OS.bin
 
@@ -53,7 +54,7 @@ boot.o: boot.s
 	$(AS) $(ASFLAGSOBJ) $< -o $@
 
 OS.bin: boot.o $(OBJECTS) payload.o
-	$(LD) $(LDFLAGS) $+ -o $@
+	$(LD) $(LDFLAGS) $(BUILD_NUMBER_LDFLAGS) $+ -o $@
 
 $(GRUBCFG): grub.cfg
 	cp grub.cfg $@
@@ -82,3 +83,5 @@ clean:
 	@find . -name '*.iso' -delete
 	@find . -name '*.bin' -delete
 	$(MAKE) -C $(SRCDIRUSER) clean 
+
+include build_number.mak

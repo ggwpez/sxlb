@@ -126,7 +126,6 @@ namespace task
              return -1;
 
         actual_task->working_dir = dir;
-        logINF("working dir set to: %u\n", dir);
         return 0;
     }
 

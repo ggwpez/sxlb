@@ -48,5 +48,4 @@ long int 		telldir(DIR*);
 #ifdef __cplusplus
 }
 #endif
-
 #endif
