@@ -11,11 +11,13 @@ extern "C" {
 
 #define NULL ((void*)0)
 typedef unsigned int size_t;
+#define EXIT_FAILURE 'fail'
+#define EXIT_SUCCESS 'succ'
+
+int atoi(const char* str);
 
 void abort();
 
-#define EXIT_FAILURE 'fail'
-#define EXIT_SUCCESS 'succ'
 
 //dtor.c
 int atexit(void (*func)(void));

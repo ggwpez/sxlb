@@ -5,6 +5,7 @@ AS := nasm
 
 ASFLAGS := -Ox -f elf
 ARFLAGS := rs
+AR := i686-elf-ar
 
 OUT := ../bin/sxlblib.a
 

@@ -32,7 +32,6 @@
 
 namespace io
 {
-    void reboot();
     /*ASM 'in'. Reads a byte from the given port.*/
     ubyte_t asm_inb(ushort_t port);
     /*ASM 'in'. Reads a word from the given port.*/

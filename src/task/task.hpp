@@ -48,7 +48,7 @@ namespace task
     void dump_tss(gdt::tss_entry* tssEntry);
     extern struct gdt::tss_entry tss;
 
-    bool            create(uint32_t entry_point, ubyte_t privileg);
+    bool            create(uint32_t entry_point, uint32_t argc, LPTR argv, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
     void            end(uint32_t status) __attribute__((noreturn));
     bool            kill(uint32_t pid);

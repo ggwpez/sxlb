@@ -21,6 +21,7 @@ extern void CPU_CPUID_request(CPUID_REQUEST_TYPE request_type, char_t* string);
 
 namespace system
 {
+    void reboot();
     /*Dumps all register values.*/
     void sxlb_system_dumb();
     /*Calls dump, and halts the CPU.*/

@@ -25,3 +25,4 @@ uint32_t cmd_mem_info();
 uint32_t cmd_con_info();
 uint32_t cmd_reboot();
 uint32_t cmd_quit();
+uint32_t cmd_atoi();

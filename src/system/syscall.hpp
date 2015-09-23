@@ -42,7 +42,8 @@ namespace system
         &vfs::close,
         &vfs::read_dir,
         &vfs::find_dir,                  //25
-        &utils::get_version
+        &utils::get_version,
+        &system::reboot
 	};
 	
     void init();

@@ -4,6 +4,7 @@
 #include "../string.hpp"
 #include "../ui/textmode.hpp"
 
+#define _VFS_ROOT_ENTRIES_C 2
 namespace vfs
 {
     fs_node_t* root_nodes[8];       //i dont like malloc, you know
@@ -13,9 +14,11 @@ namespace vfs
 
     void init(fs_node_t* initrd)
     {
-        root_node = fs_node("/", node_type::Dir, 2, 0, 0, 0, 0, 0, 0, 0, &read_dir, &find_dir);
+        logINF("installing vfs...(root items_c: %u)", _VFS_ROOT_ENTRIES_C);
+        root_node = fs_node("/", node_type::Dir, _VFS_ROOT_ENTRIES_C, 0, 0, 0, 0, 0, 0, 0, &read_dir, &find_dir);
         root_nodes[0] = &root_node;
         root_nodes[1] = initrd;
+        logDONE;
     }
 
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer)

@@ -196,7 +196,7 @@ namespace task
     }
 
     extern "C" { extern void ir_tail(); }
-    bool create(uint32_t entry_point, ubyte_t privileg)
+    bool create(uint32_t entry_point, uint32_t argc, LPTR argv, ubyte_t privileg)
     {
         cli
         if (num_tasks >= capacity)
@@ -241,8 +241,8 @@ namespace task
         *(--kernel_stack) = 0; // interrupt nummer
 
         // general purpose registers w/o esp
-        *(--kernel_stack) = 0;
-        *(--kernel_stack) = 0;
+        *(--kernel_stack) = argc;
+        *(--kernel_stack) = argv;
         *(--kernel_stack) = 0;
         *(--kernel_stack) = 0;
         *(--kernel_stack) = 0;

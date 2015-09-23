@@ -12,15 +12,16 @@ uchar_t cmd_buffer[s];
 
 uchar_t path[NAME_MAX];
 
-int main()
+int main(uint32_t argc, char** argv)
 {
     strcpy(path, "/");
-    strcpy(bang, ":~$ ");
+    strcpy(bang, "$ ");
     char* user = "root";
+    printf("started from: %s\n", argv[0]);
 
     while (1)
     {
-        printf("%s@%s%s", user, path, bang);
+        printf("%s:%s%s", user, path, bang);
         uint32_t l = get_line();
         putchar('\n');
 
@@ -79,47 +80,48 @@ char* get_next_arg()
         return NULL;
 }
 
-char* cmds[] =
+typedef struct cmd
 {
-    "help", "clear", "cd", "ls", "uname", "pag_info", "tss_info", "mem_info", "con_info", "reboot", "quit"
+    char const* const name;
+    uint32_t(*ptr)();
 };
+
+#define _CMDS_C (sizeof(cmds) / sizeof(cmds[0]))
+struct cmd cmds[] =
+{
+    { "help", &cmd_help },
+    { "clear", &cmd_clear },
+    { "cd", &cmd_cd },
+    { "ls", &cmd_ls },
+    { "uname", &cmd_uname },
+    { "pag_info", &cmd_pag_info },
+    { "tss_info", &cmd_tss_info },
+    { "mem_info", &cmd_mem_info },
+    { "con_info", &cmd_con_info },
+    { "reboot", &cmd_reboot },
+    { "quit", &cmd_quit },
+    { "atoi", &cmd_atoi }
+ };
 
 void interpret_cmd()
 {
     b_off = 0;
     uint32_t err = 0;
+    uint32_t(*ptr)() = NULL;
     char* cmd = get_next_arg();
 
-    if(!strcmp(cmd, cmds[0]))
-        err = cmd_help();
-    else if(!strcmp(cmd, cmds[1]))
-        err = cmd_clear();
-    else if(!strcmp(cmd, cmds[2]))
-        err = cmd_cd();
-    else if(!strcmp(cmd, cmds[3]))
-        err = cmd_ls();
-    else if(!strcmp(cmd, cmds[4]))
-        err = cmd_uname();
-    else if(!strcmp(cmd, cmds[5]))
-        err = cmd_pag_info();
-    else if(!strcmp(cmd, cmds[6]))
-        err = cmd_tss_info();
-    else if(!strcmp(cmd, cmds[7]))
-        err = cmd_mem_info();
-    else if(!strcmp(cmd, cmds[8]))
-        err = cmd_con_info();
-    else if(!strcmp(cmd, cmds[9]))
-        err = cmd_reboot();
-    else if(!strcmp(cmd, cmds[10]))
-        err = cmd_quit();
-    else
-    {
-        printf("Command '%s' unknown.\n", cmd);
-        err = 1;
-    }
-    if (err) printf("ERROR\n");
-}
+    for (int i = 0; i < _CMDS_C; ++i)
+        if (!strcmp(cmd, cmds[i].name))
+        {
+            ptr = cmds[i].ptr;
+            break;
+        }
 
+    if (!ptr)
+        printf("command '%s' unknown\n", cmd);
+    else if (ptr())
+        printf("ERROR\n");
+}
 //cmd functions
 uint32_t cmd_help()
 {
@@ -129,7 +131,7 @@ uint32_t cmd_help()
     for (int i = 0; i < c; ++i)
     {
         putchar('\t');
-        printf(cmds[i]);
+        printf(cmds[i].name);
         putchar('\n');
     }
     return 0;
@@ -157,15 +159,13 @@ uint32_t cmd_cd()
     if (chdir(target_dir))
         return (printf("could not open %s\n", target_dir) | 1);
 
-    //worked
     strcpy(path, target_dir);
     return 0;
 }
 
 uint32_t cmd_clear()
 {
-    /*SYSCALL1(SYSCNUM_UI_TEXT_SET_COLOR, fc | bc);
-    SYSCALL0(SYSCNUM_UI_TEXT_CLEAR_SCREEN);*/
+    putchar('\f');
     return 0;
 }
 
@@ -211,4 +211,12 @@ uint32_t cmd_reboot()
 uint32_t cmd_quit()
 {
     exit(0);
+}
+
+uint32_t cmd_atoi()
+{
+    int v = atoi(get_next_arg());
+    printf("got number: %i\n", v);
+
+    return 0;
 }

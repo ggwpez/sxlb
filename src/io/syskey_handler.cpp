@@ -23,8 +23,8 @@ namespace2(io, keyboard)
     void syskey_handler(key_state_t key)
     {
         if (!inited) return;
-        char c = state_to_char(key);
-        printfl("^%c", c);
+        char c = state_to_char(key | (META_SHIFT << 16));
+        printf("^%c", c);
 
         if (c == 't')
         {

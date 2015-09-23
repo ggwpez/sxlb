@@ -3,7 +3,7 @@ SRCDIRUSER := user/
 
 ASMSOURCES := $(filter-out payload.asm ,$(wildcard *.asm))
 CPPSOURCES := $(shell find $(SRCDIR) -name '*.cpp')
-USERSRCFILES   := $(shell find $(SRCDIRUSER) -name '*.c')
+USERSRCFILES := $(shell find $(SRCDIRUSER) -name '*.c')
 USROBJECTS := $(addsuffix .dat, $(basename $(USERSRCFILES)))
 SOURCES := $(ASMSOURCES) $(CPPSOURCES)
 OBJECTS := $(addsuffix .o, $(basename $(SOURCES)))
@@ -17,9 +17,12 @@ ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
 AS := nasm
 
-#CXX := g++
+CXX := i686-elf-g++
+CC  := i686-elf-gcc
+LD := i686-elf-ld
 #CXXFLAGS := -m32 -fpermissive -w
 CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
+CCFLAGS := -m32
 LDFLAGS := -m elf_i386 -T linker.ld
 
 all: lib.target user.target boot.o OS.iso build_number.target 
@@ -48,7 +51,7 @@ payload.o: $(IMAGE) payload.asm
 	$(AS) $(ASFLAGSOBJ) payload.asm -o payload.o
 
 boot.o: boot.s
-	gcc -m32 boot.s -o boot.o -c	
+	i686-elf-g++ -m32 boot.s -o boot.o -c	
 
 %.o: %.asm
 	$(AS) $(ASFLAGSOBJ) $< -o $@

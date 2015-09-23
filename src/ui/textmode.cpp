@@ -346,95 +346,95 @@ namespace2(ui, text)
                 char buffer[20];
                 switch (args[++i])
                 {
-                case 'u':
-                {
-                    u = va_arg(ap, uint32_t);
-                    sxlb_convert_itoa_u32_dec(u, buffer);
-                    write(buffer);
-                } break;
-                case 'i':
-                {
-                    u = va_arg(ap, int32_t);
-                    sxlb_convert_itoa_s32_dec(u, buffer);
-                    write(buffer);
-                } break;
-                case 'x':
-                {
-                    u = va_arg(ap, uint32_t);
-                    sxlb_convert_itoa_u32_hex(u, buffer);
-                    write(buffer);
-                } break;
-                case 'b':
-                {
-                    u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
-                    sxlb_convert_itoa_u8_hex((uint8_t)(0xff & u), buffer);
-                    write(buffer);
-                } break;
-                case 'c':
-                {
-                    u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
-                    put_char(u & 0xff);
-                } break;
-                case 's':
-                {
-                    u = va_arg(ap, LPTR);			//cant pass a byte, implicit dword
-                    write((char_t*)u);              //actuallisy is char_t*
-                } break;
-                case 'm':
-                {
-                    u = va_arg(ap, uint32_t);			//cant pass a byte, implicit dword
+                    case 'u':
+                    {
+                        u = va_arg(ap, uint32_t);
+                        sxlb_convert_itoa_u32_dec(u, buffer);
+                        write(buffer);
+                    } break;
+                    case 'i':
+                    {
+                        u = va_arg(ap, int32_t);
+                        sxlb_convert_itoa_s32_dec(u, buffer);
+                        write(buffer);
+                    } break;
+                    case 'x':
+                    {
+                        u = va_arg(ap, uint32_t);
+                        sxlb_convert_itoa_u32_hex(u, buffer);
+                        write(buffer);
+                    } break;
+                    case 'b':
+                    {
+                        u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
+                        sxlb_convert_itoa_u8_hex((uint8_t)(0xff & u), buffer);
+                        write(buffer);
+                    } break;
+                    case 'c':
+                    {
+                        u = va_arg(ap, uint32_t);		//cant pass a byte, implicit dword
+                        put_char(u & 0xff);
+                    } break;
+                    case 's':
+                    {
+                        u = va_arg(ap, LPTR);			//cant pass a byte, implicit dword
+                        write((char_t*)u);              //actuallisy is char_t*
+                    } break;
+                    case 'm':
+                    {
+                        u = va_arg(ap, uint32_t);			//cant pass a byte, implicit dword
 
-                    if ((u >> 30))
+                        if ((u >> 30))
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u >> 30), buffer);
+                            printf("%s GiB", buffer);
+                        }
+                        else if ((u >> 20))
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u >> 20), buffer);
+                            printf("%s MiB", buffer);
+                        }
+                        else if ((u >> 10))
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u >> 10), buffer);
+                            printf("%s KiB", buffer);
+                        }
+                        else
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)u, buffer);
+                            printf("%s B", buffer);
+                        }
+                    } break;
+                    case 'M':
                     {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u >> 30), buffer);
-                        printf("%s GiB", buffer);
-                    }
-                    else if ((u >> 20))
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u >> 20), buffer);
-                        printf("%s MiB", buffer);
-                    }
-                    else if ((u >> 10))
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u >> 10), buffer);
-                        printf("%s KiB", buffer);
-                    }
-                    else
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)u, buffer);
-                        printf("%s B", buffer);
-                    }
-                } break;
-                case 'M':
-                {
-                    u = va_arg(ap, uint32_t);		//cant pass a byte, compiler converts to dword
+                        u = va_arg(ap, uint32_t);		//cant pass a byte, compiler converts to dword
 
-                    if (u > 1000000000)
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000000000), buffer);
-                        printf("%s GB", buffer);
+                        if (u > 1000000000)
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000000000), buffer);
+                            printf("%s GB", buffer);
+                        }
+                        else if (u > 1000000)
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000000), buffer);
+                            printf("%s MB", buffer);
+                        }
+                        else if (u > 1000)
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000), buffer);
+                            printf("%s KB", buffer);
+                        }
+                        else
+                        {
+                            sxlb_convert_itoa_s16_dec((uint16_t)u, buffer);
+                            printf("%s B", buffer);
+                        }
+                    } break;
+                    default:
+                        put_char('%');
+                        put_char(args[i]);
+                        break;
                     }
-                    else if (u > 1000000)
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000000), buffer);
-                        printf("%s MB", buffer);
-                    }
-                    else if (u > 1000)
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)(u / 1000), buffer);
-                        printf("%s KB", buffer);
-                    }
-                    else
-                    {
-                        sxlb_convert_itoa_s16_dec((uint16_t)u, buffer);
-                        printf("%s B", buffer);
-                    }
-                } break;
-                default:
-                    put_char('%');
-                    put_char('?');
-                    break;
-                }
             }
             else
                 put_char(args[i]);
@@ -482,42 +482,52 @@ namespace2(ui, text)
        // if (TEXT)
             //vram[((text_mode.col + text_mode.row*text_mode.columns) << 1) -1] = text_mode.text_color;   //set the text color, should put this in PUT_C but cant get it working with (uint16_t*)vram ...
 
-        if (c)
-        switch(c)
+        if (c >= 0 && c < 32 || c == 127)       //it is a controll char?
         {
-            case ' ':
+            switch(c)
             {
-                if (VIDEO)		//overdraw the space
-                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
-                else
-                    PUT_C(0);
+                case '\n':
+                {
+                    tm_carriage_return();
+                    tm_newline();
+                } break;
+                case '\t':
+                {
+                    tm_tab();
+                } break;
+                case '\b':
+                {
+                    tm_backspace();
+                } break;
+                case '\f':
+                {
+                    clear_screen();
+                } break;
+                default:
+                {
+                    //dont know it, so ignore
+                } break;
+            }
+        }
+        else if (c == ' ')
+        {
+            if (VIDEO)		//overdraw the space
+                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+            else
+                PUT_C(0);
 
-                text_mode.col++;
-                update();
-            } break;
-            case '\n':
-            {
-                tm_carriage_return();
-                tm_newline();
-            } break;
-            case '\t':
-            {
-                tm_tab();
-            } break;
-            case '\b':
-            {
-                tm_backspace();
-            } break;
-            default:
-            {
-                if (VIDEO)      //write to the buffer of the video mode
-                    video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, c - 33);
-                else
-                    PUT_C(c);
+            text_mode.col++;
+            update();
+        }
+        else
+        {
+            if (VIDEO)      //write to the buffer of the video mode
+                video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, c - 33);
+            else
+                PUT_C(c);
 
-                text_mode.col++;
-                update();
-            } break;
+            text_mode.col++;
+            update();
         }
     };
 

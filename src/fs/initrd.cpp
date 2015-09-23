@@ -10,6 +10,7 @@ namespace initrd
     vfs::fs_node_t* fs_install(LPTR address)
     {
         uint32_t headers_c = *(uint32_t*)address;
+        logINF("installing initrd...(@0x%x, n: '/initrd/')", address);
         for (int i = 0; i < headers_c; ++i)
         {
             fs_node_t* node = address + 4 + i*sizeof(fs_node_t);
@@ -29,6 +30,7 @@ namespace initrd
         tmp_node_t.read = &read;
         tmp_node_t.read_dir = nullptr;
         tmp_node_t.find_dir = nullptr;
+        logDONE;
 
         return &root_node;
     }

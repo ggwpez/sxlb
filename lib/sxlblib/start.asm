@@ -5,6 +5,8 @@ extern main
 extern exit
 
 _start:
+	push ebx
+	push eax
 	call main
 
 	push eax

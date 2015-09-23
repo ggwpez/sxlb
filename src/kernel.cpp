@@ -25,10 +25,7 @@ extern "C"
     extern void data_end  ();
 }
 
-bool running = true;
-void idle();
-void shut_down();
-int32_t main()
+void init()
 {
     ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
 
@@ -46,17 +43,25 @@ int32_t main()
     io::keyboard::init();
     logINF("tasking:\n");
     task::init();
+    logINF("initrd:\n");
+    vfs::fs_node_t* initrd = initrd::fs_install(&data_start);
+    logINF("vfs:\n");
+    vfs::init(initrd);
     for (int i = 0; i < 80; ++i) { logINF("="); }
     logINF("Kernel loaded. Press any key to continue.");
 
     ui::text::clear_screen();
+}
 
-    LPTR initrd_start = &data_start;
-    vfs::fs_node_t* initrd = initrd::fs_install(initrd_start);
-    vfs::init(initrd);
+bool running = true;
+void idle();
+void shut_down();
+int32_t main()
+{
+    init();
 
     vfs::fs_node_t* initrd_dir = vfs::find_dir(&vfs::root_node, "initrd");
-    vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, "c_test.dat");
+    vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, "bash.dat");
     char buffer[cdat->length];
     vfs::read(cdat, 0, cdat->length, buffer);
 
@@ -64,7 +69,8 @@ int32_t main()
     LPTR* con = elf::load_file(buffer, &st);
 
     sti
-    task::create(con, 0);
+    char* startpath = "/initrd/bash.dat";
+    task::create(con, 1, &startpath, 0);
 
     /*uint16_t* x,* y; ui::text::get_cursor(x,y);
     putc(0xb3);print("Name"); ui::text::set_cursor(20, *y);
