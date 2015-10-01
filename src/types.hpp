@@ -27,7 +27,7 @@ extern "C" { extern void nop(); }
 #define cli_hlt asm("cli"); asm("hlt");
 #define stop asm("jmp .");
 #define finit asm("finit"); \
-	asm_set_register_ctrl(0, asm_get_register_ctrl(0) | (1 << 5));
+    io::asm_set_register_ctrl(0, io::asm_get_register_ctrl(0) | (1 << 5));
 
 typedef signed char byte_t, char_t, int8_t;
 typedef unsigned char ubyte_t, uchar_t, uint8_t;
@@ -38,6 +38,14 @@ typedef unsigned short int uword_t, ushort_t, uint16_t;
 typedef signed int dword_t, int_t, int32_t;
 typedef unsigned int udword_t, uint_t, uint32_t, size_t, LPTR;
 typedef char*  va_list;
+
+typedef signed long long qword_t, int64_t;
+typedef unsigned long long uqword_t, uint64_t, LLPTR;
+
+static_assert(sizeof(int8_t ) == 1, "Typesize wrong. (int8_t )");
+static_assert(sizeof(int16_t) == 2, "Typesize wrong. (int16_t)");
+static_assert(sizeof(int32_t) == 4, "Typesize wrong. (int32_t)");
+static_assert(sizeof(int64_t) == 8, "Typesize wrong. (int64_t)");
 
 #define break_point __asm__ __volatile__("xchgw %bx, %bx");
 

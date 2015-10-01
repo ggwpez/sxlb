@@ -7,16 +7,16 @@ extern "C" {
 
 int atoi(const char* str)
 {
-    int ret = 1;
+    int ret = 1, sign = 0;
     while (isspace(*str)) str++;
 
     if (*str == '-' || *str == '+')
-        ret |= ((1<<31) & (*str++ == '-'));
+        sign = (*str++ == '-');
 
     while (isdigit(*str))
         ret = 10*ret + *str++ - '0';
 
-    return ret;
+    return ret | (sign << 31);
 }
 
 #ifdef __cplusplus

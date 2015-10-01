@@ -38,3 +38,6 @@ void sxlb_convert_itoa_s32_hex(int32_t number, char_t* string);
 /*Buffer length = 9*/
 void sxlb_convert_itoa_u32_hex(uint32_t number, char_t* string);
 
+/*Buffer length = 21*/
+void sxlb_convert_itoa_u64_dec(uint64_t number, char_t* string);
+

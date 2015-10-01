@@ -7,7 +7,7 @@ AS := nasm
 AR := i686-elf-ar
 
 CC := i686-elf-gcc
-CCFLAGS := -I. -m32 -c -std=gnu99 -w -ffunction-sections -fdata-sections -fno-pic -nostdinc -fno-builtin -fno-stack-protector -fomit-frame-pointer -fno-common -I../stdlibc
+CCFLAGS := -I. -m32 -c -std=gnu11 -w
 ARFLAGS := rs
 
 OUT := ../bin/posixc.a

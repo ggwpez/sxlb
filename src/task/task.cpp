@@ -102,7 +102,7 @@ namespace task
 
     uint32_t get_spawn_time()
     {
-        return time::get_ticks() - actual_task->spawn_time;
+        return get_ticks() - actual_task->spawn_time;
     }
 
     task_t* get_task()
@@ -154,8 +154,7 @@ namespace task
     {
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
 
-        if (!queue || queue->empty())
-            return 0;
+        while (!queue || queue->empty());
 
         return io::keyboard::state_to_char(actual_task->key_queue->pop_front());
     }
@@ -164,8 +163,7 @@ namespace task
     {
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
 
-        if (!queue || queue->empty())
-            return 0;
+        while (!queue || queue->empty());
 
         while (!queue->empty() && s--)
             *buffer++ = io::keyboard::state_to_char(queue->pop_front());
@@ -266,7 +264,7 @@ namespace task
         task->ss = data_segment;
         task->rpl = privileg;
         task->running = true;
-        task->spawn_time = time::get_ticks();
+        task->spawn_time = get_ticks();
 
         task->next = actual_task->next;
         actual_task->next = task;

@@ -1,4 +1,4 @@
-#include "signal.h"
+#include "../signal.h"
 #include "../../../src/system/syscall_defs.hpp"
 
 #ifdef __cplusplus

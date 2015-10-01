@@ -4,7 +4,9 @@
 int main();
 
 #define s 255
+#define NAME_MAX 255
 
+typedef unsigned char uchar_t;
 //style
 uchar_t fc, bc;
 uchar_t usr_fc, usr_bc;

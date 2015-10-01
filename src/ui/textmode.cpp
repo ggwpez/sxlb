@@ -343,9 +343,16 @@ namespace2(ui, text)
         {
             if (args[i] == '%')
             {
-                char buffer[20];
+                char buffer[21];
                 switch (args[++i])
                 {
+                    case 'l':
+                    {
+                        uint64_t ul = va_arg(ap, uint64_t);
+                        sxlb_convert_itoa_u64_dec(ul, buffer);
+                        write(buffer);
+
+                    } break;
                     case 'u':
                     {
                         u = va_arg(ap, uint32_t);

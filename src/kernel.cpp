@@ -33,6 +33,7 @@ void init()
     gdt::init();
     logINF("idt:\n");
     idt::load();
+    sti
     logINF("vmm:\n");
     memory::init();
     logINF("sys:\n");
@@ -56,19 +57,21 @@ void init()
 bool running = true;
 void idle();
 void shut_down();
+char buffer[1024*58];
 int32_t main()
 {
+    finit;
     init();
+    sti
 
     vfs::fs_node_t* initrd_dir = vfs::find_dir(&vfs::root_node, "initrd");
     vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, "bash.dat");
-    char buffer[cdat->length];
+
     vfs::read(cdat, 0, cdat->length, buffer);
 
     elf::elf_status_t st;
     LPTR* con = elf::load_file(buffer, &st);
 
-    sti
     char* startpath = "/initrd/bash.dat";
     task::create(con, 1, &startpath, 0);
 
@@ -112,6 +115,7 @@ int32_t main()
         }
     }*/
 
+    sti
     task::multitasking_set(true);
     TASK_SWITCH
 

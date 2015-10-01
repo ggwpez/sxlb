@@ -2,11 +2,14 @@
 
 namespace time
 {
+    uint64_t ticks;
+
     void init()
     {
         //date_init();
         install_event_handler();
-        set_frequenze(100);
+        set_frequenze(HZ);
+        ticks = 429496729600;
     };
 
     void uninstall()
@@ -14,15 +17,9 @@ namespace time
         uninstall_event_handler();
     };
 
-    uint32_t ticks = 0;
-    uint32_t get_ticks()
-    {
-        return ticks;
-    };
-
     uint32_t get_seconds()
     {
-        return ticks /100;
+        return ticks ;///HZ;
     };
 
     void event_handler(task::cpu_state_t* state)

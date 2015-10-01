@@ -6,13 +6,15 @@
 #include "../ui/video.hpp"
 //#include "date.hpp"
 
+#define HZ 100
 namespace time
 {
     void init();
     void uninstall();
 
     uint32_t get_seconds();
-    uint32_t get_ticks();
+    extern uint64_t ticks;
+    #define get_ticks() ::time::ticks;
 
     /*Don't use.*/
     void set_frequenze(int32_t hz);

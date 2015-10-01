@@ -192,6 +192,28 @@ void sxlb_convert_itoa_u32_dec(uint32_t number, char_t* string)
 	reverse(string, i);
 };
 
+/*Buffer length = 21*/
+void sxlb_convert_itoa_u64_dec(uint64_t number, char_t* string)
+{
+    /*if (number == 0)
+    {
+        string[0] = '0';
+        string[1] = '\0';
+        return;
+    }
+
+    uint8_t i = 0;
+    string[i++] = '\0';
+
+    while (number)
+    {
+        string[i++] = '0' + number % 10;
+        number /= 10;
+    }
+
+    reverse(string, i);*/
+};
+
 /*Buffer length = 9*/
 void sxlb_convert_itoa_s32_hex(int32_t number, char_t* string)
 {

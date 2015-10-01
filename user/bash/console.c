@@ -1,8 +1,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-#include "../../lib/posixc/dirent.h"
-#include "../../lib/posixc/sys/utsname.h"
+//#include "dirent.h"
+//#include "utsname.h"
 
 #include "console.h"
 
@@ -11,6 +11,7 @@ uchar_t buffer[s];
 uchar_t cmd_buffer[s];
 
 uchar_t path[NAME_MAX];
+extern int errno;
 
 int main(uint32_t argc, char** argv)
 {
@@ -22,7 +23,10 @@ int main(uint32_t argc, char** argv)
     while (1)
     {
         printf("%s:%s%s", user, path, bang);
+        fflush(stdout);
         uint32_t l = get_line();
+        while (!buffer[0] || buffer[0] == 255)
+            l = get_line;
         putchar('\n');
 
         buffer[l] = 0;
@@ -30,6 +34,8 @@ int main(uint32_t argc, char** argv)
         if (l)
             interpret_cmd();
     }
+
+    exit(0);
     return 0;
 }
 
@@ -40,6 +46,7 @@ uint32_t get_line()
     {
         uchar_t in = getchar();
 
+        if (in == 0) continue;
         if (in == '\b')
         {
             if (i != 0)
@@ -139,28 +146,28 @@ uint32_t cmd_help()
 
 uint32_t cmd_ls()
 {
-    DIR* dir = opendir(".");
+    /*DIR* dir = opendir(".");
 
     dirent_t* ent;
     dir->i = 1;                 //skip the name entry in a directory
     while (ent = readdir(dir))
         printf("%s\n", ent->d_name);
 
-    closedir(dir);
-    return 0;
+    closedir(dir);*/
+    return -1;
 }
 
 uint32_t cmd_cd()
 {
-    char* target_dir = get_next_arg();
+    /*char* target_dir = get_next_arg();
     if (!target_dir)
         return (printf("cd needs a target directory\n") | 1);  //| 1 if printf fails too
 
     if (chdir(target_dir))
         return (printf("could not open %s\n", target_dir) | 1);
 
-    strcpy(path, target_dir);
-    return 0;
+    strcpy(path, target_dir);*/
+    return -1;
 }
 
 uint32_t cmd_clear()
@@ -171,11 +178,11 @@ uint32_t cmd_clear()
 
 uint32_t cmd_uname()
 {
-    utsname_t buf;
+    /*utsname_t buf;
     uname(&buf);
-    printf("%s %s%s (%s)\n", buf.sysname, buf.version, buf.release, buf.machine);
+    printf("%s %s%s (%s)\n", buf.sysname, buf.version, buf.release, buf.machine);*/
     
-    return 0;
+    return -1;
 }
 
 uint32_t cmd_pag_info()

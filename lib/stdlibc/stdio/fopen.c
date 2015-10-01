@@ -19,8 +19,6 @@ FILE* fopen(char const* const filename, char const* const mode)
     if (!fp)
         return NULL;                                            //none found
 
-
-
 }
 
 #ifdef __cplusplus
