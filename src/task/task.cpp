@@ -154,7 +154,8 @@ namespace task
     {
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
 
-        while (!queue || queue->empty());
+        if (!queue || queue->empty())
+            return 0;
 
         return io::keyboard::state_to_char(actual_task->key_queue->pop_front());
     }
@@ -163,7 +164,8 @@ namespace task
     {
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
 
-        while (!queue || queue->empty());
+        if (!queue || queue->empty())
+            return 0;
 
         while (!queue->empty() && s--)
             *buffer++ = io::keyboard::state_to_char(queue->pop_front());

@@ -23,10 +23,7 @@ int main(uint32_t argc, char** argv)
     while (1)
     {
         printf("%s:%s%s", user, path, bang);
-        fflush(stdout);
         uint32_t l = get_line();
-        while (!buffer[0] || buffer[0] == 255)
-            l = get_line;
         putchar('\n');
 
         buffer[l] = 0;
@@ -45,8 +42,8 @@ uint32_t get_line()
     while (i < s-1)
     {
         uchar_t in = getchar();
-
-        if (in == 0) continue;
+        printf("got: %u c: %c\n", in, in);
+        if (!in) continue;
         if (in == '\b')
         {
             if (i != 0)
@@ -58,7 +55,9 @@ uint32_t get_line()
         else if (in == '\n')
             return i;
         else
+        {
             putchar(buffer[i++] = in);
+        }
     }
 
     return i;
