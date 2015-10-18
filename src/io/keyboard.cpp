@@ -29,7 +29,9 @@ namespace2(io, keyboard)
         if (KEY_PRESSED(key) && (KEY_METAS(key) & META_CTRL))       //ctrl is pressed, so its a system command
             syskey_handler(key);
         else if (KEY_PRESSED(key) && task::key_queue)
+        {
             task::key_queue->push_back(key);                        //queue ignores it, if shes full TODO: add key_queue full logging event
+        }
     }
 
     void mouse_interrupt_handler(task::cpu_state_t* state)

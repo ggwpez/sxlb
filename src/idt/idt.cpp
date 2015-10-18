@@ -30,13 +30,13 @@ namespace idt
 	{
         bool(*handler)(task::cpu_state_t* state, char* kill_msg) = isr_functions[state->int_no];
 
-        char buffer[64] = { 0 };
+        char buffer[128] = { 0 };
         char kill_msg[64];
         if (handler)
         {
             if (handler(state, kill_msg))     //handler says kill, so it dies
             {
-                if (task::multitasking_get() && task::get_rpl() != 0)
+                if (task::multitasking_get() )//&& task::get_rpl() != 0)
                 {
                     printfl("Task '%u' killed for '%s'.", task::get_pid(), kill_msg);
                     task::end(-1);
@@ -50,7 +50,7 @@ namespace idt
         }
         else
         {
-            if (task::multitasking_get() && task::get_rpl() != 0)
+            if (task::multitasking_get() )//&& task::get_rpl() != 0)
             {
                 printfl("Task '%u' killed for '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
                 task::end(-1);                    //no handler, and it dies too
@@ -104,6 +104,7 @@ namespace idt
 		asm volatile("lidt %0" : "=m" (idt_r));
 
         logDONE; logINF("registering default isrs...(2,13,14)");
+        isr_register_event_handler( 0, zerodiv_handler);
         isr_register_event_handler( 2, nmi_handler);
         isr_register_event_handler(13, gpf_handler);
         isr_register_event_handler(14, pf_handler);

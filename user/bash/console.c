@@ -19,10 +19,12 @@ int main(uint32_t argc, char** argv)
     strcpy(bang, "$ ");
     char* user = "root";
     printf("started from: %s\n", argv[0]);
-
+    printf("stdin: %u", stdin);
+    
     while (1)
     {
         printf("%s:%s%s", user, path, bang);
+        fflush(stdout);
         uint32_t l = get_line();
         putchar('\n');
 
@@ -31,7 +33,7 @@ int main(uint32_t argc, char** argv)
         if (l)
             interpret_cmd();
     }
-
+    
     exit(0);
     return 0;
 }
@@ -42,8 +44,6 @@ uint32_t get_line()
     while (i < s-1)
     {
         uchar_t in = getchar();
-        printf("got: %u c: %c\n", in, in);
-        if (!in) continue;
         if (in == '\b')
         {
             if (i != 0)
@@ -57,6 +57,7 @@ uint32_t get_line()
         else
         {
             putchar(buffer[i++] = in);
+            fflush(stdout);
         }
     }
 

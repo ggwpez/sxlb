@@ -155,9 +155,15 @@ namespace task
         io::keyboard::key_queue_t* queue = actual_task->key_queue;
 
         if (!queue || queue->empty())
+        {
+            if (!queue)
+            { logWAR("kq null !!"); }
             return 0;
+        }
 
-        return io::keyboard::state_to_char(actual_task->key_queue->pop_front());
+        char c = io::keyboard::state_to_char(actual_task->key_queue->pop_front());
+       // logINF("polling %c", c);
+        return c;
     }
 
     uint32_t poll_char_buffer_s(char *buffer, size_t s)
@@ -205,7 +211,7 @@ namespace task
             return false;
         }
 
-        LPTR mem = memory::k_malloc(sizeof(task_t) + KERNEL_STACK_SIZE + sizeof(io::keyboard::key_queue_t), 0, 0);
+        LPTR mem = memory::k_malloc(sizeof(task_t) + KERNEL_STACK_SIZE, 0, 0);
 
         task_t* task = mem;
         //task_t* task = memory::k_malloc(sizeof(task_t), 0, 0);
@@ -217,15 +223,15 @@ namespace task
         //task->kernel_stack = memory::k_malloc(KERNEL_STACK_SIZE,0,0) + KERNEL_STACK_SIZE;
         uint32_t* kernel_stack = task->kernel_stack;
 
-        //task->key_queue = memory::k_malloc(sizeof(io::keyboard::key_queue_t),0,0);
-        task->key_queue = task->kernel_stack + sizeof(io::keyboard::key_queue_t);
+        task->key_queue = memory::k_malloc(sizeof(io::keyboard::key_queue_t),0,0);
+        //task->key_queue = task->kernel_stack + sizeof(io::keyboard::key_queue_t);       //TODO look here
         task->key_queue->create();
         task->working_dir = &vfs::root_node;
 
         uint32_t code_segment=0x08, data_segment=0x10;
         *(--kernel_stack) = 0;  // return address dummy
 
-        if(privileg == 3)
+        if(privileg != 0)
         {
             // general information: Intel 3A Chapter 5.12
             *(--kernel_stack) = task->ss = 0x23;    // ss
@@ -249,7 +255,7 @@ namespace task
         *(--kernel_stack) = 0;
         *(--kernel_stack) = 0;
 
-        if(privileg == 3) data_segment = 0x23; // 0x20|0x3=0x23
+        if(privileg != 0) data_segment = 0x23; // 0x20|0x3=0x23
 
         *(--kernel_stack) = data_segment;
         *(--kernel_stack) = data_segment;
@@ -370,7 +376,7 @@ namespace task
 
         switch_paging(actual_task->directory);
         tss_switch(actual_task->cpu_state, actual_task->kernel_stack +KERNEL_STACK_SIZE, actual_task->ebp, actual_task->directory->physical_address, actual_task->ss); // esp0, esp, ss        switch_paging(actual_task->directory);
-        key_queue = actual_task->key_queue;
+        change_focus(actual_task);
 
         return actual_task->cpu_state;
 	};

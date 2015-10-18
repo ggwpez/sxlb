@@ -15,6 +15,12 @@ namespace idt
         return true;
     }
 
+    bool zerodiv_handler(task::cpu_state_t* state, char* kill_msg)
+    {
+        sprintf_s(kill_msg, 64, "Division by zero");
+        return true;
+    }
+
     //14
     bool pf_handler(task::cpu_state_t* state, char* kill_msg)
     {

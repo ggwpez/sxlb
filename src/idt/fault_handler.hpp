@@ -10,6 +10,7 @@ namespace idt
     //if no handler is available, the task is also killed.
 
     bool nmi_handler(task::cpu_state_t* state, char* kill_msg);
+    bool zerodiv_handler(task::cpu_state_t* state, char* kill_msg);
     bool gpf_handler(task::cpu_state_t* state, char* kill_msg);
     bool pf_handler(task::cpu_state_t* state, char *kill_msg);
 }

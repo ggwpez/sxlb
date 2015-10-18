@@ -8,8 +8,8 @@ template<class T, size_t _size>
 class queue
 {
     T buffer[_size];
-    size_t start, length;
     public:
+    size_t start, length;
     void create()
     {
         start = 0;
@@ -38,7 +38,6 @@ class queue
             start = 0;
 
         --length;
-
         return ret;
     }
 
@@ -78,9 +77,9 @@ class queue
             return false;
 
         if(start+length >= _size)
-        buffer[start+length-_size] = value;
+            buffer[start+length-_size] = value;
         else
-        buffer[start+length] = value;
+            buffer[start+length] = value;
 
         ++length;
         return true;
