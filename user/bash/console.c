@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-//#include "dirent.h"
+#include "../../lib/posixc/dirent.h"
 //#include "utsname.h"
 
 #include "console.h"
@@ -19,8 +19,7 @@ int main(uint32_t argc, char** argv)
     strcpy(bang, "$ ");
     char* user = "root";
     printf("started from: %s\n", argv[0]);
-    printf("stdin: %u", stdin);
-    
+
     while (1)
     {
         printf("%s:%s%s", user, path, bang);
@@ -146,28 +145,31 @@ uint32_t cmd_help()
 
 uint32_t cmd_ls()
 {
-    /*DIR* dir = opendir(".");
+    DIR* dir = opendir(".");
 
     dirent_t* ent;
     dir->i = 1;                 //skip the name entry in a directory
+    uint32_t t;
     while (ent = readdir(dir))
-        printf("%s\n", ent->d_name);
+    {
+        t = ent->d_type;
+        printf("%s\t\t%s\n", ent->d_name, (t == DT_REG ? "FILE" : t == DT_DIR ? "DIR" : "???"));
+    }
 
-    closedir(dir);*/
-    return -1;
+    closedir(dir);
+    return 0;
 }
 
 uint32_t cmd_cd()
 {
-    /*char* target_dir = get_next_arg();
+    char* target_dir = get_next_arg();
     if (!target_dir)
         return (printf("cd needs a target directory\n") | 1);  //| 1 if printf fails too
 
     if (chdir(target_dir))
         return (printf("could not open %s\n", target_dir) | 1);
 
-    strcpy(path, target_dir);*/
-    return -1;
+    return 0;
 }
 
 uint32_t cmd_clear()

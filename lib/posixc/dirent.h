@@ -3,7 +3,9 @@
 
 #include "limits.h"
 #include "sys/types.h"
-#include "../stdlibc/stdint.h"
+#include "stdint.h"
+//#include "../stdlibc/stdint.h"
+typedef unsigned int LPTR;
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,10 +17,10 @@ enum
 {
 	DT_BLK = 1,
 	DT_CHR = 2,
-	DT_DIR = 3,
-	DT_FIFO = 4,
+    DT_DIR = 3,         //directory
+    DT_FIFO = 4,
 	DT_LNK = 5,
-	DT_REG = 6,
+    DT_REG = 6,         //regular file
 	DT_SOCK = 7,
 	DT_UNKNOWN = 0
 };

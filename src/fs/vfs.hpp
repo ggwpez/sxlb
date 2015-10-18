@@ -20,12 +20,14 @@ namespace vfs
 
     enum class node_type : uint32_t
     {
-        File        = 1,
-        Dir         = 2,
-        Char_Dev    = 3,
-        Block_Dev   = 4,
-        Pipe        = 5,
-        Symlink     = 6,
+        Blk = 1,
+        Chr = 2,
+        Dir = 3,
+        Fifo = 4,
+        Lnk = 5,
+        Reg = 6,
+        Sock = 7,
+        Unknown = 0,
         Mount_P     = 8     //for | it
     };
 

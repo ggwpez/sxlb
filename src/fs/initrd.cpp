@@ -75,7 +75,7 @@ namespace initrd
         {
             if (!strcmp(name, fs->files[i].name))
             {
-                tmp_node_t.type = vfs::node_type::File;
+                tmp_node_t.type = vfs::node_type::Reg;
                 tmp_node_t.length = fs->files[i].data_length;
                 tmp_node_t.inode = fs->files[i].inode;
                 strcpy(tmp_node_t.name, fs->files[i].name);
@@ -104,7 +104,7 @@ namespace initrd
         i--;
         strcpy(tmp_dir_ent.name, fs->files[i].name);
         tmp_dir_ent.inode = fs->files[i].inode;
-        tmp_dir_ent.type = vfs::node_type::File;
+        tmp_dir_ent.type = vfs::node_type::Reg;
 
         return &tmp_dir_ent;
     }
