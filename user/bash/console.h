@@ -19,6 +19,7 @@ void interpret_cmd();
 uint32_t cmd_help();
 uint32_t cmd_ls();
 uint32_t cmd_cd();
+uint32_t cmd_cat();
 uint32_t cmd_clear();
 uint32_t cmd_uname();
 uint32_t cmd_pag_info();

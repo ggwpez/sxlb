@@ -1,7 +1,7 @@
 CXXFLAGS := -std=c++11 -fpermissive
 FS := ../fs
 
-CXX := i686-elf-g++
+CXX := g++
 
 all: $(FS)
 

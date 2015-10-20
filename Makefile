@@ -48,8 +48,11 @@ qemu: all
 payload.o: $(IMAGE) payload.asm
 	$(AS) $(ASFLAGSOBJ) payload.asm -o payload.o
 
-boot.o: boot.s
-	i686-elf-g++ -m32 boot.s -o boot.o -c	
+#boot.o: boot.s
+#	i686-elf-g++ -m32 boot.s -o boot.o -c	
+boot.o: boot.mbh
+	nasm -f elf -o boot.o boot.mbh
+
 
 %.o: %.asm
 	$(AS) $(ASFLAGSOBJ) $< -o $@

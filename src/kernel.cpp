@@ -54,26 +54,36 @@ void init()
     ui::text::clear_screen();
 }
 
-bool running = true;
-void idle();
-void shut_down();
-char buffer[1024*58];
-int32_t main()
+char start_path[64] = { 0 };
+bool exec(char* file_name)
 {
-    finit;
-    init();
-    sti
-
     vfs::fs_node_t* initrd_dir = vfs::find_dir(&vfs::root_node, "initrd");
-    vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, "bash.dat");
+    vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, file_name);
 
+    char* buffer = memory::k_malloc(cdat->length, 0, nullptr);
     vfs::read(cdat, 0, cdat->length, buffer);
 
     elf::elf_status_t st;
     LPTR* con = elf::load_file(buffer, &st);
+    memory::k_free(buffer);
 
-    char* startpath = "/initrd/bash.dat";
-    task::create(con, 1, &startpath, 0);
+    if (st != elf::elf_status_t::Ok)
+        return false;
+    //sprintf_s(start_path, sizeof(start_path), "/initrd/%s", file_name);
+    return task::create(con, 1, &start_path, 0);
+}
+
+bool running = true;
+void idle();
+void shut_down();
+int32_t main()
+{
+    finit;
+    init();
+    exec("bash.dat");
+
+    task::multitasking_set(true);
+    TASK_SWITCH
 
     /*uint16_t* x,* y; ui::text::get_cursor(x,y);
     putc(0xb3);print("Name"); ui::text::set_cursor(20, *y);
@@ -81,7 +91,7 @@ int32_t main()
     putc(0xb3);print("Size"); ui::text::set_cursor(35, *y);
     putc(0xb3);printl("Content/{0-44}");
 
-    for (int i = 0; i < vfs::root_node.length; ++i)
+    for (int i = 0; i < vfs::root_node.length; i++)
     {
         vfs::dir_ent_t* ent = vfs::read_dir(&vfs::root_node, i);
         vfs::fs_node_t* node = vfs::find_dir(&vfs::root_node, ent->name);
@@ -115,9 +125,7 @@ int32_t main()
         }
     }*/
 
-    sti
-    task::multitasking_set(true);
-    TASK_SWITCH
+
 
     idle();
     shut_down();

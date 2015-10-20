@@ -1,5 +1,5 @@
 #include "../dirent.h"
-#include "../../stdlibc/string.h"
+#include "string.h"
 #include "../../../src/system/syscall_defs.hpp"
 
 #ifdef __cplusplus

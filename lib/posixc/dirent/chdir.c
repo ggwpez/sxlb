@@ -1,6 +1,6 @@
 #include "../dirent.h"
 #include "../../../src/system/syscall_defs.hpp"
-#include "../../stdlibc/stdio.h"
+#include "stdio.h"
 
 #ifdef __cplusplus
 extern "C" {

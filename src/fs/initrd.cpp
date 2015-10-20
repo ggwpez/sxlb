@@ -10,7 +10,7 @@ namespace initrd
     vfs::fs_node_t* fs_install(LPTR address)
     {
         uint32_t headers_c = *(uint32_t*)address;
-        logINF("installing initrd...(@0x%x, n: '/initrd/')", address);
+        logINF("installing initrd...(@0x%x, in: '/initrd/')", address);
         for (int i = 0; i < headers_c; ++i)
         {
             fs_node_t* node = address + 4 + i*sizeof(fs_node_t);
