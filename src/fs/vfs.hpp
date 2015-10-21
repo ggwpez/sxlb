@@ -33,7 +33,7 @@ namespace vfs
 
     struct fs_node
     {
-        char name[VFS_NODE_NAME_L];
+        char name[NAME_MAX];
         node_type type;
         uint32_t length;
         uint32_t reserved;
@@ -67,6 +67,7 @@ namespace vfs
     void init(fs_node_t* initrd);
 
     fs_node_t* get_root();
+    fs_node_t* resolve_path(fs_node_t* node, char* path);
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     uint32_t write(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     void open(fs_node_t* node);

@@ -54,10 +54,8 @@ uint32_t get_line()
         else if (in == '\n')
             return i;
         else
-        {
             putchar(buffer[i++] = in);
-            fflush(stdout);
-        }
+        fflush(stdout);
     }
 
     return i;
@@ -99,6 +97,7 @@ struct cmd cmds[] =
     { "clear", &cmd_clear },
     { "cd", &cmd_cd },
     { "ls", &cmd_ls },
+    { "cat", &cmd_cat },
     { "uname", &cmd_uname },
     { "pag_info", &cmd_pag_info },
     { "tss_info", &cmd_tss_info },
@@ -155,7 +154,6 @@ uint32_t cmd_ls()
         t = ent->d_type;
         printf("%s\t\t%s\n", ent->d_name, (t == DT_REG ? "FILE" : t == DT_DIR ? "DIR" : "???"));
     }
-
     closedir(dir);
     return 0;
 }
@@ -164,10 +162,21 @@ uint32_t cmd_cd()
 {
     char* target_dir = get_next_arg();
     if (!target_dir)
-        return (printf("cd needs a target directory\n") | 1);  //| 1 if printf fails too
+        return (printf("cd needs a target directory\n") | 1);
 
     if (chdir(target_dir))
         return (printf("could not open %s\n", target_dir) | 1);
+
+    return 0;
+}
+
+uint32_t cmd_cat()
+{
+    char* file = get_next_arg();
+    if (!file)
+        return (printf("cat needs a filename of the current directory\n") | 1);
+
+    
 
     return 0;
 }

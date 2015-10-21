@@ -21,6 +21,51 @@ namespace vfs
         logDONE;
     }
 
+    fs_node_t* resolve_path(fs_node_t* node, char* path)
+    {
+        logINF("got path: '%s'  node: %u\n", path, node);
+#ifdef __CHECKS_NLPTR
+        if (!path || (!path && !node))
+            return nullptr;
+#endif
+        fs_node_t* found;
+        char buffer[NAME_MAX];
+
+        uint32_t i = 0, j = 0;
+        if (path[i] == '/')
+        {
+            found = &root_node;
+            i++;
+        }
+        else if (path[i] == '.' && path[i+1] == '/')
+        {
+            found = node;
+            i += 2;
+        }
+        else
+            found = node;
+
+        while (1)
+        {
+            while (path[i] && path[i] != '/')
+               buffer[j++] = path[i++];
+            buffer[j] = 0;
+
+            if (j)
+            {
+                found = find_dir(found, buffer);
+                if (!found)
+                    break;
+            }
+
+            if (!path[++i])
+                break;
+            j = 0;
+        }
+
+        return found;
+    }
+
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer)
     {
         return (node->read) ? node->read(node, off, size, buffer) : 0;

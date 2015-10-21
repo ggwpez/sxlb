@@ -29,13 +29,15 @@ extern "C" { extern void nop(); }
 #define finit asm("finit"); \
     io::asm_set_register_ctrl(0, io::asm_get_register_ctrl(0) | (1 << 5));
 
+#define USER_RPL 0
+
 typedef signed char byte_t, char_t, int8_t;
 typedef unsigned char ubyte_t, uchar_t, uint8_t;
 
 typedef signed short int word_t, short_t, int16_t;
 typedef unsigned short int uword_t, ushort_t, uint16_t;
 
-typedef signed int dword_t, int_t, int32_t;
+typedef signed int dword_t, int_t, int32_t, sint32_t;
 typedef unsigned int udword_t, uint_t, uint32_t, size_t, LPTR;
 typedef char*  va_list;
 

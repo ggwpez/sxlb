@@ -10,8 +10,26 @@ DIR tmp_dir;
 
 DIR* opendir(const char* name)
 {
-    LPTR dir;
-    char buffer[NAME_MAX-1];
+    LPTR start_dir = 0;
+
+    SYSCALL_RET0(SYSCNUM_TASK_GET_WORKING_DIR, start_dir);
+
+    if (!strcmp(name, "."))
+    {
+        tmp_dir.fs_node = start_dir;
+        tmp_dir.i = 0;
+        return &tmp_dir;
+    }
+
+    SYSCALL_RET2(SYSCNUM_VFS_RESOLVE_PATH, tmp_dir.fs_node, start_dir, name);
+    if (*(uint32_t*)(tmp_dir.fs_node+NAME_MAX+1) != 3)  //its not a direcotry
+        return 0;
+
+    tmp_dir.i = 0;
+    return &tmp_dir;
+
+    /*LPTR dir;
+    char buffer[NAME_MAX];
     uint32_t buffer_i;
 
     uint32_t name_l = strlen(name);
@@ -53,7 +71,7 @@ DIR* opendir(const char* name)
 
     tmp_dir.fs_node = dir;
     tmp_dir.i = 0;
-    return &tmp_dir;
+    return &tmp_dir;*/
 }
 
 #ifdef __cplusplus

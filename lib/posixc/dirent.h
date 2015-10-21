@@ -4,6 +4,7 @@
 #include "limits.h"
 #include "sys/types.h"
 #include "stdint.h"
+
 //#include "../stdlibc/stdint.h"
 typedef unsigned int LPTR;
 
@@ -34,7 +35,7 @@ typedef struct dirent
 
 typedef struct __dirstr
 {
-	LPTR fs_node;
+    LPTR fs_node;
 	int32_t i;
 } DIR;
 

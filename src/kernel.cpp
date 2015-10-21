@@ -15,6 +15,7 @@
 #include "user/test.hpp"
 #include "system/syscall.hpp"
 #include "user/elf.hpp"
+#include "user/executable.hpp"
 
 #define VIDEO_MODE 0
 #define LOGGING 1
@@ -54,25 +55,6 @@ void init()
     ui::text::clear_screen();
 }
 
-char start_path[64] = { 0 };
-bool exec(char* file_name)
-{
-    vfs::fs_node_t* initrd_dir = vfs::find_dir(&vfs::root_node, "initrd");
-    vfs::fs_node_t* cdat = vfs::find_dir(initrd_dir, file_name);
-
-    char* buffer = memory::k_malloc(cdat->length, 0, nullptr);
-    vfs::read(cdat, 0, cdat->length, buffer);
-
-    elf::elf_status_t st;
-    LPTR* con = elf::load_file(buffer, &st);
-    memory::k_free(buffer);
-
-    if (st != elf::elf_status_t::Ok)
-        return false;
-    //sprintf_s(start_path, sizeof(start_path), "/initrd/%s", file_name);
-    return task::create(con, 1, &start_path, 0);
-}
-
 bool running = true;
 void idle();
 void shut_down();
@@ -80,7 +62,8 @@ int32_t main()
 {
     finit;
     init();
-    exec("bash.dat");
+    char* argv[] = { "/initrd/bash.dat/", nullptr };
+    execve(vfs::get_root(), argv[0], argv, nullptr);
 
     task::multitasking_set(true);
     TASK_SWITCH

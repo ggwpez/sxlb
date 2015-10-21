@@ -6,7 +6,7 @@
 
 namespace elf
 {
-    enum class elf_bin_type : uint16_t
+    enum class bin_type : uint16_t
     {
         relocatable = 1,
         executable  = 2,
@@ -14,24 +14,24 @@ namespace elf
         core        = 4
     };
 
-    enum class elf_bits : ubyte_t
+    enum class bits : ubyte_t
     {
         _32 = 1,
         _64 = 2
     };
 
-    enum class elf_endian : ubyte_t
+    enum class endian : ubyte_t
     {
         little  = 1,
         big     = 2
     };
 
-    enum class elf_version : uint32_t
+    enum class version : uint32_t
     {
         original = 1
     };
 
-    enum class elf_cpu : uint16_t     //instruction_set
+    enum class cpu : uint16_t     //instruction_set
     {
         M32     = 0x01,
         SPARC   = 0x02,
@@ -45,7 +45,7 @@ namespace elf
         AArch64 = 0xb7
     };
 
-    enum class elf_ph_type
+    enum class ph_type
     {
         Invalid     = 0,
         Load        = 1,
@@ -61,9 +61,9 @@ namespace elf
         Cpu_HI      = 0x7fffffff
     };
 
-    //#define ELF_MAGIC 0x7F454C46
-    #define ELF_MAGIC 0x464c457f
-    typedef struct elf_header
+    //#define MAGIC 0x7F454C46
+    #define MAGIC 0x464c457f
+    typedef struct header
     {
         /*uint32_t magic;
         ubyte_t class_;
@@ -73,9 +73,9 @@ namespace elf
         ubyte_t nident[9];*/
         ubyte_t magic[16];
 
-        elf_bin_type type;
-        elf_cpu cpu;
-        elf_version version;
+        bin_type type;
+        cpu cpu;
+        version version;
 
         uint32_t entry;
         uint32_t pht_off;       //program header table offset
@@ -88,11 +88,11 @@ namespace elf
         uint16_t sht_entry_s;   //sht entry size
         uint16_t sht_entry_c;   //sht entrys count
         uint16_t shstrndx;
-    } elf_header_t;
+    } header_t;
 
-    typedef struct elf_ph
+    typedef struct ph
     {
-        elf_ph_type type;
+        ph_type type;
         uint32_t offset;
         uint32_t v_addr;
         uint32_t p_addr;
@@ -100,9 +100,9 @@ namespace elf
         uint32_t mem_s;
         uint32_t flags;
         uint32_t align;
-    } elf_ph_t;
+    } ph_t;
 
-    enum class elf_status_t
+    enum class status_t
     {
         Unknown             = 0,
         Ok                  = 1,
@@ -115,5 +115,5 @@ namespace elf
     };
 
     //returns the absolute entry address
-    LPTR load_file(LPTR address, elf_status_t* result);
+    LPTR load_file(LPTR address, status_t* result);
 }

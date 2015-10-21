@@ -8,6 +8,7 @@
 #include "../fs/vfs.hpp"
 #include "syscall_defs.hpp"
 #include "../utils/version.hpp"
+#include "../user/executable.hpp"
 
 namespace system
 {    
@@ -42,6 +43,8 @@ namespace system
         &vfs::close,
         &vfs::read_dir,
         &vfs::find_dir,                  //25
+        &vfs::resolve_path,
+        &execve,
         &utils::get_version,
         &system::reboot
 	};

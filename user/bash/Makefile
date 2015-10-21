@@ -10,7 +10,7 @@ LD := i686-elf-ld
 CC := i686-elf-gcc
 
 #CCFLAGS := -m32 -c -std=gnu11 -w -I../../lib/stdlibc/
-CCFLAGS := -m32 -c -std=gnu11 -w -I$(NEWLIBDIR)../include/
+CCFLAGS := -m32 -c -std=gnu11 -w -fdelete-null-pointer-checks -I$(NEWLIBDIR)../include/
 LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common -s
 
 OUT := ../bash.dat

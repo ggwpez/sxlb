@@ -30,6 +30,8 @@ enum CALL
     SYSCNUM_VFS_CLOSE,
     SYSCNUM_VFS_READ_DIR,
     SYSCNUM_VFS_FIND_DIR,           //28
+    SYSCNUM_VFS_RESOLVE_PATH,
+    SYSCNUM_USER_EXECVE,
     SYSCNUM_UTILS_GET_VERSION,
     SYSCNUM_SYSTEM_REBOOT,
     SYSCNUM_CALL_ENTRYS
@@ -40,12 +42,12 @@ enum CALL
 #define _SYSCALL_INT 127
 #define _SYSCALL_INT_S STR(_SYSCALL_INT)
 
-#define SYSCALL_RET0(num, ret) asm volatile("int $0x7F" : "=a" (ret) : "0" (num))
-#define SYSCALL_RET1(num, ret, arg0) asm volatile("int $0x7F" : "=a" (ret) : "0" (num), "b" (arg0))
-#define SYSCALL_RET2(num, ret, arg0, arg1) asm volatile("int $0x7F" : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1))
-#define SYSCALL_RET3(num, ret, arg0, arg1, arg2) asm volatile("int $0x7F" : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2))
-#define SYSCALL_RET4(num, ret, arg0, arg1, arg2, arg3) asm volatile("int $0x7F" : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3))
-#define SYSCALL_RET5(num, ret, arg0, arg1, arg2, arg3, arg4) asm volatile("int $0x7F": "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3), "D" (arg4))
+#define SYSCALL_RET0(num, ret) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num))
+#define SYSCALL_RET1(num, ret, arg0) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num), "b" (arg0))
+#define SYSCALL_RET2(num, ret, arg0, arg1) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1))
+#define SYSCALL_RET3(num, ret, arg0, arg1, arg2) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2))
+#define SYSCALL_RET4(num, ret, arg0, arg1, arg2, arg3) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3))
+#define SYSCALL_RET5(num, ret, arg0, arg1, arg2, arg3, arg4) asm volatile("int $" _SYSCALL_INT_S : "=a" (ret) : "0" (num), "b" (arg0), "c" (arg1), "d" (arg2), "S" (arg3), "D" (arg4))
 
 #define SYSCALL0(num) asm volatile("mov %0, %%eax\nint $" _SYSCALL_INT_S : : "r" (num))
 #define SYSCALL1(num, arg0) asm volatile("mov %0, %%eax\nint $" _SYSCALL_INT_S : : "r" (num), "b" (arg0))
