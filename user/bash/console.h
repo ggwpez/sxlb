@@ -18,6 +18,7 @@ void interpret_cmd();
 //cmd functions
 uint32_t cmd_help();
 uint32_t cmd_ls();
+uint32_t cmd_test();
 uint32_t cmd_cd();
 uint32_t cmd_cat();
 uint32_t cmd_clear();

@@ -8,6 +8,8 @@
 #include "../io/keyboard.hpp"
 #include "../fs/vfs.hpp"
 
+#define ERRNO(no) ;
+
 namespace task
 {
     extern io::keyboard::key_queue_t* key_queue;

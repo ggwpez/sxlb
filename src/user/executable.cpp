@@ -6,8 +6,6 @@
 int32_t execve(vfs::fs_node_t* start_node, char* path, char* const* argv, char* const* env)
 {
     vfs::fs_node_t* file = vfs::resolve_path(start_node, path);
-    if (file)
-        logINF("found: %s  size: %u\n", path, file->length);
 
     LPTR buffer = memory::k_malloc(file->length, 0, nullptr);
     vfs::read(file, 0, file->length, buffer);

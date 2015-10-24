@@ -20,15 +20,16 @@ namespace vfs
 
     enum class node_type : uint32_t
     {
-        Blk = 1,
-        Chr = 2,
-        Dir = 3,
-        Fifo = 4,
-        Lnk = 5,
-        Reg = 6,
-        Sock = 7,
-        Unknown = 0,
-        Mount_P     = 8     //for | it
+        Blk         = 1,
+        Chr         = 2,
+        Dir         = 3,
+        Fifo        = 4,
+        Lnk         = 5,
+        Reg         = 6,
+        Sock        = 7,
+        Unknown     = 0,
+        Mount_P     = 8,     //for | it
+        Virtual     = 16
     };
 
     struct fs_node
@@ -68,6 +69,7 @@ namespace vfs
 
     fs_node_t* get_root();
     fs_node_t* resolve_path(fs_node_t* node, char* path);
+    LPTR render_path(fs_node_t* node, char* buffer, size_t size);
     uint32_t read(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     uint32_t write(fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer);
     void open(fs_node_t* node);

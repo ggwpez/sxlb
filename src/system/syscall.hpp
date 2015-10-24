@@ -44,6 +44,7 @@ namespace system
         &vfs::read_dir,
         &vfs::find_dir,                  //25
         &vfs::resolve_path,
+        &vfs::render_path,
         &execve,
         &utils::get_version,
         &system::reboot

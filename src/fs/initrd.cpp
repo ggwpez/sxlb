@@ -25,6 +25,7 @@ namespace initrd
         root_node.read_dir = &read_dir;
         root_node.find_dir = &find_dir;
         root_node.read = 0;
+        root_node.ptr = nullptr;
         root_node.type = vfs::node_type::Dir;
 
         tmp_node_t.read = &read;

@@ -2,7 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "../../lib/posixc/dirent.h"
-//#include "utsname.h"
+#include "user.h"
 
 #include "console.h"
 
@@ -17,11 +17,12 @@ int main(uint32_t argc, char** argv)
 {
     strcpy(path, "/");
     strcpy(bang, "$ ");
-    char* user = "root";
+    char* user = "vados";
     printf("started from: %s\n", argv[0]);
 
     while (1)
     {
+        getcwd(path, NAME_MAX);
         printf("%s:%s%s", user, path, bang);
         fflush(stdout);
         uint32_t l = get_line();
@@ -94,6 +95,7 @@ typedef struct cmd
 struct cmd cmds[] =
 {
     { "help", &cmd_help },
+    { "test", &cmd_test },
     { "clear", &cmd_clear },
     { "cd", &cmd_cd },
     { "ls", &cmd_ls },
@@ -125,9 +127,29 @@ void interpret_cmd()
     if (!ptr)
         printf("command '%s' unknown\n", cmd);
     else if (ptr())
+    {
+        set_fc_clr(4);
         printf("ERROR\n");
+        set_fc_clr(7);
+    }
 }
-//cmd functions
+
+uint32_t cmd_test()
+{
+    char* file = get_next_arg();
+
+    uint32_t pl = strlen(path),
+             fl = strlen(file);
+
+    if (pl + fl > NAME_MAX)
+        return printf("path too long\n");
+
+    strcpy(path +pl, file);
+    fopen(path, "r");
+
+    return 0;
+}
+
 uint32_t cmd_help()
 {
     uint32_t c = sizeof(cmds) / sizeof(cmds[0]);
@@ -152,7 +174,7 @@ uint32_t cmd_ls()
     while (ent = readdir(dir))
     {
         t = ent->d_type;
-        printf("%s\t\t%s\n", ent->d_name, (t == DT_REG ? "FILE" : t == DT_DIR ? "DIR" : "???"));
+        printf("%s\t\t%s\n", ent->d_name, (t == DT_REG ? "FILE" : t == DT_DIR ? "DIR" : t == DT_LNK ? "LNK" : "???"));
     }
     closedir(dir);
     return 0;
@@ -162,10 +184,10 @@ uint32_t cmd_cd()
 {
     char* target_dir = get_next_arg();
     if (!target_dir)
-        return (printf("cd needs a target directory\n") | 1);
+        return printf("cd needs a directory as argument\n");
 
     if (chdir(target_dir))
-        return (printf("could not open %s\n", target_dir) | 1);
+        return printf("could not open %s\n", target_dir);
 
     return 0;
 }
@@ -176,7 +198,9 @@ uint32_t cmd_cat()
     if (!file)
         return (printf("cat needs a filename of the current directory\n") | 1);
 
-    
+    uint32_t l = 0, ret = 0;
+    char buffer[1024];
+    fopen(file, "r");
 
     return 0;
 }

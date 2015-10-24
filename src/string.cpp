@@ -18,3 +18,12 @@ char* strcpy(char* s1, const char* s2)
 
     return (s1);
 }
+
+uint32_t strlen(char* s)
+{
+    uint32_t l = 0;
+
+    while(*s++) l++;
+
+    return l;
+}

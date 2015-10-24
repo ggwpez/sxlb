@@ -324,7 +324,7 @@ namespace task
 
         prev->next = target->next;
         num_tasks--;
-        printfl("Killing task: id=%u, return=%u", target->pid, target->cpu_state->eax);
+        printfl("Killing task: id=%u, return=%i", target->pid, target->cpu_state->eax);
         target->~task_t();
 
         return true;
