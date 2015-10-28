@@ -62,7 +62,7 @@ int32_t main()
 {
     finit;
     init();
-    char* argv[] = { "/initrd/ubasic.dat", nullptr };
+    char* argv[] = { "/initrd/nasm.dat", nullptr };
     execve(vfs::get_root(), argv[0], argv, nullptr);
 
     task::multitasking_set(true);

@@ -2,16 +2,17 @@
 extern main
 
 [GLOBAL _start]
-extern exit
+extern _exit
+extern fflush			; actually somebody was so intelligent to compile with -fno_leading_underscore
 
 _start:
 	push ebx
 	push eax
 	call main
 
-	push eax
-	call exit
-	;mov ebx, eax
-	;mov eax, 15
-	;int 0x7f	
+	push 0
+	call fflush
+	add esp, 4
+
+	call _exit	
 	jmp $
