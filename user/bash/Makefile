@@ -2,7 +2,7 @@ LIBDIR := ../../lib/bin/
 NEWLIBDIR := ../../toolchain/usr/i686-sxlb/lib/
 USERLIBDIR := ../../lib/sxlblib/
 #LIBS := $(LIBDIR)sxlblib.a $(LIBDIR)posixc.a $(LIBDIR)stdlibc.a
-LIBS := $(NEWLIBDIR)libc.a $(NEWLIBDIR)libg.a $(NEWLIBDIR)libm.a $(NEWLIBDIR)libnosys.a $(LIBDIR)sxlblib.a $(LIBDIR)posixc.a
+LIBS := $(NEWLIBDIR)libc.a $(NEWLIBDIR)libg.a $(NEWLIBDIR)libm.a $(NEWLIBDIR)libnosys.a $(LIBDIR)sxlblib.a
 
 CSRC := $(wildcard *.c)
 COBJ := $(addsuffix .o,$(basename $(CSRC)))

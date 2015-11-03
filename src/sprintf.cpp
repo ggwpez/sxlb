@@ -18,8 +18,8 @@ void write_char(char_t* dest, char src, uint32_t* maxl, uint32_t offset)
 int32_t sprintf_s(char_t* str, uint32_t size, const char_t* format, ...)
 {
 #if __CHECKS_NLPTR
-	if (!str || !format)
-		return -1;
+    NOT_NULL(str);
+    NOT_NULL(format);
 #endif
 
 	va_list ap;

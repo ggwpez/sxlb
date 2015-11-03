@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include "../user/executable.hpp"
 
 namespace2 (ui, window)
 {
@@ -30,6 +31,13 @@ namespace2 (ui, window)
 
         actual_windows = MAX_WINDOWS;
         actual_window = 0;
+        logDONE;
+    }
+
+    void fork_bash()
+    {
+        char* argv[] = { "/initrd/bash.dat", nullptr };
+        execve(nullptr, argv[0], argv, nullptr);
     }
 
     bool switch_window(ubyte_t window_index)
@@ -40,13 +48,13 @@ namespace2 (ui, window)
         window_t focus = windows[actual_window];
         memory::memcpy(focus.data, ui::text::vram, window_size);    //save old window state
         ui::text::get_cursor(&focus.cursor_x, &focus.cursor_y);
-        ui::text::clear_screen();
+        //ui::text::clear_screen();
 
         actual_window = window_index;
         focus = windows[actual_window];
         memory::memcpy(ui::text::vram, focus.data, window_size);
         ui::text::set_cursor(focus.cursor_x, focus.cursor_y);
-        ui::text::update();
+        //ui::text::update();   //already in set_cursor
         return true;
     }
 }}

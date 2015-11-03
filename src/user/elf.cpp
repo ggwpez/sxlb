@@ -25,7 +25,7 @@ namespace elf
         header_t* h = address;
         *result = check_file(h);
         if (*result != status_t::Ok)
-            return (LPTR)h->cpu;
+            return nullptr;
 
         ph_t* ph = nullptr;
 

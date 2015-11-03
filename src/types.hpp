@@ -15,6 +15,8 @@
 #define nullptr 0
 #define NULL 0
 
+#define NOT_NULL(x) if(!(x)) return -1;
+
 #define sgn(x) ((x < 0) ? -1 : ((x > 0) ? 1 : 0))
 #define abs(x) ((x < 0) ? -x: x)
 

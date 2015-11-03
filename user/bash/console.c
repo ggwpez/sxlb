@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "../../lib/posixc/dirent.h"
+#include "sys/fcntl.h"
 #include "user.h"
 
 #include "console.h"
@@ -200,7 +201,7 @@ uint32_t cmd_cat()
 
     uint32_t l = 0, ret = 0;
     char buffer[1024];
-    fopen(file, "r");
+    openat(AT_FDCWD, file, "r");
 
     return 0;
 }

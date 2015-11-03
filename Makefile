@@ -17,8 +17,8 @@ ASFLAGSBIN := -O32 -f bin
 ASFLAGSOBJ := -O32 -f elf32
 AS := nasm
 
-CXX := i686-elf-g++
-LD := i686-elf-ld
+CXX := g++
+LD := ld
 #CXXFLAGS := -m32 -fpermissive -w
 CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T linker.ld

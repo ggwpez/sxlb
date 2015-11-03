@@ -16,5 +16,6 @@ namespace2 (ui, window)
         ubyte_t* data;
         uint16_t cursor_x;
         uint16_t cursor_y;
+        uint32_t pid;
     }__attribute__((packed));
 }}

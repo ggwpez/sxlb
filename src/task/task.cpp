@@ -122,8 +122,7 @@ namespace task
 
     int set_working_dir(vfs::fs_node_t* dir)
     {
-        if (!dir)
-             return -1;
+        NOT_NULL(dir);
 
         actual_task->working_dir = dir;
         return 0;

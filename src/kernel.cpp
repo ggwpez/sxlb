@@ -49,6 +49,9 @@ void init()
     vfs::fs_node_t* initrd = initrd::fs_install(&data_start);
     logINF("vfs:\n");
     vfs::init(initrd);
+    logINF("window manager:\n");
+    ui::window::init();
+
     for (int i = 0; i < 80; ++i) { logINF("="); }
     logINF("Kernel loaded. Press any key to continue.");
 
@@ -62,53 +65,11 @@ int32_t main()
 {
     finit;
     init();
-    char* argv[] = { "/initrd/nasm.dat", nullptr };
-    execve(vfs::get_root(), argv[0], argv, nullptr);
+    char* argv[] = { "/initrd/bash.dat", nullptr };
+    execve(nullptr, argv[0], argv, nullptr);
 
     task::multitasking_set(true);
     TASK_SWITCH
-
-    /*uint16_t* x,* y; ui::text::get_cursor(x,y);
-    putc(0xb3);print("Name"); ui::text::set_cursor(20, *y);
-    putc(0xb3);print("Type"); ui::text::set_cursor(25, *y);
-    putc(0xb3);print("Size"); ui::text::set_cursor(35, *y);
-    putc(0xb3);printl("Content/{0-44}");
-
-    for (int i = 0; i < vfs::root_node.length; i++)
-    {
-        vfs::dir_ent_t* ent = vfs::read_dir(&vfs::root_node, i);
-        vfs::fs_node_t* node = vfs::find_dir(&vfs::root_node, ent->name);
-        ubyte_t data[45];
-
-        if ((char)node->type & (char)vfs::node_type::Dir)
-        {
-            ui::text::get_cursor(x,y);
-
-            ui::text::get_cursor(x,y);
-            putc(0xb3); ui::text::set_fc(FC_TURQUOISE); printf("%s", node->name); ui::text::set_cursor(20, *y); ui::text::set_color_reset();
-            putc(0xb3);print("DIR"); ui::text::set_cursor(25, *y);
-            putc(0xb3); (node->length-1) == 1 ? printf("1 item") : printf("%u items", node->length-1); ui::text::set_cursor(35, *y);
-            putc(0xb3);
-            ui::text::new_line();
-        }
-        else
-        {
-            memory::memset(data, 0, sizeof(data));
-            vfs::read(node, 0, sizeof(data), data);
-
-            ui::text::get_cursor(x,y);
-            putc(0xb3);printf(" %s", node->name); ui::text::set_cursor(20, *y);
-            putc(0xb3);print("FILE"); ui::text::set_cursor(25, *y);
-            putc(0xb3);printf("%m", node->length); ui::text::set_cursor(35, *y);
-            putc(0xb3);
-            for (int j = 0; j < sizeof(data); ++j)
-                putc(data[j]);
-
-            ui::text::new_line();
-        }
-    }*/
-
-
 
     idle();
     shut_down();
