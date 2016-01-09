@@ -12,8 +12,6 @@ struct dirent* readdir(DIR* dirp)
 
     dirent_t* ent;
     SYSCALL_RET2(SYSCNUM_VFS_READ_DIR, ent, dirp->fs_node, dirp->i++);
-    if (!ent)
-        closedir(dirp);
 
     return ent;
 }

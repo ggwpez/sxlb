@@ -146,7 +146,7 @@ uint32_t cmd_test()
         return printf("path too long\n");
 
     strcpy(path +pl, file);
-    fopen(path, "r");
+    //fopen(path, "r");
 
     return 0;
 }
@@ -197,11 +197,19 @@ uint32_t cmd_cat()
 {
     char* file = get_next_arg();
     if (!file)
-        return (printf("cat needs a filename of the current directory\n") | 1);
+        return (printf("cat needs a filename in the current directory\n") | 1);
 
     uint32_t l = 0, ret = 0;
     char buffer[1024];
-    openat(AT_FDCWD, file, "r");
+    FILE* fp = fopen(file, "r");
+    if (fp)
+    {
+        printf("fopen worked!!!\n");
+        fclose(fp);
+        return -1;
+    }
+    else
+        printf("fopen NOT work ._.\n");
 
     return 0;
 }

@@ -18,7 +18,6 @@
 #include "user/executable.hpp"
 
 #define VIDEO_MODE 0
-#define LOGGING 1
 
 extern "C"
 {
@@ -56,6 +55,7 @@ void init()
     logINF("Kernel loaded. Press any key to continue.");
 
     ui::text::clear_screen();
+    //io::keyboard::get_char();
 }
 
 bool running = true;

@@ -25,10 +25,10 @@ namespace vfs
         Dir         = 3,
         Fifo        = 4,
         Lnk         = 5,
-        Reg         = 6,
+        Reg         = 6,    //regulare file
         Sock        = 7,
         Unknown     = 0,
-        Mount_P     = 8,     //for | it
+        Mount_P     = 8,    //for | it
         Virtual     = 16
     };
 

@@ -17,11 +17,11 @@
 #define LOG
 #ifdef LOG
 #define logINF          ui::text::set_color_reset(); ui::text::write_f
-#define logDBG          logINF
+#define logDBG          ui::text::set_fc(FC_BLUE);  ui::text::write_f
 #define logOK           ui::text::set_fc(FC_GREEN);  ui::text::write_f
 #define logWAR          ui::text::set_fc(FC_MAGENTA | FC_MOD_INTENSITY); ui::text::write_f
 #define logERR          ui::text::set_fc(FC_RED); ui::text::write_f
-#define logDONE         logOK("done\n");
+#define logDONE         logOK("done\n"); ui::text::set_color_reset();
 #endif
 #ifndef LOG
 #define logINF

@@ -35,21 +35,21 @@ typedef enum FILE_state
     ST_ERR		= B(11111110)
 } FILE_state_t;
 
-typedef struct _iobuff
+typedef struct _iobuf
 {
-    int left;
-    char* ptr;
-	char* base;
-    char access;
-	char state;
-	LPTR fd;
+    int left;           //remaining chars
+    char* ptr;          //next one
+	char* base;         //buffer
+    char access;        //access moce
+	char state;         //file state
+	LPTR fd;            //file descriptor
 } FILE;
 
-extern FILE _iobuffs[_FILE_C];
+extern FILE _iobufs[_FILE_C];
 
-#define stdin  (&_iobuffs[0])
-#define stdout (&_iobuffs[1])
-#define stderr (&_iobuffs[2])
+#define stdin  (&_iobufs[0])
+#define stdout (&_iobufs[1])
+#define stderr (&_iobufs[2])
 
 #define feof(fp) 	((fp)->state & ST_EOF)	//this should be actually a function, not a macro, but nah…
 #define ferr(fp) 	((fp)->state & ST_ERR)	// "
