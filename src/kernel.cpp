@@ -65,7 +65,7 @@ int32_t main()
 {
     finit;
     init();
-    char* argv[] = { "/initrd/bash.dat", nullptr };
+    char* argv[] = { "/initrd/bash.dat", "cat initrd/bash.dat", nullptr };
     execve(nullptr, argv[0], argv, nullptr);
 
     task::multitasking_set(true);

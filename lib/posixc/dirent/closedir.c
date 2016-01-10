@@ -1,4 +1,5 @@
 #include "../dirent.h"
+#include "../../../src/system/syscall_defs.hpp"
 
 #ifdef __cplusplus
 extern "C" {

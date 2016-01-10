@@ -39,12 +39,15 @@ namespace initrd
     uint32_t read(vfs::fs_node_t* node, uint32_t off, uint32_t size, LPTR buffer)
     {
         fs_node_t header = fs->files[node->inode];
-        if (off > header.data_length)
-           return 0;
-        if (off+size > header.data_length)
-           size = header.data_length-off;
+        if (off >= header.data_length)
+            return 0;
 
-        memory::memcpy(buffer, header.data+off, size);
+        size_t to_read = header.data_length -off;
+        if (to_read > size)
+            to_read = size;
+
+        memory::memcpy(buffer, header.data+off, to_read);
+        /*logINF("read: %i", size);*/
         return size;
     }
 
@@ -67,7 +70,7 @@ namespace initrd
         {
             tmp_node_t.type = vfs::node_type::Dir;
             tmp_node_t.length = fs->files_c;
-            tmp_node_t.inode = 0;
+            tmp_node_t.inode = &root_node;
             strcpy(tmp_node_t.name, root_node.name);
             return &tmp_node_t;
         }
@@ -95,7 +98,7 @@ namespace initrd
         if (i == 0)
         {
             strcpy(tmp_dir_ent.name, root_node.name);
-            tmp_dir_ent.inode = 0;
+            tmp_dir_ent.inode = &root_node;
             tmp_dir_ent.type = vfs::node_type::Dir;
             return &tmp_dir_ent;
         }

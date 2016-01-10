@@ -3,7 +3,7 @@
 
 int main();
 
-#define s 255
+#define BUF_LEN 255
 #define NAME_MAX 255
 
 typedef unsigned char uchar_t;

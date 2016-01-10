@@ -8,8 +8,8 @@
 #include "console.h"
 
 char bang[6];
-uchar_t buffer[s];
-uchar_t cmd_buffer[s];
+uchar_t buffer[BUF_LEN];
+uchar_t cmd_buffer[BUF_LEN];
 
 uchar_t path[NAME_MAX];
 extern int errno;
@@ -21,11 +21,21 @@ int main(uint32_t argc, char** argv)
     char* user = "vados";
     printf("started from: %s\n", argv[0]);
 
+    for (int i = 1; i < argc; i++)
+    {
+        getcwd(path, NAME_MAX);
+        printf("%s:%s%s", user, path, bang);
+        
+        strcpy(buffer, argv[i]);
+        interpret_cmd();
+    }
+
     while (1)
     {
         getcwd(path, NAME_MAX);
         printf("%s:%s%s", user, path, bang);
         fflush(stdout);
+
         uint32_t l = get_line();
         putchar('\n');
 
@@ -42,7 +52,7 @@ int main(uint32_t argc, char** argv)
 uint32_t get_line()
 {
     uint32_t i = 0;
-    while (i < s-1)
+    while (i < BUF_LEN-1)
     {
         uchar_t in = getchar();
         if (in == '\b')
@@ -67,7 +77,7 @@ uint32_t b_off = 0;
 char* get_next_arg()
 {
     uint32_t ret = NULL;
-    if (!buffer[b_off] || b_off >= s)
+    if (!buffer[b_off] || b_off >= BUF_LEN)
         return NULL;
 
     if (buffer[b_off] != ' ')
@@ -137,16 +147,7 @@ void interpret_cmd()
 
 uint32_t cmd_test()
 {
-    char* file = get_next_arg();
-
-    uint32_t pl = strlen(path),
-             fl = strlen(file);
-
-    if (pl + fl > NAME_MAX)
-        return printf("path too long\n");
-
-    strcpy(path +pl, file);
-    //fopen(path, "r");
+    printf("out: %u\nin: %u\nerr: %u\n", stdout, stdin, stderr);
 
     return 0;
 }
@@ -200,18 +201,21 @@ uint32_t cmd_cat()
         return (printf("cat needs a filename in the current directory\n") | 1);
 
     uint32_t l = 0, ret = 0;
-    char buffer[1024];
+    char buf[BUF_LEN] = { 0 };
     FILE* fp = fopen(file, "r");
     if (fp)
     {
-        printf("fopen worked!!!\n");
+        size_t read = 0;
+        while ((read = fread(buf, 1, BUF_LEN, fp)) != 0)
+           { fwrite(buf, 1, read, stdout); }
+
+        fflush(stdout);
+
         fclose(fp);
-        return -1;
+        return 0;
     }
     else
-        printf("fopen NOT work ._.\n");
-
-    return 0;
+        return printf("fopen NOT work ._.\n");
 }
 
 uint32_t cmd_clear()

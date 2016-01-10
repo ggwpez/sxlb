@@ -125,7 +125,6 @@ namespace vfs
 
     void open(fs_node_t* node)
     {
-        printf("got node: %x, name: %s, type: %u", node, node->name, node->type);
         if (node->open)
             node->open(node);
     }
@@ -154,9 +153,6 @@ namespace vfs
             tmp_dir_ent.inode = node->ptr->inode;
             tmp_dir_ent.type = node_type::Lnk;//(node_type)((uint32_t)node_type::Lnk | (uint32_t)node_type::Virtual);
 
-            if (!tmp_dir_ent.inode)
-                {logERR("why 0\n");}
-
             return &tmp_dir_ent;
         }
 
@@ -169,17 +165,10 @@ namespace vfs
             tmp_dir_ent.inode = root_nodes[id]->inode;
             tmp_dir_ent.type = root_nodes[id]->type;
 
-            if (!tmp_dir_ent.inode)
-                {logERR("why 1\n");}
-
             return &tmp_dir_ent;
         }
 
-        dir_ent_t* ret =  node->read_dir(node, id);
-        if (!ret->inode)
-            {logERR("why 2\n");}
-        return ret;
-
+        return node->read_dir(node, id);
     }
 
     fs_node_t* find_dir(fs_node_t* node, char* name)
