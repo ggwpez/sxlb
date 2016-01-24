@@ -9,6 +9,7 @@ namespace vfs
     typedef struct fs_node fs_node_t;
     typedef struct dir_ent dir_ent_t;
     extern fs_node_t root_node;
+    extern fs_node_t* root_nodes[];
 
     //define all delegates
     typedef uint32_t (*read_delegate_t)(fs_node_t*, uint32_t, uint32_t, LPTR);

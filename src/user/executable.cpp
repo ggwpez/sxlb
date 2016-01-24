@@ -22,7 +22,7 @@ int32_t execve(vfs::fs_node_t* start_node, char* path, char* const* argv, char* 
         return -1;
 
     uint32_t argc = 0;
-    while (argv[argc]) argc++;
+    while (argv && argv[argc]) argc++;
 
     return task::create(entry, argc, argv, USER_RPL);
 }

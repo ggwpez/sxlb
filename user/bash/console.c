@@ -4,6 +4,7 @@
 #include "../../lib/posixc/dirent.h"
 #include "sys/fcntl.h"
 #include "user.h"
+#include "signal.h"
 
 #include "console.h"
 
@@ -14,12 +15,20 @@ uchar_t cmd_buffer[BUF_LEN];
 uchar_t path[NAME_MAX];
 extern int errno;
 
+void sig_h(int sig_num)
+{
+    while(1)
+        putchar('s');
+}
+
 int main(uint32_t argc, char** argv)
 {
+    signal(SIGUSR1, sig_h);
+
     strcpy(path, "/");
     strcpy(bang, "$ ");
     char* user = "vados";
-    printf("started from: %s\n", argv[0]);
+    printf("started from: %s @0x%x\n", argv[0], &main);
 
     for (int i = 1; i < argc; i++)
     {
@@ -147,9 +156,9 @@ void interpret_cmd()
 
 uint32_t cmd_test()
 {
-    printf("out: %u\nin: %u\nerr: %u\n", stdout, stdin, stderr);
-
-    return 0;
+    int pid = getpid();
+    printf("sending sig to: %u\n", pid);
+    return raise(SIGUSR1);
 }
 
 uint32_t cmd_help()

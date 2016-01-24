@@ -16,8 +16,8 @@ namespace task
     void idle_create();
     bool remove_from_list(task_t* target);
 
-	void init()
-	{
+    void init()
+    {
         idle_create();
         logINF("finalizing tasking...");
         actual_task = start_task = idle_task;
@@ -67,7 +67,7 @@ namespace task
     }
 
     task_t* find_by_pid(uint32_t pid)
-	{
+    {
         task_t* ret = start_task;
 
         while (ret->pid != pid)
@@ -89,9 +89,9 @@ namespace task
         focused_task = task;
         key_queue = focused_task->key_queue;
     }
-	
-	uint32_t get_pid()
-	{
+
+    uint32_t get_pid()
+    {
         return actual_task->pid;
     }
 
@@ -126,6 +126,13 @@ namespace task
 
         actual_task->working_dir = dir;
         return 0;
+    }
+
+    void force_execute(task_t* task, uint32_t entry, uint32_t ret, uint32_t sig)
+    {
+        *((uint32_t*)--task->kernel_stack) = sig;
+        *((uint32_t*)--task->kernel_stack) = ret;
+        task->eip = entry;
     }
 
     uint32_t poll_key()
@@ -228,7 +235,7 @@ namespace task
         task->working_dir = &vfs::root_node;
 
         uint32_t code_segment=0x08, data_segment=0x10;
-        *(--kernel_stack) = 0;  // return address dummy
+        *(--kernel_stack) = &task::end_noret;           //implicit 0 return
 
         if(privileg != 0)
         {
@@ -297,9 +304,14 @@ namespace task
         TASK_SWITCH
         while(1);
     }
-	
+
+    void end_noret()
+    {
+        end(0);
+    }
+
     bool kill(uint32_t pid)
-	{
+    {
         task_t* target;
         if (actual_task->next == actual_task)   //1 task
             return false;
@@ -308,7 +320,7 @@ namespace task
             return false;
         else
             return kill_at(target);
-	};
+    };
 
     bool kill_at(task_t* target)
     {
@@ -328,6 +340,19 @@ namespace task
 
         return true;
     };
+
+    uint32_t sig(uint32_t id, uint32_t sig)
+    {
+        logINF("SIG pid: %u  sig: %u", id, sig);
+        task_t* task = find_by_pid(id);
+        logINF((task ? "yes" : "no")); logDONE;
+
+        if (!task)
+            return -1;
+
+        force_execute(task, 0x40c10d, task->eip, sig);  //0x40c10d == &task_sig_trap    //very experimental
+        return 0;
+    }
 
     void tss_switch(uint32_t esp, uint32_t esp0, uint32_t ebp, uint32_t cr3, uint32_t ss)
     {
@@ -378,11 +403,11 @@ namespace task
         change_focus(actual_task);
 
         return actual_task->cpu_state;
-	};
+    };
 
     task_t::~task_t()
     {
         memory::k_free(this);
-        memory::k_free((uint32_t)directory - this->dir_offset);   //TODO
+        memory::k_free((uint32_t)directory - this->dir_offset);   //###
     };
 }

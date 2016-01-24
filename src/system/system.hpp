@@ -10,8 +10,8 @@
 
 typedef enum
 {
-	CPUID_CPU_COMPANY_NAME	= 0x00000000,
-	CPUID_CPU_INFO			= 0x00000001,
+    CPUID_CPU_COMPANY_NAME	= 0x00000000,
+    CPUID_CPU_INFO			= 0x00000001,
 } CPUID_REQUEST_TYPE;
 
 /*ASM call to test, if the CPU supports CPUID.*/

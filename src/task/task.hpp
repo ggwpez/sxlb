@@ -15,8 +15,8 @@ namespace task
     extern io::keyboard::key_queue_t* key_queue;
 
     struct task_t;
-	struct cpu_state_t
-	{
+    struct cpu_state_t
+    {
         // Von Hand gesicherte Register
         uint32_t   gs;
         uint32_t   fs;
@@ -31,21 +31,21 @@ namespace task
         uint32_t   ebx;
         uint32_t   eax;
 
-		uint32_t   int_no;
-		uint32_t   error;
+        uint32_t   int_no;
+        uint32_t   error;
 
         // Von der CPU gesichert
-		uint32_t   eip;
+        uint32_t   eip;
         uint32_t   cs;
-		uint32_t   eflags;
-		uint32_t   user_esp;
-		uint32_t   ss;
+        uint32_t   eflags;
+        uint32_t   user_esp;
+        uint32_t   ss;
         //uint32_t   return_address;
-	}__attribute__((packed));
+    }__attribute__((packed));
 
     void multitasking_set(bool value);
     bool multitasking_get();
-	void init();
+    void init();
 
     void dump_tss(gdt::tss_entry* tssEntry);
     extern struct gdt::tss_entry tss;
@@ -53,8 +53,12 @@ namespace task
     bool            create(uint32_t entry_point, uint32_t argc, LPTR argv, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
     void            end(uint32_t status) __attribute__((noreturn));
+    void            end_noret() __attribute__((noreturn));   //without return code argument, default 0
     bool            kill(uint32_t pid);
     bool            kill_at(task_t* target);
+    uint32_t sig(uint32_t id, uint32_t sig);
+
+    void            force_execute(task_t* task, uint32_t entry, uint32_t ret, uint32_t sig);
 
     uint32_t        get_pid();
     uint32_t        get_rpl();
@@ -74,10 +78,10 @@ namespace task
 
     #define KERNEL_STACK_SIZE 4096
 
-	struct task_t
-	{
+    struct task_t
+    {
         uint8_t running;
-		uint32_t pid;
+        uint32_t pid;
         uint32_t ebp, eip, ss;
         LPTR kernel_stack;
         page_directory* directory;
@@ -91,5 +95,5 @@ namespace task
 
         task_t* next;
         ~task_t();
-	}__attribute__((packed));
+    }__attribute__((packed));
 }

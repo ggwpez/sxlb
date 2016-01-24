@@ -16,6 +16,7 @@
 #include "system/syscall.hpp"
 #include "user/elf.hpp"
 #include "user/executable.hpp"
+#include "boot/multiboot.hpp"
 
 #define VIDEO_MODE 0
 
@@ -25,9 +26,14 @@ extern "C"
     extern void data_end  ();
 }
 
-void init()
+void init(void* mbi, uint32_t magic)
 {
     ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
+    logINF("boot:\n");
+   /* mb::init(mbi, magic);
+
+    uint32_t i = (uint32_t)-1;
+    while (i--);*/
 
     logINF("gdt:\n");
     gdt::init();
@@ -48,11 +54,11 @@ void init()
     vfs::fs_node_t* initrd = initrd::fs_install(&data_start);
     logINF("vfs:\n");
     vfs::init(initrd);
-    logINF("window manager:\n");
-    ui::window::init();
+    //logINF("window manager:\n");
+    //ui::window::init();
 
     for (int i = 0; i < 80; ++i) { logINF("="); }
-    logINF("Kernel loaded. Press any key to continue.");
+    logINF("Kernel loaded. Press any key to continue.\n");
 
     ui::text::clear_screen();
     //io::keyboard::get_char();
@@ -61,16 +67,17 @@ void init()
 bool running = true;
 void idle();
 void shut_down();
-int32_t main()
+int32_t main(void* mbi, uint32_t magic)
 {
     finit;
-    init();
-    char* argv[] = { "/initrd/bash.dat", "cat initrd/bash.dat", nullptr };
+    init(mbi, magic);
+    char* argv[] = { "/initrd/bash.dat", /*"cat initrd/bash.dat",*/ nullptr };
     execve(nullptr, argv[0], argv, nullptr);
 
     task::multitasking_set(true);
     TASK_SWITCH
 
+    printf("done\n");
     idle();
     shut_down();
     return 0;

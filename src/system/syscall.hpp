@@ -11,10 +11,10 @@
 #include "../user/executable.hpp"
 
 namespace system
-{    
+{
     //syscalls are actually exactly 10 times slower than normal calls
     static void* calls[]
-	{
+    {
         &nop,
         (void*)(void (*) (char))ui::text::put_char,
         &ui::text::write,
@@ -36,20 +36,21 @@ namespace system
         &task::get_spawn_time,
         &task::get_working_dir,
         &task::set_working_dir,         //20
+        &task::sig,
         &vfs::get_root,
-        &vfs::read,                     //20
+        &vfs::read,
         &vfs::write,
         &vfs::open,
-        &vfs::close,
+        &vfs::close,                    //26
         &vfs::read_dir,
-        &vfs::find_dir,                  //25
+        &vfs::find_dir,
         &vfs::resolve_path,
         &vfs::render_path,
-        &execve,
+        &execve,                        //31
         &utils::get_version,
-        &system::reboot
-	};
-	
+        &system::reboot                 //33
+    };
+
     void init();
     bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg);
 }

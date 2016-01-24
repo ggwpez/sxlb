@@ -2,6 +2,7 @@
 #include "../system/system.hpp"
 #include "../ctor.hpp"
 
+
 using namespace memory;
 extern uint32_t placement_address;
 extern page_directory* kernel_directory;

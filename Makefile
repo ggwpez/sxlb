@@ -76,7 +76,7 @@ map: $(LDFLAGS) += -M kernel.map
 map: all
 
 deploy: all
-	sudo dd if=OS.iso of=/dev/sdb
+	#sudo dd if=OS.iso of=/dev/sdb
 	sync	
 
 clean:

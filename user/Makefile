@@ -3,7 +3,7 @@ USRSRCFILES := $(patsubst %.c, %.o, $(wildcard **/*.c))
 EXECS := $(patsubst %/, %.target, $(DIRS))
 
 IMAGE := data.img
-FILES := $(filter-out fs_source.dat, $(patsubst %/, %.dat, $(DIRS)))
+FILES := $(filter-out fs_source.dat, $(patsubst %/, %.dat, $(DIRS))) test.md
 
 FS := fs
 

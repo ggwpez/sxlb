@@ -8,7 +8,7 @@
 #define _VFS_ROOT_ENTRIES_C 2
 namespace vfs
 {
-    fs_node_t* root_nodes[8];       //i dont like malloc, you know
+    fs_node_t* root_nodes[_VFS_ROOT_ENTRIES_C];       //i dont like malloc, you know
     fs_node_t root_node;
 
     dir_ent_t tmp_dir_ent;
