@@ -44,7 +44,7 @@ namespace idt
     //13
     bool gpf_handler(task::cpu_state_t* state, char* kill_msg)
     {
-        sprintf_s(kill_msg, 64, "General Protection fault");
+        sprintf_s(kill_msg, 25, "General Protection fault");
         return true;
     }
 

@@ -1,5 +1,5 @@
 LIBDIR := ../../lib/bin/
-NEWLIBDIR := ../../toolchain/usr/i686-sxlb/lib/
+NEWLIBDIR := ../../lib/bin/i686-sxlb/lib/
 LIBS :=  $(NEWLIBDIR)libc.a $(NEWLIBDIR)libg.a $(NEWLIBDIR)libm.a $(NEWLIBDIR)libnosys.a $(LIBDIR)sxlblib.a $(LIBDIR)posixc.a
 
 ASSRC := $(wildcard *.asm)

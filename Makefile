@@ -23,9 +23,9 @@ LD := ld
 CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
 LDFLAGS := -m elf_i386 -T linker.ld
 
-all: lib.target user.target boot.o OS.iso build_number.target 
+all: | lib.target user.target boot.o OS.iso build_number.target 
 
-test: lib.target user.target boot.o OS.bin
+test: | lib.target user.target boot.o OS.bin
 
 user.target: 
 	$(MAKE) -C $(SRCDIRUSER)

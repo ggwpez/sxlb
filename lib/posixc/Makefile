@@ -7,7 +7,7 @@ AS := nasm
 AR := i686-elf-ar
 
 CC := i686-elf-gcc
-CCFLAGS := -m32 -c -std=gnu11 -w -I/home/vados/Code/Projects/sxlb/toolchain/usr/i686-sxlb/include/
+CCFLAGS := -m32 -c -std=gnu11 -w -I../bin/i686-sxlb/include/
 ARFLAGS := rs
 
 OUT := ../bin/posixc.a

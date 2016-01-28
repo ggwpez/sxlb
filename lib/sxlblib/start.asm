@@ -21,25 +21,3 @@ _start:
 
 	call _exit	
 	jmp $
-
-[BITS 32]
-[GLOBAL _task_sig_trap]
-
-[SECTION .text]
-extern raise
-
-_task_sig_trap:
-    pop dword [save_ret]
-    pop dword [save_sig]
-
-    pushad
-    push dword [save_sig]
-    call raise
-    popad
-
-    push dword [save_ret]
-    ret 0
-
-[SECTION .bss]
-save_sig:   resb    4
-save_ret:   resb    4

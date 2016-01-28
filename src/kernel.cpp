@@ -64,6 +64,17 @@ void init(void* mbi, uint32_t magic)
     //io::keyboard::get_char();
 }
 
+void sig_test()
+{
+    uint32_t i = 4000000;
+    while (i--);
+
+    logOK("sending signal...");
+    task::sig(2, 15);  //SIGTERM = 15
+    logDONE;
+    stop
+}
+
 bool running = true;
 void idle();
 void shut_down();
@@ -73,6 +84,7 @@ int32_t main(void* mbi, uint32_t magic)
     init(mbi, magic);
     char* argv[] = { "/initrd/bash.dat", /*"cat initrd/bash.dat",*/ nullptr };
     execve(nullptr, argv[0], argv, nullptr);
+    task::create(&sig_test, 0,0, 0);
 
     task::multitasking_set(true);
     TASK_SWITCH

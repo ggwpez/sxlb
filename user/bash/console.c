@@ -14,21 +14,29 @@ uchar_t cmd_buffer[BUF_LEN];
 
 uchar_t path[NAME_MAX];
 extern int errno;
+extern void _task_sig_trap();
+
+void do_not()
+{
+    while (1)
+        putchar('s');
+}
 
 void sig_h(int sig_num)
 {
-    while(1)
-        putchar('s');
+    printf("got signal! %u\n", sig_num);
 }
 
 int main(uint32_t argc, char** argv)
 {
-    signal(SIGUSR1, sig_h);
+    signal(SIGTERM, sig_h);
 
     strcpy(path, "/");
     strcpy(bang, "$ ");
     char* user = "vados";
-    printf("started from: %s @0x%x\n", argv[0], &main);
+    int pid = getpid();
+    printf("started from: %s @0x%x pid: %u\n", argv[0], &main, pid);
+    printf("_task_sig_trap @0x%x\n", &_task_sig_trap);
 
     for (int i = 1; i < argc; i++)
     {
@@ -158,7 +166,7 @@ uint32_t cmd_test()
 {
     int pid = getpid();
     printf("sending sig to: %u\n", pid);
-    return raise(SIGUSR1);
+    return raise(SIGTERM);
 }
 
 uint32_t cmd_help()

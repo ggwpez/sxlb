@@ -130,9 +130,9 @@ namespace task
 
     void force_execute(task_t* task, uint32_t entry, uint32_t ret, uint32_t sig)
     {
-        *((uint32_t*)--task->kernel_stack) = sig;
-        *((uint32_t*)--task->kernel_stack) = ret;
-        task->eip = entry;
+        *((uint32_t*)--task->cpu_state->user_esp) = sig;
+        *((uint32_t*)--task->cpu_state->user_esp) = ret;
+        task->cpu_state->eip = entry;
     }
 
     uint32_t poll_key()
@@ -343,14 +343,14 @@ namespace task
 
     uint32_t sig(uint32_t id, uint32_t sig)
     {
-        logINF("SIG pid: %u  sig: %u", id, sig);
         task_t* task = find_by_pid(id);
-        logINF((task ? "yes" : "no")); logDONE;
+        logINF("SIG pid: %u  sig: %u task eip: 0x%x ", id, sig, task->cpu_state->eip);
+        logINF((task ? "yes\n" : "no\n")); logDONE;
 
         if (!task)
             return -1;
 
-        force_execute(task, 0x40c10d, task->eip, sig);  //0x40c10d == &task_sig_trap    //very experimental
+        force_execute(task, 0x40c160, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
         return 0;
     }
 
