@@ -1,6 +1,6 @@
 #include "open.h"
-#include "../../../../../../posixc/dirent.h"
-#include "../../../../../../../src/system/syscall_defs.hpp"
+#include "/home/vados/Code/Projects/sxlb/lib/posixc/dirent.h"
+#include "/home/vados/Code/Projects/sxlb/src/system/syscall_defs.hpp"
 
 /*int file_ptrs[MAX_FILES] =  { 1,1,1,0,
                               0,0,0,0,

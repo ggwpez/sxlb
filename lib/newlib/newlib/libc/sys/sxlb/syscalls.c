@@ -8,7 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../../../../../../src/system/syscall_defs.hpp"
+#include "/home/vados/Code/Projects/sxlb/src/system/syscall_defs.hpp"
 #include "stdio/file_ptr.h"
 #include "stdio/open.c"
 #include "stdio/read.c"

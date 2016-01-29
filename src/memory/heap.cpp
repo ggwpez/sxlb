@@ -8,8 +8,8 @@ namespace memory
 
 #define OVERHEAD sizeof(heap_header)+sizeof(heap_footer)
 
-heap::heap() = delete;
-//{ }
+heap::heap()
+{ }
 
 heap::heap(uint32_t Start_address, uint32_t End_address, uint32_t Max_address, uint32_t Min_address, uint8_t Access_ring, uint8_t Access_rigth)
 {

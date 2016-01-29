@@ -18,11 +18,10 @@ build-newlib/Makefile:
 #this is newlib install
 bin/i686-sxlb:
 	cd build-newlib && make DESTDIR=../bin/ install
-	cd bin && ln -s usr/local/i686-sxlb i686-sxlb			#newlib somehow ignores the --prefix
 
 /bin/%.a:
 	$(MAKE) -C $(patsubst /bin/%.a, %/, $@)
 
 clean:
-	cd build-newlib && $(MAKE) clean
+	rm -rf build-newlib/
 	rm -rf bin/
