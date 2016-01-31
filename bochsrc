@@ -43,4 +43,4 @@ keyboard: keymap=
 keyboard: user_shortcut=ctrl-alt-del
 mouse: enabled=0, type=ps2, toggle=ctrl+mbutton
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=cdrom, path="OS.iso", status=inserted
+ata0-master: type=cdrom, path="/tmp/OS.iso", status=inserted

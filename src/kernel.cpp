@@ -70,7 +70,7 @@ void sig_test()
     while (i--);
 
     logOK("sending signal...");
-    task::sig(2, 15);  //SIGTERM = 15
+    task::sig(2, 0x1e);  //SIGUSR1
     logDONE;
     stop
 }

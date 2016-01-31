@@ -16,20 +16,15 @@ uchar_t path[NAME_MAX];
 extern int errno;
 extern void _task_sig_trap();
 
-void do_not()
-{
-    while (1)
-        putchar('s');
-}
-
 void sig_h(int sig_num)
 {
-    printf("got signal! %u\n", sig_num);
+    printf("Got sig 0x%x\n", sig_num);
+    fflush(stdout);
 }
 
 int main(uint32_t argc, char** argv)
 {
-    signal(SIGTERM, sig_h);
+    signal(SIGUSR1, sig_h);
 
     strcpy(path, "/");
     strcpy(bang, "$ ");

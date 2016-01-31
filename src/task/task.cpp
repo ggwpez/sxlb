@@ -130,8 +130,15 @@ namespace task
 
     void force_execute(task_t* task, uint32_t entry, uint32_t ret, uint32_t sig)
     {
-        *((uint32_t*)--task->cpu_state->user_esp) = sig;
-        *((uint32_t*)--task->cpu_state->user_esp) = ret;
+        uint32_t** stack = task->cpu_state->user_esp;
+
+        *(--(*stack)) = 15;
+        *(--(*stack)) = 15;
+        *(--(*stack)) = 666;
+
+        task->cpu_state->user_esp = 123;
+
+        //task->cpu_state->ebp = task->cpu_state->user_esp;
         task->cpu_state->eip = entry;
     }
 
@@ -350,7 +357,7 @@ namespace task
         if (!task)
             return -1;
 
-        force_execute(task, 0x40c160, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
+        force_execute(task, 0x40c170, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
         return 0;
     }
 
