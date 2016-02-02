@@ -64,15 +64,26 @@ void init(void* mbi, uint32_t magic)
     //io::keyboard::get_char();
 }
 
-void sig_test()
+void sig_test2()
 {
     uint32_t i = 4000000;
     while (i--);
 
-    logOK("sending signal...");
     task::sig(2, 0x1e);  //SIGUSR1
-    logDONE;
-    stop
+    task::end(0);
+}
+
+void sig_test()
+{
+    uint32_t i = 4000000;
+    while (i--);
+    task::sig(2, 0x1e);  //SIGUSR1
+
+    i = 4000000;
+    while (i--);
+
+    task::create(&sig_test2, 0,0,0);
+    task::end(0);
 }
 
 bool running = true;

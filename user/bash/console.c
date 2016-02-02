@@ -159,9 +159,7 @@ void interpret_cmd()
 
 uint32_t cmd_test()
 {
-    int pid = getpid();
-    printf("sending sig to: %u\n", pid);
-    return raise(SIGTERM);
+    return raise(SIGUSR1);
 }
 
 uint32_t cmd_help()
