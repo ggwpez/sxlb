@@ -60,29 +60,23 @@ void init(void* mbi, uint32_t magic)
     for (int i = 0; i < 80; ++i) { logINF("="); }
     logINF("Kernel loaded. Press any key to continue.\n");
 
+    io::keyboard::get_char();
     ui::text::clear_screen();
-    //io::keyboard::get_char();
-}
-
-void sig_test2()
-{
-    uint32_t i = 4000000;
-    while (i--);
-
-    task::sig(2, 0x1e);  //SIGUSR1
-    task::end(0);
 }
 
 void sig_test()
 {
     uint32_t i = 4000000;
     while (i--);
-    task::sig(2, 0x1e);  //SIGUSR1
+    task::sig(2, 0x1f);  //SIGUSR1
 
     i = 4000000;
     while (i--);
 
-    task::create(&sig_test2, 0,0,0);
+    task::sig(2, 0x1e);  //SIGUSR2
+    i = 4000000;
+    while (i--);
+
     task::end(0);
 }
 
@@ -108,7 +102,7 @@ int32_t main(void* mbi, uint32_t magic)
 
 void idle()
 {
-    while (running);
+    asm volatile("jmp .");
 }
 
 void shut_down()

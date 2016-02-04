@@ -130,12 +130,16 @@ namespace task
 
     void force_execute(task_t* task, uint32_t entry, uint32_t ret, uint32_t sig)
     {
-        task->cpu_state->user_esp = sig;
-        *((uint32_t*)(&task->cpu_state->user_esp +1)) = ret;
+        cli
+        //task->cpu_state->user_esp = sig;
+        //*((uint32_t*)(&task->cpu_state->user_esp +1)) = ret;
+        task->cpu_state->int_no = sig;     //ebx
+        task->cpu_state->error = ret;    //eax
         //task->cpu_state->user_esp
 
         //task->cpu_state->ebp = task->cpu_state->user_esp;
         task->cpu_state->eip = entry;
+        sti
     }
 
     uint32_t poll_key()
@@ -184,6 +188,15 @@ namespace task
 
         while (!queue->empty() && s--)
             *buffer++ = io::keyboard::state_to_char(queue->pop_front());
+    }
+
+    void cpu_state_t::dump_s(char* buffer, size_t s)
+    {
+        size_t l = 0, mc = sizeof(cpu_state_t) / sizeof(uint32_t);
+        uint32_t* ptr = (uint32_t*)this;
+
+        for (size_t i = 0; i < mc && l < s; i++)
+            l += sprintf_s(buffer +l, s -l, "0x%x ", ptr[i]);
     }
 
     void dump_tss(gdt::tss_entry* tssEntry)
@@ -338,7 +351,8 @@ namespace task
 
         prev->next = target->next;
         num_tasks--;
-        printfl("Killing task: id=%u, return=%i", target->pid, target->cpu_state->eax);
+        printfl("Task ending: id=%u, return=%i", target->pid, target->cpu_state->eax);
+
         target->~task_t();
 
         return true;
@@ -347,13 +361,18 @@ namespace task
     uint32_t sig(uint32_t id, uint32_t sig)
     {
         task_t* task = find_by_pid(id);
-        logINF("SIG pid: %u  sig: %u task eip: 0x%x ", id, sig, task->cpu_state->eip);
+        logINF("SIG pid: %u  sig: %u task:", id, sig);
         logINF((task ? "yes\n" : "no\n")); logDONE;
-
         if (!task)
             return -1;
 
-        force_execute(task, 0x40c160, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
+        char buffer[11 *18];
+        task->cpu_state->dump_s(buffer, sizeof(buffer));
+        logINF("%s\n", buffer);
+
+
+
+        force_execute(task, 0x40c170, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
         return 0;
     }
 

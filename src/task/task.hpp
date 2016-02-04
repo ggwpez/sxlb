@@ -41,6 +41,8 @@ namespace task
         uint32_t   user_esp;
         uint32_t   ss;
         //uint32_t   return_address;
+
+        void dump_s(char* buffer, size_t s);
     }__attribute__((packed));
 
     void multitasking_set(bool value);

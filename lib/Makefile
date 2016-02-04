@@ -17,7 +17,7 @@ build-newlib/Makefile:
 
 #this is newlib install
 bin/i686-sxlb:
-	cd build-newlib && make DESTDIR=../bin/ install
+	cd build-newlib && make DESTDIR=~/Code/Projects/sxlb/lib/bin/ install	#care!!!
 
 /bin/%.a:
 	$(MAKE) -C $(patsubst /bin/%.a, %/, $@)

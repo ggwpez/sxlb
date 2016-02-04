@@ -25,6 +25,7 @@ void sig_h(int sig_num)
 int main(uint32_t argc, char** argv)
 {
     signal(SIGUSR1, sig_h);
+    signal(SIGUSR2, sig_h);
 
     strcpy(path, "/");
     strcpy(bang, "$ ");
@@ -159,7 +160,7 @@ void interpret_cmd()
 
 uint32_t cmd_test()
 {
-    return raise(SIGUSR1);
+    return raise(0x1e);
 }
 
 uint32_t cmd_help()
