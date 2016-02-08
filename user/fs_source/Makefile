@@ -1,5 +1,5 @@
 CXXFLAGS := -std=c++11 -fpermissive
-FS := ../fs
+FS := ../fs.bin
 
 CXX := g++
 
@@ -9,4 +9,4 @@ $(FS): main.cpp fs.hpp
 	$(CXX) $(CXXFLAGS) main.cpp -o $@
 
 clean:
-	@find . -wholename '../fs' -delete
+	@find . -wholename '../fs.bin' -delete

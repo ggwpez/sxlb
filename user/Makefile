@@ -5,7 +5,7 @@ EXECS := $(patsubst %/, %.target, $(DIRS))
 IMAGE := data.img
 FILES := $(filter-out fs_source.dat, $(patsubst %/, %.dat, $(DIRS))) test.md
 
-FS := fs
+FS := fs.bin
 
 all: $(EXECS) $(IMAGE)
 
