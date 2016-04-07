@@ -3,7 +3,7 @@ extern main
 
 [GLOBAL _start]
 
-extern _init_signal
+;extern _init_signal
 extern _exit
 extern fflush			; actually somebody was so intelligent to compile with -fno_leading_underscore
 
@@ -11,7 +11,7 @@ _start:
 	push ebx
 	push eax
 
-    call _init_signal
+        ;call _init_signal
 
 	call main
 

@@ -16,23 +16,24 @@ uchar_t path[NAME_MAX];
 extern int errno;
 extern void _task_sig_trap();
 
+char const* user = "vados";
+
 void sig_h(int sig_num)
 {
     printf("Got sig 0x%x\n", sig_num);
     fflush(stdout);
 }
 
-int main(uint32_t argc, char** argv)
+void init(uint32_t argc, char** argv)
 {
-    signal(SIGUSR1, sig_h);
-    signal(SIGUSR2, sig_h);
+    //signal(SIGUSR1, sig_h);
+    //signal(SIGUSR2, sig_h);
 
     strcpy(path, "/");
     strcpy(bang, "$ ");
-    char* user = "vados";
     int pid = getpid();
-    printf("started from: %s @0x%x pid: %u\n", argv[0], &main, pid);
-    printf("_task_sig_trap @0x%x\n", &_task_sig_trap);
+
+    //printf("started from: %s @0x%x pid: %u\n", argv[0], &main, pid);
 
     for (int i = 1; i < argc; i++)
     {
@@ -42,6 +43,12 @@ int main(uint32_t argc, char** argv)
         strcpy(buffer, argv[i]);
         interpret_cmd();
     }
+    //printf("_task_sig_trap @0x%x\n", &_task_sig_trap);
+}
+
+int main(uint32_t argc, char** argv)
+{
+    init(argc, argv);
 
     while (1)
     {
@@ -218,15 +225,14 @@ uint32_t cmd_cat()
     {
         size_t read = 0;
         while ((read = fread(buf, 1, BUF_LEN, fp)) != 0)
-           { fwrite(buf, 1, read, stdout); }
+            fwrite(buf, 1, read, stdout);
 
         fflush(stdout);
-
         fclose(fp);
         return 0;
     }
     else
-        return printf("fopen NOT work ._.\n");
+        return printf("File could not be opened.\n");
 }
 
 uint32_t cmd_clear()

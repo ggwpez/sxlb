@@ -61,7 +61,7 @@ namespace2(ui, text)
             *(vram + i +(((text_mode.rows -1)* text_mode.columns) << 1)) = ' ';
     }
 
-    void tm_newline()
+    void tm_line_feed()
     {
         CHECK_INIT
 
@@ -84,8 +84,8 @@ namespace2(ui, text)
         if(!text_mode.tab_size)
             return;
 
-        uint16_t _col = (text_mode.col/text_mode.tab_size+1)*text_mode.tab_size;
-        while(text_mode.col != _col)
+        uint16_t num = text_mode.tab_size -(text_mode.col %text_mode.tab_size);
+        while(text_mode.col != num)
             put_char(' ');
 
         update();
@@ -172,7 +172,7 @@ namespace2(ui, text)
         CHECK_INIT
 
         tm_carriage_return();
-        tm_newline();
+        tm_line_feed();
     };
 
     uint32_t write_in_line(const char* message, unsigned int line)
@@ -496,7 +496,7 @@ namespace2(ui, text)
                 case '\n':
                 {
                     tm_carriage_return();
-                    tm_newline();
+                    tm_line_feed();
                 } break;
                 case '\t':
                 {
@@ -512,7 +512,10 @@ namespace2(ui, text)
                 } break;
                 default:
                 {
-                    //dont know it, so ignore
+                    PUT_C('?');
+
+                    text_mode.col++;
+                    update();
                 } break;
             }
         }

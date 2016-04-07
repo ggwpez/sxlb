@@ -370,8 +370,6 @@ namespace task
         task->cpu_state->dump_s(buffer, sizeof(buffer));
         logINF("%s\n", buffer);
 
-
-
         force_execute(task, 0x40c170, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
         return 0;
     }

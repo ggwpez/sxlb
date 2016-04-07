@@ -50,6 +50,13 @@ int kill(int pid, int sig)
 	return ret;
 }
 
+typedef void (*sighandler_t)(int);
+sighandler_t f = 0;
+sighandler_t signal(int signum, sighandler_t handler)
+{
+	f = handler;
+}
+
 int link(const char *path1, const char *path2 );
 off_t lseek(int fildes, off_t offset, int whence )
 {

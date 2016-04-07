@@ -32,6 +32,8 @@ namespace2(io, keyboard)
         }
         else if (c >= '1' && c <= '9')
             ui::window::switch_window(c -'1');
+        else if (c == 'l')
+            ui::text::clear_screen();
         else
             printf("^%c", c);
     }

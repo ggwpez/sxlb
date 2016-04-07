@@ -143,7 +143,7 @@ namespace vfs
     //returns the entry with the index id
     dir_ent_t* read_dir(fs_node_t* node, uint32_t id)
     {
-        if ((!((char)node->type & (char)node_type::Dir)) || !node->read_dir)
+        if (!node || !((char)node->type & (char)node_type::Dir) || !node->read_dir)
             return nullptr;
 
         if (id == node->length)        // return link to parent directory
@@ -173,7 +173,7 @@ namespace vfs
 
     fs_node_t* find_dir(fs_node_t* node, char* name)
     {
-        if (!((char)node->type & (char)node_type::Dir) || !node->find_dir)
+        if (!node || !((char)node->type & (char)node_type::Dir) || !node->find_dir)
             return nullptr;
 
         if (!strcmp(name, ".."))        // return link to parent directory

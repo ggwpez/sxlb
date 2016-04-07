@@ -44,8 +44,8 @@ namespace system
         printfl("   %s\n", error_msg);
         ui::text::set_fc(FC_LIGHTGRAY | FC_MOD_INTENSITY);
 
-        printfl(" CPU state:\n");
-        sxlb_system_dumb();
+        //printfl(" CPU state:\n");
+        //sxlb_system_dumb();
 
         ui::video::update();
 
@@ -56,7 +56,7 @@ namespace system
     void sxlb_system_dumb()
     {
         uint8_t tab = ui::text::get_tab_with();
-        ui::text::set_tab_with(20);
+        //ui::text::set_tab_with(20);
 
         printf("   eax: %u", asm_get_register_eax()); printfl("\tesi: %u", asm_get_register_esi());
         printf("   ebx: %u", asm_get_register_ebx()); printfl("\tedi: %u", asm_get_register_edi());

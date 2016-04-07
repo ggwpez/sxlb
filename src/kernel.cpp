@@ -30,7 +30,7 @@ void init(void* mbi, uint32_t magic)
 {
     ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
     logINF("boot:\n");
-   /* mb::init(mbi, magic);
+    /*mb::init(mbi, magic);
 
     uint32_t i = (uint32_t)-1;
     while (i--);*/
@@ -60,7 +60,7 @@ void init(void* mbi, uint32_t magic)
     for (int i = 0; i < 80; ++i) { logINF("="); }
     logINF("Kernel loaded. Press any key to continue.\n");
 
-    io::keyboard::get_char();
+    //io::keyboard::get_char();
     ui::text::clear_screen();
 }
 
@@ -74,9 +74,6 @@ void sig_test()
     while (i--);
 
     task::sig(2, 0x1e);  //SIGUSR2
-    i = 4000000;
-    while (i--);
-
     task::end(0);
 }
 
@@ -87,9 +84,9 @@ int32_t main(void* mbi, uint32_t magic)
 {
     finit;
     init(mbi, magic);
-    char* argv[] = { "/initrd/bash.dat", /*"cat initrd/bash.dat",*/ nullptr };
+    char* argv[] = { "/initrd/bash.dat", "cat initrd/nasm.dat", nullptr };
     execve(nullptr, argv[0], argv, nullptr);
-    task::create(&sig_test, 0,0, 0);
+    //task::create(&sig_test, 0,0, 0);
 
     task::multitasking_set(true);
     TASK_SWITCH

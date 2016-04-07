@@ -13,7 +13,7 @@ namespace time
     void uninstall();
 
     uint32_t get_seconds();
-    extern uint64_t ticks;
+    extern uint32_t ticks;
     #define get_ticks() ::time::ticks;
 
     /*Don't use.*/
