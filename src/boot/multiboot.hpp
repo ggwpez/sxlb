@@ -373,7 +373,7 @@ namespace mb
       multiboot_uint8_t efi_mmap[0];
     };
 
-    void init(multiboot_header_tag_address* mbh, uint32_t magic);
+    void init(uint32_t ptr, uint32_t magic);
 }
 #endif /* ! ASM_FILE */
 

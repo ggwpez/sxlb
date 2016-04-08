@@ -2,14 +2,13 @@
 
 namespace time
 {
-    uint32_t ticks;
+    uint32_t ticks = 0;
 
     void init()
     {
         //date_init();
         install_event_handler();
         set_frequenze(HZ);
-        ticks = 1;
     };
 
     void uninstall()
@@ -17,9 +16,14 @@ namespace time
         uninstall_event_handler();
     };
 
+    uint32_t get_ms()
+    {
+        return ticks;
+    }
+
     uint32_t get_seconds()
     {
-        return ticks /100;///HZ;
+        return ticks /HZ;///HZ;
     };
 
     void event_handler(task::cpu_state_t* state)
@@ -29,7 +33,7 @@ namespace time
 
     void set_frequenze(int32_t hz)
     {
-        logINF("setting pic frequenze...");
+        logtINF("setting pic frequenze...");
         if (!hz)
             hz++;	//div zero
 
@@ -43,7 +47,7 @@ namespace time
 
     void install_event_handler()
     {
-        logINF("registering pic irq...");
+        logtINF("registering pic irq...");
         idt::irq_register_event_handler(0, event_handler);
         //idt::irq_register_event_handler(7, nop);            //APIC timer, actually not used
         logDONE;

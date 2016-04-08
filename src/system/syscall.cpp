@@ -4,7 +4,7 @@ namespace system
 {
     void init()
     {
-        logINF("registering syscall isr...");
+        logtINF("registering syscall isr...");
         idt::isr_register_event_handler(127, syscall_event_handler);
         logDONE;
     };

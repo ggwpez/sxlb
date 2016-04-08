@@ -16,7 +16,7 @@ namespace vfs
 
     void init(fs_node_t* initrd)
     {
-        logINF("installing vfs...(root items_c: %u)", _VFS_ROOT_ENTRIES_C);
+        logtINF("installing vfs...(root items_c: %u)", _VFS_ROOT_ENTRIES_C);
         root_node = fs_node("/", node_type::Dir, _VFS_ROOT_ENTRIES_C, 0, 0, &root_node, 0, 0, 0, 0, &read_dir, &find_dir);
         root_nodes[0] = &root_node;
         root_nodes[1] = initrd;

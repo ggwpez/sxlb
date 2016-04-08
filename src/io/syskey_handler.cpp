@@ -7,7 +7,7 @@ namespace2(io, keyboard)
     bool inited = false;
     void syskey_init()
     {
-        logINF("initializing syskey hander...");
+        logtINF("initializing syskey hander...");
         if (inited)
         {
             logWAR("already done?!");

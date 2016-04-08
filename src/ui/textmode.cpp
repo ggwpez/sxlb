@@ -85,7 +85,7 @@ namespace2(ui, text)
             return;
 
         uint16_t num = text_mode.tab_size -(text_mode.col %text_mode.tab_size);
-        while(text_mode.col != num)
+        while(num--)
             put_char(' ');
 
         update();

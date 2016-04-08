@@ -100,10 +100,10 @@ namespace idt
 		idt_r.base = (uint32_t)&idt;
 		flush();
 		irq_install();
-        logINF("loading idt...");
+        logtINF("loading idt...");
 		asm volatile("lidt %0" : "=m" (idt_r));
 
-        logDONE; logINF("registering default isrs...(2,13,14)");
+        logDONE; logtINF("registering default isrs...(2,13,14)");
         isr_register_event_handler( 0, zerodiv_handler);
         isr_register_event_handler( 2, nmi_handler);
         isr_register_event_handler(13, gpf_handler);
@@ -131,7 +131,7 @@ namespace idt
 	/*Remaps the IRQ from offset=0 to offset=31, so the IRS wont overide user IRQ.*/
 	void irq_remap()
 	{
-        logINF("remapping pic1...(to 40)");
+        logtINF("remapping pic1...(to 40)");
 		asm_outb(0x20, 0x11);	//master PIC command-port
 		asm_outb(0xA0, 0x11);	//slave  PIC command-port
 
@@ -151,7 +151,7 @@ namespace idt
 	/*Calls the constructor for all IRS and IRQ*/
 	void irq_install()
 	{
-        logINF("setting isrs vectors...(0-31,127)");
+        logtINF("setting isrs vectors...(0-31,127)");
 		entry_set_data(0, (uint32_t)isr0, 0x08, 0x8E);
 		entry_set_data(1, (uint32_t)isr1, 0x08, 0x8E);
 		entry_set_data(2, (uint32_t)isr2, 0x08, 0x8E);
@@ -189,7 +189,7 @@ namespace idt
         logDONE;
 		irq_remap();
 
-        logINF("setting irqs vectors...(0,15)");
+        logtINF("setting irqs vectors...(0,15)");
 		entry_set_data(32, (uint32_t)irq0, 0x08, 0x8E);
 		entry_set_data(33, (uint32_t)irq1, 0x08, 0x8E);
 		entry_set_data(34, (uint32_t)irq2, 0x08, 0x8E);

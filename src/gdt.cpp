@@ -18,7 +18,7 @@ namespace gdt
 
     void init()
     {
-        logINF("writing all %u gdt entrys...", GDT_ENTRYS -1);
+        logtINF("writing all %u gdt entrys...", GDT_ENTRYS -1);
         gdt.limit = (sizeof(gdt_entry) * GDT_ENTRYS) - 1;
         gdt.base = (uint32_t)&gdt_entrys;
 
@@ -27,12 +27,12 @@ namespace gdt
         gate_set_data(2, 0, 0xffffffff, 0x92, 0xCF);
         gate_set_data(3, 0, 0xffffffff, 0xFA, 0xCF); // usermode code segment
         gate_set_data(4, 0, 0xffffffff, 0xF2, 0xCF); // usermode data segment
-        logDONE; logINF("writing tss...");
+        logDONE; logtINF("writing tss...");
 
         write_tss(5, 0x10, 0);
-        logDONE; logINF("flusing gdt...");
+        logDONE; logtINF("flusing gdt...");
         gdt_flush(&gdt);
-        logDONE; logINF("loading tss...");
+        logDONE; logtINF("loading tss...");
         asm volatile("ltr %%ax" : : "a" (0x2b));
         logDONE;
     };

@@ -62,7 +62,9 @@ SOURCES += \
     src/utils/version.cpp \
     src/user/executable.cpp \
     src/modules/module.cpp \
-    src/boot/multiboot.cpp
+    src/boot/multiboot.cpp \
+    src/memory/liballoc.cpp \
+    src/memory/liballoc_he.cpp
 
 OTHER_FILES += \
     boot.asm \
@@ -133,5 +135,6 @@ HEADERS += \
     src/utils/version.hpp \
     src/user/executable.hpp \
     src/modules/module.hpp \
-    src/boot/multiboot.hpp
+    src/boot/multiboot.hpp \
+    src/memory/liballoc.hpp
 

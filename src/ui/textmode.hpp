@@ -14,17 +14,26 @@
 #define vprintf 		(ui::text::v_write_f)
 #define printf_arr32 	(ui::text::write_f_array32)
 
+namespace time
+{
+    extern uint32_t get_ms();
+}
+
 #define LOG
 #ifdef LOG
-#define logINF          ui::text::set_color_reset(); ui::text::write_f
-#define logDBG          ui::text::set_fc(FC_BLUE);  ui::text::write_f
-#define logOK           ui::text::set_fc(FC_GREEN);  ui::text::write_f
-#define logWAR          ui::text::set_fc(FC_MAGENTA); ui::text::write_f
-#define logERR          ui::text::set_fc(FC_RED); ui::text::write_f
-#define logDONE         logOK("done\n"); ui::text::set_color_reset();
+#define logt ui::text::write_f("[ %u ms ] ", time::get_ms()); ui::text::write_f
+#define log  ui::text::write_f
+
+#define logtINF         ui::text::set_color_reset(); logt
+#define logINF          ui::text::set_color_reset(); log
+#define logDBG          ui::text::set_fc(FC_BLUE); logt
+#define logOK           ui::text::set_fc(FC_GREEN); ui::text::write(" [ ok ]");
+#define logWAR          ui::text::set_fc(FC_MAGENTA); logt
+#define logERR          ui::text::set_fc(FC_RED); logt
+#define logDONE         logOK; ui::text::new_line(); ui::text::set_color_reset();
 #endif
 #ifndef LOG
-#define logINF
+#define logtINF
 #define logDBG
 #define logOK
 #define logWAR

@@ -1,15 +1,29 @@
 #include "multiboot.hpp"
 #include "../ui/textmode.hpp"
 
-#define CHECK(f, var, v, e) if ((v) != (e)) {f("'" var "' is 0x%x should be 0x%x\n", v, e); }
+#define assert(is, must, name) if (is != must) { logERR("Actual value for %s: 0x%x differs from 0x%x\n", name, is, must); } else { logtINF("%s = 0x%x", name, is);logDONE; }
 
 namespace mb
 {
     char* na = "n/a";
-    void init(multiboot_header_tag_address* mbi, uint32_t magic)
+    void init(uint32_t ptr, uint32_t magic)
     {
-        //logINF("Bootloader name: %s\n", (mbi->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) ? (char*)mbi->boot_loader_name : na);
-        //logINF("Mem start: 0x%x\nMem end: 0x%x\n", (mbi->flags & MULTIBOOT_INFO_MEMORY) ? mbi->mem_lower, mbi->mem_upper : 0, 0);   //lol this is vaild code
-        printf("0x%x\n", (mbi->header_addr));
+        assert(magic, MULTIBOOT2_BOOTLOADER_MAGIC,  "GRUB2 boot magic");
+        assert(ptr &7, 0, "mbi alignment &7");
+
+        printfl("mbi size: 0x%x", *(uint32_t*)ptr);
+
+        for (multiboot_tag* tag = (multiboot_tag*)(ptr +8);
+             tag->type != MULTIBOOT_TAG_TYPE_END;
+             tag = (multiboot_tag*) ((multiboot_uint8_t*) tag               //warum bin ich hier
+             + ((tag->size + 7) & ~7)))
+        {
+            switch (tag->type)
+            {
+                case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME:
+                    printfl("Boot loader name: %s", ((multiboot_tag_string*)tag)->string);
+                    break;
+            }
+        }
     }
 }

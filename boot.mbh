@@ -10,7 +10,7 @@ MAGIC       equ      0xE85250D6
 ARCH        equ      0x0
 HDRLEN      equ      20
 CHECKSUM    equ      -(MAGIC + ARCH + HDRLEN) 
-TAGS        equ      0
+TAGS        equ      7
  
 section .text
 align 8

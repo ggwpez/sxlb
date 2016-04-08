@@ -19,7 +19,7 @@ namespace task
     void init()
     {
         idle_create();
-        logINF("finalizing tasking...");
+        logtINF("finalizing tasking...");
         actual_task = start_task = idle_task;
 
         num_tasks++;
@@ -44,7 +44,7 @@ namespace task
 
     void idle_create()
     {
-        logINF("creating idle task...");
+        logtINF("creating idle task...");
         idle_task = (task_t*)memory::k_malloc(sizeof(task_t), 0, 0);
         idle_task->pid = pid++;
         idle_task->cpu_state = actual_task->ebp = idle_task->eip = idle_task->rpl = 0;
@@ -175,7 +175,7 @@ namespace task
         }
 
         char c = io::keyboard::state_to_char(actual_task->key_queue->pop_front());
-       // logINF("polling %c", c);
+       // logtINF("polling %c", c);
         return c;
     }
 
@@ -361,14 +361,14 @@ namespace task
     uint32_t sig(uint32_t id, uint32_t sig)
     {
         task_t* task = find_by_pid(id);
-        logINF("SIG pid: %u  sig: %u task:", id, sig);
-        logINF((task ? "yes\n" : "no\n")); logDONE;
+        logtINF("SIG pid: %u  sig: %u task:", id, sig);
+        logtINF((task ? "yes\n" : "no\n")); logDONE;
         if (!task)
             return -1;
 
         char buffer[11 *18];
         task->cpu_state->dump_s(buffer, sizeof(buffer));
-        logINF("%s\n", buffer);
+        logtINF("%s\n", buffer);
 
         force_execute(task, 0x40c170, task->cpu_state->eip, sig);  //0x40c10d == &task_sig_trap    //highly experimental
         return 0;

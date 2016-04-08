@@ -7,8 +7,8 @@ LIBS := $(NEWLIBDIR)libc.a $(NEWLIBDIR)libg.a $(NEWLIBDIR)libm.a $(NEWLIBDIR)lib
 CSRC := $(wildcard *.c)
 COBJ := $(addsuffix .o,$(basename $(CSRC)))
 
-LD := i686-elf-ld
-CC := i686-elf-gcc
+LD := i686-sxlb-ld
+CC := i686-sxlb-gcc
 
 #CCFLAGS := -m32 -c -std=gnu11 -w -I../../lib/stdlibc/
 CCFLAGS := -m32 -c -std=gnu11 -w -fdelete-null-pointer-checks -I$(USERLIBDIR) -I$(NEWLIBDIR)../include/

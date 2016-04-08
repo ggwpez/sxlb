@@ -15,7 +15,7 @@ namespace2(io, keyboard)
     {
         flush();
         memory::memset(keys_pressed, 0, sizeof(keys_pressed));
-        logINF("registering key irq...(1)");
+        logtINF("registering key irq...(1)");
         idt::irq_register_event_handler(1, keyboard_interrupt_handler);
         //idt::irq_register_event_handler(4, mouse_interrupt_handler);
         logDONE;
@@ -41,7 +41,7 @@ namespace2(io, keyboard)
 
     void flush()
     {
-        logINF("flushing keyboard queue...");
+        logtINF("flushing keyboard queue...");
         while (io::asm_inb(0x64) & 1)       //clear buffer
             io::asm_inb(0x60);
         logDONE;

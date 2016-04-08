@@ -16,7 +16,7 @@ uchar_t path[NAME_MAX];
 extern int errno;
 extern void _task_sig_trap();
 
-char const* user = "vados";
+char const* const user = "vados";
 
 void sig_h(int sig_num)
 {
@@ -34,7 +34,6 @@ void init(uint32_t argc, char** argv)
     int pid = getpid();
 
     //printf("started from: %s @0x%x pid: %u\n", argv[0], &main, pid);
-
     for (int i = 1; i < argc; i++)
     {
         getcwd(path, NAME_MAX);
@@ -43,6 +42,7 @@ void init(uint32_t argc, char** argv)
         strcpy(buffer, argv[i]);
         interpret_cmd();
     }
+    printf("pid: %u", pid);
     //printf("_task_sig_trap @0x%x\n", &_task_sig_trap);
 }
 
@@ -130,6 +130,8 @@ struct cmd cmds[] =
     { "clear", &cmd_clear },
     { "cd", &cmd_cd },
     { "ls", &cmd_ls },
+    { "exec", &cmd_exec },
+    { "pid", &cmd_pid },
     { "cat", &cmd_cat },
     { "uname", &cmd_uname },
     { "pag_info", &cmd_pag_info },
@@ -198,6 +200,24 @@ uint32_t cmd_ls()
     }
     closedir(dir);
     return 0;
+}
+
+uint32_t cmd_pid()
+{
+    int pid = getpid();
+
+    printf("%u\n", pid);
+    return 0;
+}
+
+uint32_t cmd_exec()
+{
+    char* binary = get_next_arg();
+
+    if (!binary)
+        return printf("exec need a file to execute\n");
+
+    
 }
 
 uint32_t cmd_cd()

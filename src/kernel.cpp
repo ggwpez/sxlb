@@ -29,38 +29,38 @@ extern "C"
 void init(void* mbi, uint32_t magic)
 {
     ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
-    logINF("boot:\n");
-    /*mb::init(mbi, magic);
+    logtINF("boot:\n");
+    mb::init(mbi, magic);
 
     uint32_t i = (uint32_t)-1;
-    while (i--);*/
+    while (i--);
 
-    logINF("gdt:\n");
+    logtINF("gdt:\n");
     gdt::init();
-    logINF("idt:\n");
+    logtINF("idt:\n");
     idt::load();
     sti
-    logINF("vmm:\n");
-    memory::init();
-    logINF("sys:\n");
-    system::init();
-    logINF("pic:\n");
+    logtINF("pic:\n");
     time::init();
-    logINF("keyboard:\n");
+    logtINF("vmm:\n");
+    memory::init();
+    logtINF("sys:\n");
+    system::init();
+    logtINF("keyboard:\n");
     io::keyboard::init();
-    logINF("tasking:\n");
+    logtINF("tasking:\n");
     task::init();
-    logINF("initrd:\n");
+    logtINF("initrd:\n");
     vfs::fs_node_t* initrd = initrd::fs_install(&data_start);
-    logINF("vfs:\n");
+    logtINF("vfs:\n");
     vfs::init(initrd);
-    //logINF("window manager:\n");
+    //logtINF("window manager:\n");
     //ui::window::init();
 
     for (int i = 0; i < 80; ++i) { logINF("="); }
-    logINF("Kernel loaded. Press any key to continue.\n");
+    logtINF("Kernel loaded. Press any key to continue.\n");
 
-    //io::keyboard::get_char();
+    io::keyboard::get_char();
     ui::text::clear_screen();
 }
 
@@ -80,13 +80,14 @@ void sig_test()
 bool running = true;
 void idle();
 void shut_down();
-int32_t main(void* mbi, uint32_t magic)
+int32_t main(void* ptr, uint32_t magic)
 {
     finit;
-    init(mbi, magic);
+    init(ptr, magic);
     char* argv[] = { "/initrd/bash.dat", "cat initrd/nasm.dat", nullptr };
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
+
 
     task::multitasking_set(true);
     TASK_SWITCH
