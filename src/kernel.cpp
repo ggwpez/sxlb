@@ -28,12 +28,16 @@ extern "C"
 
 void init(void* mbi, uint32_t magic)
 {
+    ui::video::video_init_t data;
     ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
     logtINF("boot:\n");
-    mb::init(mbi, magic);
+    mb::init(mbi, magic, &data);
 
-    uint32_t i = (uint32_t)-1;
-    while (i--);
+    ui::video::init(&data);
+    ui::text::init(800, 600, 0xff << 8, 0, &Font::Lucidia_Console);
+    ui::text::clear_screen();
+
+    mb::init(mbi, magic, &data);
 
     logtINF("gdt:\n");
     gdt::init();
@@ -77,14 +81,41 @@ void sig_test()
     task::end(0);
 }
 
+int32_t main(void*, uint32_t);
+void test()
+{
+    uint8_t* ptr = 0xa0000;
+    uint32_t i = 0;
+
+    while (ptr < 0xbffff)
+        *ptr++ = (uint8_t)ptr % 256,
+        *ptr++ = (uint8_t)ptr % 256,
+        *ptr++ = 0;
+
+    hlt
+}
+
 bool running = true;
 void idle();
 void shut_down();
 int32_t main(void* ptr, uint32_t magic)
 {
+    //test();
+
     finit;
     init(ptr, magic);
-    char* argv[] = { "/initrd/bash.dat", "cat initrd/nasm.dat", nullptr };
+    hlt
+
+#define s 10
+    uint32_t mems[s];
+    for (int i = 0; i < s; i++)
+        mems[i] = memory::k_malloc(100, 0, 0);
+    for (int i = 0; i < s; i++)
+        memory::k_free(mems[i]);
+
+
+    char* argv[] = { "/initrd/nasm.dat", /*"cat initrd/nasm.dat",*/ nullptr };
+    printfl("Starting task:");
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
 
@@ -92,7 +123,7 @@ int32_t main(void* ptr, uint32_t magic)
     task::multitasking_set(true);
     TASK_SWITCH
 
-    printf("done\n");
+    printfl("done");
     idle();
     shut_down();
     return 0;

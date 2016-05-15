@@ -51,8 +51,9 @@ payload.o: $(IMAGE) payload.asm
 
 #boot.o: boot.s
 #	i686-elf-g++ -m32 boot.s -o boot.o -c	
-boot.o: boot.mbh
-	nasm -f elf -o boot.o boot.mbh
+boot.o: boot.S #boot.mbh
+	i686-elf-g++ -m32 boot.S -o boot.o -c
+	#nasm -f elf -o boot.o boot.mbh
 
 
 %.o: %.asm

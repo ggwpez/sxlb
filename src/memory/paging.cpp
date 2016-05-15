@@ -73,7 +73,7 @@ static uint32_t test_frame(uint32_t frame_addr)
 }
 */
 
-internal uint32_t first_frame() // find the first free frame in frames bitset
+uint32_t first_frame() // find the first free frame in frames bitset
 {
     uint32_t index, offset;
     for (index = 0; index<(NFRAMES / 32); ++index)
@@ -135,11 +135,13 @@ uint32_t map_heap(uint32_t start, uint32_t end)
     return 0;
 };
 
-void unmap_heap(uint32_t start, uint32_t end)
+int unmap_heap(uint32_t start, uint32_t end)
 {
     uint32_t i = 0;
-    for (i = start; i < end; i -= PAGE_SIZE)
+    for (i = start; i < end; i += PAGE_SIZE)
         free_frame(get_page(i, 0, kernel_directory));
+
+    return end == start ? 0: (end -start) /PAGE_SIZE;
 };
 
 void heap_install()
@@ -165,7 +167,7 @@ void paging_install()
     i = 0;
     while (i < (placement_address + 0x10000))
     {
-        if (((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
+        if ((i >= 0xa0000 && i <= 0xbffff) || ((i >= 0xb8000) && (i <= 0xbf000)) || ((i >= 0xd000) && (i < 0xe000)))
         {
             index = alloc_frame(get_page(i, 1,kernel_directory), US, RW); // exclude VRAM
         }

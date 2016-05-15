@@ -8,7 +8,6 @@ namespace2(ui, text)
     #define VIDEO text_mode.font
     #define TEXT !text_mode.font
     #define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | (c & 0xff))
-    ubyte_t def_color;
 
     struct text
     {
@@ -16,19 +15,20 @@ namespace2(ui, text)
         uint16_t row, col;
         uint8_t tab_size;
         ubyte_t text_color;
+        rgba_t video_fc, video_bc;
         Font::Font_info* font;
     }__attribute__((packed));
     text text_mode;
 
-    void init(uint16_t pixelW, uint16_t pixelH, ubyte_t default_color, Font::Font_info* font)
+    void init(uint16_t pixelW, uint16_t pixelH, rgba_t fc_color, rgba_t bc_color, Font::Font_info* font)
     {
         text_mode.columns = pixelW / font->distW;
         text_mode.rows    = pixelH / font->distH;
         text_mode.col = 0;
         text_mode.row = 0;
         text_mode.tab_size = 4;
-        def_color = default_color;
-        text_mode.text_color = def_color;
+        text_mode.video_fc = fc_color;
+        text_mode.video_bc = bc_color;
         text_mode.font = font;
         initialized = true;
         update();
@@ -41,7 +41,6 @@ namespace2(ui, text)
         text_mode.col = 0;
         text_mode.row = 0;
         text_mode.tab_size = 4;
-        def_color = default_color;
         text_mode.text_color = default_color;
         text_mode.font = nullptr;
 
@@ -105,7 +104,7 @@ namespace2(ui, text)
                 text_mode.col = text_mode.columns - 1;
 
                 if (VIDEO)
-                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
                 else
                     PUT_C(0);
             }
@@ -115,7 +114,7 @@ namespace2(ui, text)
             text_mode.col--;
 
             if (VIDEO)
-                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
             else
                 PUT_C(0);
         }
@@ -135,7 +134,7 @@ namespace2(ui, text)
         CHECK_INIT
 
         if (VIDEO)
-            video::clear_screen(video::bg_color);
+            video::fill_s(text_mode.video_bc);
         else
         {
             int32_t i = ((text_mode.columns*text_mode.rows) << 1) - 1;
@@ -159,9 +158,9 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        uint8_t i = 255;
+        uint8_t i = 32;
 
-        while (i--)
+        while (++i < 128)
             put_char(i);
 
         put_char('\n');
@@ -185,7 +184,7 @@ namespace2(ui, text)
 
     void set_color_reset()
     {
-        set_color(def_color);
+        set_color(FC_LIGHTGRAY | BC_BLACK);
     }
 
     void set_color(uchar_t color)
@@ -522,7 +521,7 @@ namespace2(ui, text)
         else if (c == ' ')
         {
             if (VIDEO)		//overdraw the space
-                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, video::bg_color);
+                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
             else
                 PUT_C(0);
 
@@ -532,7 +531,7 @@ namespace2(ui, text)
         else
         {
             if (VIDEO)      //write to the buffer of the video mode
-                video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.text_color, c - 33);
+                video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.video_fc, c - 33);
             else
                 PUT_C(c);
 

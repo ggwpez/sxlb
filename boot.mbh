@@ -3,23 +3,44 @@
 
 [global _start]
 [extern _main]
- 
-
 
 MAGIC       equ      0xE85250D6
 ARCH        equ      0x0
-HDRLEN      equ      20
+HDRLEN      equ      mbh_end -mbh
 CHECKSUM    equ      -(MAGIC + ARCH + HDRLEN) 
 TAGS        equ      7
  
 section .text
 align 8
-MultiBootHeader:
+
+mbh:
   dd   MAGIC
   dd   ARCH
   dd   HDRLEN
   dd   CHECKSUM
-  dd   TAGS
+
+  ; module align
+  dw 6 ; type
+  dw 0 ; flags
+  dd 8 ; size in bytes (spec says 12?)
+  ; loader entry
+  align 8
+  dw 3
+  dw 0
+  dd 8
+  dd _start
+  ; console flags
+  align 8
+  dw 4
+  dw 0
+  dd 8
+  dd 0x03 ; EGA text support, require console
+  ; terminating tag
+  align 8
+  dw 0
+  dw 0
+  dd 8
+mbh_end:
  
 _start:
   mov esp,0x200000 ; Stack an die 2MB-Grenze platzieren

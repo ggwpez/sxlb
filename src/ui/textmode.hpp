@@ -6,6 +6,10 @@
 #include "../convert.hpp"
 #include "../ui/video.hpp"
 
+#define IO
+#define LOG
+
+#ifdef IO
 #define print 			(ui::text::write)
 #define printl 			(ui::text::write_line)
 #define printf          (ui::text::write_f)
@@ -13,13 +17,21 @@
 #define putc 			(ui::text::put_char)
 #define vprintf 		(ui::text::v_write_f)
 #define printf_arr32 	(ui::text::write_f_array32)
+#else
+#define print
+#define printl
+#define printf
+#define printfl
+#define putc
+#define vprintf
+#define printf_arr32
+#endif
 
 namespace time
 {
     extern uint32_t get_ms();
 }
 
-#define LOG
 #ifdef LOG
 #define logt ui::text::write_f("[ %u ms ] ", time::get_ms()); ui::text::write_f
 #define log  ui::text::write_f
@@ -31,9 +43,9 @@ namespace time
 #define logWAR          ui::text::set_fc(FC_MAGENTA); logt
 #define logERR          ui::text::set_fc(FC_RED); logt
 #define logDONE         logOK; ui::text::new_line(); ui::text::set_color_reset();
-#endif
-#ifndef LOG
+#else
 #define logtINF
+#define logINF
 #define logDBG
 #define logOK
 #define logWAR
@@ -82,7 +94,7 @@ namespace2(ui, text)
     uint8_t		get_tab_with				();
     void		set_tab_with				(uint8_t rows);
     void		clear_screen				();
-    void		init						(uint16_t pixelW, uint16_t pixelH, ubyte_t default_color, Font::Font_info* font);
+    void		init						(uint16_t pixelW, uint16_t pixelH, rgba_t fc_color, rgba_t bc_color, Font::Font_info* font);
     void		init						(uint16_t cols, uint16_t rows, ubyte_t default_color);
     void        write_line                  (const char* text);
     void		write_line_f				(const char* args, ...);

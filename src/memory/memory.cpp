@@ -1,7 +1,7 @@
 #include "memory.hpp"
 #include "../system/system.hpp"
 #include "../ctor.hpp"
-
+#include "liballoc.hpp"
 
 using namespace memory;
 extern uint32_t placement_address;
@@ -47,7 +47,9 @@ namespace memory
     {
         //while (f_locked); f_locked = true;
 
-        if (!ptr)
+        lib_free(ptr);
+        return 0;
+        /*if (!ptr)
         {
             f_locked = false;
             syshlt("null free");
@@ -74,14 +76,14 @@ namespace memory
             f_locked = false;
             syshlt("kheap_set == 0");
             return 0;
-        }
+        }//*/
     };
 
     bool m_locked = false;
     uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys)
     {
         if (!size)
-            return size;
+            return 0;
 
         if (align)
             syshlt("No aligned allocations.");
@@ -90,16 +92,13 @@ namespace memory
         {
             //while (m_locked); m_locked = true;
 
-            void* ret = kheap.malloc(size, align);
+            //void* ret = kheap.malloc(size, align);
+            void* ret = lib_malloc(size);
             if (phys)
             {
                 page* page = get_page((uint32_t)ret, 0, kernel_directory);
                 *phys = page->frame_address*PAGE_SIZE + ((uint32_t)ret & 0x00000FFF);
             }
-            /*if (ret)
-                printfl("Allocated heap %M", size);
-            else
-                printl("Allocation failed");*/
 
             m_locked = false;
             return ret;
@@ -122,6 +121,6 @@ namespace memory
         placement_address += size;     // new placement_address is increased
 
         m_locked = false;
-        return temp;                   // old placement_address is returned
+        return temp;                   // old placement_address is returned*/
     };
 }

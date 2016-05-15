@@ -38,7 +38,7 @@ void					paging_install();
  * @return 0 on success. Otherwise returns the highest successfully mapped address.
  */
 uint32_t                map_heap(uint32_t start, uint32_t end);
-void					unmap_heap(uint32_t start, uint32_t end);
+int unmap_heap(uint32_t start, uint32_t end);
 page*                   get_page(uint32_t address, uchar_t make, page_directory* dir);
 uint32_t				alloc_frame(page* page, int user, int read_write);
 void					free_frame(page* page);

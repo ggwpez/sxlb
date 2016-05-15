@@ -37,7 +37,6 @@ SOURCES += \
     src/task/task.cpp \
     src/time/timer.cpp \
     src/ui/textmode.cpp \
-    src/ui/video.cpp \
     src/user/test.cpp \
     src/convert.cpp \
     src/ctor.cpp \
@@ -64,7 +63,8 @@ SOURCES += \
     src/modules/module.cpp \
     src/boot/multiboot.cpp \
     src/memory/liballoc.cpp \
-    src/memory/liballoc_he.cpp
+    src/memory/liballoc_he.cpp \
+    src/ui/video.cpp
 
 OTHER_FILES += \
     boot.asm \
@@ -107,7 +107,6 @@ HEADERS += \
     src/task/task.hpp \
     src/time/timer.hpp \
     src/ui/textmode.hpp \
-    src/ui/video.hpp \
     src/user/test.hpp \
     src/array_or.hpp \
     src/convert.hpp \
@@ -136,5 +135,9 @@ HEADERS += \
     src/user/executable.hpp \
     src/modules/module.hpp \
     src/boot/multiboot.hpp \
-    src/memory/liballoc.hpp
+    src/memory/liballoc.hpp \
+    src/ui/video.hpp
+
+DISTFILES += \
+    boot.S
 

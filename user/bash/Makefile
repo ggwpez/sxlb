@@ -12,7 +12,7 @@ CC := i686-sxlb-gcc
 
 #CCFLAGS := -m32 -c -std=gnu11 -w -I../../lib/stdlibc/
 CCFLAGS := -m32 -c -std=gnu11 -w -fdelete-null-pointer-checks -I$(USERLIBDIR) -I$(NEWLIBDIR)../include/
-LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common -s -Map=map.sym
+LDFLAGS := -m elf_i386 -u _start -nostdlib --warn-common
 
 OUT := ../bash.dat
 
