@@ -71,7 +71,10 @@ OTHER_FILES += \
     cpu.asm \
     flush.asm \
     idtList.asm \
-    kernel.asm
+    kernel.asm \
+    boot.S \
+    multiboot2.asm \
+    isodir/boot/grub/grub.cfg
 
 HEADERS += \
     array_or.hpp \

@@ -9,7 +9,7 @@ extern _ir_event_handler
     [global _isr%1]
     _isr%1:
 	cli
-	%if (%1!=8) && (%1<10 || %1>14)
+	%if (%1!=8) && (%1<10 || %1>14) && (%1!=17 && %1!=30)
 	    push 0
 	%endif
 	push %1

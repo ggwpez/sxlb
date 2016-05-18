@@ -520,9 +520,9 @@ namespace2(ui, text)
         }
         else if (c == ' ')
         {
-            if (VIDEO)		//overdraw the space
+            /*if (VIDEO)		//overdraw the space
                 video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
-            else
+            else*/
                 PUT_C(0);
 
             text_mode.col++;

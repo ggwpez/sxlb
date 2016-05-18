@@ -30,7 +30,10 @@ namespace idt
         if (!faulting_address)
             return nullptr_handler(state, kill_msg);
 
-        sprintf_s(kill_msg, 64, "Page fault @%x (%s|%s|%s|%s|%s)",
+        faulting_address = faulting_address -(faulting_address %PAGE_SIZE);
+        alloc_frame(get_page(faulting_address, 1,kernel_directory), 1, 1);
+
+        sprintf_s(kill_msg, 64, "Page fault 0x%x (%s|%s|%s|%s|%s)",
                   faulting_address,
                   err & PROTECTED_NOT_PRESENT ? "Protected" : "Not Present",
                   err & WRITE_NOT_READ ? "Write" : "Read",
@@ -38,7 +41,7 @@ namespace idt
                   err & RESERVED ? "Reserved" : "0",
                   err & EXECUTION_PROHIBITED ? "Exec illegal" : "0");
 
-        return true;
+        return false;
     }
 
     //13
@@ -52,6 +55,13 @@ namespace idt
     bool nmi_handler(task::cpu_state_t* state, char* kill_msg)
     {
         sprintf_s(kill_msg, 64, "NMI: Severe hardware failure.");
+        return true;
+    }
+
+    //8
+    bool df_handler(task::cpu_state_t* state, char* kill_msg)
+    {
+        sprintf_s(kill_msg, 64, "Double fault");
         return true;
     }
 }

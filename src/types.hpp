@@ -64,7 +64,7 @@ static_assert(sizeof(int64_t) == 8, "Typesize wrong. (int64_t)");
 #define int32_max  0x7fffffff
 #define uint32_max 0xffffffff
 
-#define internal static
+#define internal
 #define namespace2(a, b) namespace a { namespace b
 
 #define B(x) ( \

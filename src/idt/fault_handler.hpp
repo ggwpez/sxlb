@@ -13,4 +13,5 @@ namespace idt
     bool zerodiv_handler(task::cpu_state_t* state, char* kill_msg);
     bool gpf_handler(task::cpu_state_t* state, char* kill_msg);
     bool pf_handler(task::cpu_state_t* state, char *kill_msg);
+    bool df_handler(task::cpu_state_t* state, char* kill_msg);
 }

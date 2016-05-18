@@ -2,7 +2,7 @@
 
 /**  Durand's Ridiculously Amazing Super Duper Memory functions.  */
 
-//#define DEBUG
+#define DEBUG
 
 #define LIBALLOC_MAGIC	0xc001c0de
 #define MAXCOMPLETE		5
@@ -15,7 +15,8 @@
 #define MODE	MODE_BEST
 
 #ifdef DEBUG
-#include <stdio.h>
+//#include <stdio.h>
+#include "../ui/textmode.hpp"
 #endif
 
 
@@ -115,7 +116,7 @@ static void dump_array()
 
         for ( i = 0; i < MAXEXP; i++ )
         {
-            printf("%.2i(%i): ",i, l_completePages[i] );
+            printf("%i(%i): ",i, l_completePages[i] );
 
             tag = l_freePages[ i ];
             while ( tag != NULL )
@@ -131,7 +132,6 @@ static void dump_array()
         }
 
     printf("'*' denotes a split to the left/right of a tag\n");
-    fflush( stdout );
 }
 #endif
 

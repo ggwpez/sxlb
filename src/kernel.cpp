@@ -28,17 +28,26 @@ extern "C"
 
 void init(void* mbi, uint32_t magic)
 {
+    finit
+
     ui::video::video_init_t data;
-    ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
     logtINF("boot:\n");
     mb::init(mbi, magic, &data);
 
-    ui::video::init(&data);
-    ui::text::init(800, 600, 0xff << 8, 0, &Font::Lucidia_Console);
-    ui::text::clear_screen();
+    if (data.type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
+    {
+        ui::video::init(&data);
+        ui::text::init(data.w, data.h, 0xff << 8, 0, &Font::Lucidia_Console);
+        ui::text::clear_screen();
+        ui::video::fill_s(102 << 8 | 102);
+    }
+    else if (data.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
+    {
+        ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
+    }
 
     mb::init(mbi, magic, &data);
-
+stop
     logtINF("gdt:\n");
     gdt::init();
     logtINF("idt:\n");
@@ -46,6 +55,7 @@ void init(void* mbi, uint32_t magic)
     sti
     logtINF("pic:\n");
     time::init();
+
     logtINF("vmm:\n");
     memory::init();
     logtINF("sys:\n");
@@ -63,8 +73,7 @@ void init(void* mbi, uint32_t magic)
 
     for (int i = 0; i < 80; ++i) { logINF("="); }
     logtINF("Kernel loaded. Press any key to continue.\n");
-
-    io::keyboard::get_char();
+    //io::keyboard::get_char();
     ui::text::clear_screen();
 }
 
@@ -81,40 +90,24 @@ void sig_test()
     task::end(0);
 }
 
-int32_t main(void*, uint32_t);
-void test()
-{
-    uint8_t* ptr = 0xa0000;
-    uint32_t i = 0;
-
-    while (ptr < 0xbffff)
-        *ptr++ = (uint8_t)ptr % 256,
-        *ptr++ = (uint8_t)ptr % 256,
-        *ptr++ = 0;
-
-    hlt
-}
-
 bool running = true;
 void idle();
 void shut_down();
 int32_t main(void* ptr, uint32_t magic)
 {
-    //test();
-
-    finit;
     init(ptr, magic);
-    hlt
 
-#define s 10
+    #define s 10
     uint32_t mems[s];
     for (int i = 0; i < s; i++)
         mems[i] = memory::k_malloc(100, 0, 0);
     for (int i = 0; i < s; i++)
         memory::k_free(mems[i]);
 
+    printfl("Test ended");
+    stop
 
-    char* argv[] = { "/initrd/nasm.dat", /*"cat initrd/nasm.dat",*/ nullptr };
+    char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
     printfl("Starting task:");
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
@@ -139,12 +132,3 @@ void shut_down()
     ui::text::clear_screen();
     printf("System halted.");
 }
-/*#if VIDEO_MODE == 1
-    LPTR zBuffer = memory::k_malloc(64000, 0, nullptr);
-    ui::video::init(320, 200, ui::video::VC_DARKGRAY, zBuffer, false);
-    ui::text::init(320, 200, FC_GREEN, &Font::Lucidia_Console);
-    ui::video::clear_screen(ui::video::VC_DARKGRAY);
-    ui::video::update();
-#else
-
-#endif*/

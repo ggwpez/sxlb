@@ -35,7 +35,7 @@ namespace time
     {
         logtINF("setting pic frequenze...");
         if (!hz)
-            hz++;	//div zero
+           return;
 
         int32_t divisor = 1193182 / hz;                 /* Calculate our divisor */
 

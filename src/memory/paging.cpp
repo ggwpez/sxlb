@@ -161,8 +161,8 @@ void paging_install()
 
     uint32_t counter = 0, i = 0, index = 0;
 
-    for( i=KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i+=0x1000 )
-        get_page(i, 1, kernel_directory);
+    //for( i=KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i+=0x1000 )
+      //  get_page(i, 1, kernel_directory);
 
     i = 0;
     while (i < (placement_address + 0x10000))
@@ -196,7 +196,7 @@ void paging_install()
 
 void enable_paging(page_directory* dir)
 {
-    logtINF("enabling pagin...");
+    logtINF("enabling paging...");
     // cr3: PDBR (Page Directory Base Register)
     asm volatile("mov %0, %%cr3":: "r"(dir->physical_address));    //set page directory base pointer
     // read cr0, set paging bit, write cr0 back
