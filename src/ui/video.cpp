@@ -41,7 +41,7 @@ namespace2(ui, video)
                 ui::video::draw_rect_filled(x, y, 10, 10, c += o);
     }
 
-    void draw_pixel(uint16_t x, uint16_t y, rgba_t c)
+    void inline draw_pixel(uint16_t x, uint16_t y, rgba_t c)
     {
         if (x >= vdata.w || y >= vdata.h)
             return;

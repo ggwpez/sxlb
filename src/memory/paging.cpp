@@ -150,7 +150,7 @@ void heap_install()
     kheap_set = true;
 };
 
-void paging_install()
+void paging_install(uint32_t vbuff, uint32_t vbuff_len)
 {
     bitset_install();
 
@@ -176,6 +176,8 @@ void paging_install()
         i += PAGE_SIZE; ++counter;
     }
 
+    map_id(vbuff, vbuff +vbuff_len);
+
     uint32_t user_space_start = 0x400000;
     uint32_t user_space_end   = 0x500000;
     i=user_space_start;
@@ -193,6 +195,42 @@ void paging_install()
 
     heap_install();
 };
+
+void map_id(uint32_t start, uint32_t end)
+{
+    map(start, end, start);
+}
+
+void map(uint32_t start, uint32_t end, uint32_t phys)
+{
+    if (phys << 20)
+    {
+        logERR("id_map: 'phys' not 4096 bit aligned!\n");
+        return;
+    }
+
+    phys = phys /PAGE_SIZE;                                         //there are only 20 bytes place, so get compfty
+
+    uint32_t t_start = (start -(start % PAGE_SIZE *PAGES_P_TABLE)) >> 22,                                   //round down
+             t_end   = (end   +((PAGE_SIZE *PAGES_P_TABLE) -(end   % PAGE_SIZE *PAGES_P_TABLE))) >> 22;     //round up
+
+    for (uint32_t i = t_start; i < t_end; i++)
+    {
+        kernel_directory->tables[i] = k_malloc_no_heap(sizeof(page_table), PAGE_SIZE, NULL);
+        kernel_directory->tables_physical[i] = (uint32_t)kernel_directory->tables[i] | 1 | 2;
+
+        for (uint16_t p = 0; p < PAGES_P_TABLE; p++)
+        {
+            page* pa = &kernel_directory->tables[i]->pages[p];
+            pa->frame_address = phys ;
+            pa->swapped_in = 1;
+            pa->read_write = 1;
+            pa->no_tlb = 1;                                         //wont change
+
+            phys++;
+        }
+    }
+}
 
 void enable_paging(page_directory* dir)
 {

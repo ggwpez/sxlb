@@ -78,6 +78,8 @@ static_assert(sizeof(int64_t) == 8, "Typesize wrong. (int64_t)");
     0##x >> 14 & 0200)
 
 #define PAGE_SIZE	0x1000
+#define PAGES_P_TABLE 1024
+static_assert(PAGE_SIZE == 4096, "Patch all << 12 and >> 20 shifts");
 
 #define _512KiB	  128*PAGE_SIZE
 #define _1MiB	  256*PAGE_SIZE

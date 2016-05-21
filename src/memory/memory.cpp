@@ -11,9 +11,9 @@ extern bool kheap_set;
 
 namespace memory
 {
-    void init()
+    void init(uint32_t vbuff, uint32_t vbuff_len)
     {
-        paging_install();
+        paging_install(vbuff, vbuff_len);
 
         if (!kheap_set)
             syshlt("HEAP allocation failed.");

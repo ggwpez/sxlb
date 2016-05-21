@@ -117,10 +117,11 @@ namespace mb
                     vdata->h = tagfb->common.framebuffer_height;
                     vdata->pitch = tagfb->common.framebuffer_pitch;
                     vdata->fb = fb;
+                    vdata->len = vdata->w *vdata->h *vdata->bpp;
                     vdata->type = tagfb->common.framebuffer_type;
 
                     logtINF("Resolution: %ux%ux%u\n", vdata->w, vdata->h, vdata->bpp);
-                    logtINF("FB @0x%x,  len: 0x%x, type: %s", fb, vdata->h *vdata->bpp *vdata->pitch,
+                    logtINF("FB @0x%x,  len: 0x%x, type: %s\n", fb, vdata->len,
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT ? "EGA_TEXT" :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED  ? "INDEXED"  :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB      ? "RGB" : "UNKNOWN");

@@ -12,7 +12,7 @@ namespace memory
     #define HEAP_MIN_SIZE		0x70000
 
     class heap;
-    void init();
+    void init(uint32_t vbuff, uint32_t vbuff_len);
     void dump_info(heap* heape);
     uint32_t k_malloc(uint32_t size);
     uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys);	//you better care about the return value, and free the memory!

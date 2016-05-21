@@ -42,7 +42,7 @@ void init(uint32_t argc, char** argv)
         strcpy(buffer, argv[i]);
         interpret_cmd();
     }
-    printf("pid: %u", pid);
+    //printf("pid: %u", pid);
     //printf("_task_sig_trap @0x%x\n", &_task_sig_trap);
 }
 

@@ -26,6 +26,7 @@ namespace2(ui, video)
         uint8_t bpp, bypp;
         uint32_t pitch;
         LPTR fb;
+        uint32_t len;
         uint8_t type;
     };
 

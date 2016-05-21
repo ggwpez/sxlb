@@ -1,0 +1,17 @@
+#use "/home/vados/Code/Projects/eneV3/test/lib/io.ene"
+
+void main()
+{
+	printf("Ene runs on sxlb, YEE")^;
+	putchar(10);
+
+	u32°: i;
+
+	for (i = 0; i~ 10 <; i$=~1+;)
+	{
+		printf("i = %u  i*i = %u", i~, i~$*)^^^;
+		putchar(10);
+	}
+
+	putchar(10);
+}

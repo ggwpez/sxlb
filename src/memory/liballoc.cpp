@@ -2,7 +2,7 @@
 
 /**  Durand's Ridiculously Amazing Super Duper Memory functions.  */
 
-#define DEBUG
+//#define DEBUG
 
 #define LIBALLOC_MAGIC	0xc001c0de
 #define MAXCOMPLETE		5

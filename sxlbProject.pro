@@ -74,7 +74,8 @@ OTHER_FILES += \
     kernel.asm \
     boot.S \
     multiboot2.asm \
-    isodir/boot/grub/grub.cfg
+    isodir/boot/grub/grub.cfg \
+    Makefile
 
 HEADERS += \
     array_or.hpp \

@@ -30,24 +30,24 @@ void init(void* mbi, uint32_t magic)
 {
     finit
 
-    ui::video::video_init_t data;
+    ui::video::video_init_t vdata;
     logtINF("boot:\n");
-    mb::init(mbi, magic, &data);
+    mb::init(mbi, magic, &vdata);
 
-    if (data.type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
+    if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
     {
-        ui::video::init(&data);
-        ui::text::init(data.w, data.h, 0xff << 8, 0, &Font::Lucidia_Console);
+        ui::video::init(&vdata);
+        ui::text::init(vdata.w, vdata.h, 0xff << 8, 102 << 8 | 102, &Font::Lucidia_Console);
         ui::text::clear_screen();
-        ui::video::fill_s(102 << 8 | 102);
+        //ui::video::fill_s(102 << 8 | 102);
     }
-    else if (data.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
+    else if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
     {
         ui::text::init(80, 25, FC_LIGHTGRAY | BC_BLACK);
     }
 
-    mb::init(mbi, magic, &data);
-stop
+    mb::init(mbi, magic, &vdata);
+
     logtINF("gdt:\n");
     gdt::init();
     logtINF("idt:\n");
@@ -57,7 +57,7 @@ stop
     time::init();
 
     logtINF("vmm:\n");
-    memory::init();
+    memory::init(vdata.fb, vdata.len);
     logtINF("sys:\n");
     system::init();
     logtINF("keyboard:\n");
@@ -71,9 +71,9 @@ stop
     //logtINF("window manager:\n");
     //ui::window::init();
 
-    for (int i = 0; i < 80; ++i) { logINF("="); }
+    for (int i = 0; i < 80; ++i) { logINF("="); } logINF("\n");
     logtINF("Kernel loaded. Press any key to continue.\n");
-    //io::keyboard::get_char();
+    io::keyboard::get_char();
     ui::text::clear_screen();
 }
 
@@ -97,21 +97,19 @@ int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
 
-    #define s 10
+    /*#define s 10
     uint32_t mems[s];
     for (int i = 0; i < s; i++)
         mems[i] = memory::k_malloc(100, 0, 0);
     for (int i = 0; i < s; i++)
-        memory::k_free(mems[i]);
+        memory::k_free(mems[i]);*/
 
-    printfl("Test ended");
-    stop
+    //printfl("Test ended");
 
-    char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
-    printfl("Starting task:");
+    char* argv[] = { "/initrd/ene.dat", /*"cat initrd/nasm.dat",*/ nullptr };
+    //printfl("Starting task:");
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
-
 
     task::multitasking_set(true);
     TASK_SWITCH

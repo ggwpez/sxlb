@@ -104,7 +104,7 @@ namespace2(ui, text)
                 text_mode.col = text_mode.columns - 1;
 
                 if (VIDEO)
-                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
+                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->W, text_mode.font->H, text_mode.video_bc);
                 else
                     PUT_C(0);
             }

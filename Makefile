@@ -15,25 +15,27 @@ GRUBCFG := isodir/boot/grub/grub.cfg
 LIBDIR := lib/
 ISO := $(BINDIR)OS.iso
 
+ASGDBFLAGS := -F dwarf -g
 ASFLAGSBIN := -O32 -f bin
-ASFLAGSOBJ := -O32 -f elf32
+ASFLAGSOBJ := -O32 -f elf32 $(ASGDBFLAGS)
 AS := nasm
 
 CXX := g++
 LD := ld
 
-CXXFLAGS := -m32 -std=c++11 -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
-LDFLAGS := -m elf_i386 -T linker.ld
+GDBFLAGS := -g3 -ggdb3
+CXXFLAGS := -m32 -std=c++11 $(GDBFLAGS) -fpermissive -ffreestanding -fno-exceptions -fleading-underscore -fno-rtti -fno-builtin -enable-__cxa_atexit -nostdlib -nostdinc -nodefaultlibs -nostartfiles -w
+LDFLAGS := -m elf_i386 -g -T linker.ld
 
-all: | lib.target user.target boot.o $(ISO) build_number.target 
+all: | lib.target user.target boot.o $(ISO) build_number.target
 
 test: | lib.target user.target boot.o OS.bin
 
-user.target: 
+user.target:
 	$(MAKE) -C $(SRCDIRUSER)
 
 lib.target:
-	$(MAKE) -C $(LIBDIR)
+	#$(MAKE) -C $(LIBDIR)
 
 $(IMAGE):
 	$(MAKE) -C $(SRCDIRUSER)
@@ -43,6 +45,13 @@ bochs: all
 
 bochsdbg: all
 	bochsdbg -q
+
+gdb:
+
+gdb:  all
+	objcopy --only-keep-debug OS.bin OS.sym
+	qemu-system-i386 -hda bin/OS.iso -d cpu_reset -no-reboot -s -S
+	gdbtui < target remote localhost:1234 
 
 qemu: all
 	qemu-system-i386 -hda $(ISO) -d cpu_reset -no-reboot
@@ -79,9 +88,12 @@ map: all
 
 deploy: all
 	#sudo dd if=OS.iso of=/dev/sdb
-	sync	
+	sync
 
 clean:
+	$(MAKE) -C $(SRCDIRUSER) clean
+
+clean_all:
 	@find . -name '*.o' -delete
 	@find . -name '*.a' -delete
 	@find . -name '*.dat' -delete

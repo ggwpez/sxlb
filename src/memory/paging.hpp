@@ -11,13 +11,14 @@
 
 struct page
 {
-	uint32_t swapped_in : 1;
+    uint32_t swapped_in : 1;
     uint32_t read_write : 1;	//0: read-only,   1: read+write
     uint32_t user : 1;          //0: kernel-ring, 1: user-ring
-	uint32_t accessed : 1;
-	uint32_t dirty : 1;			//sticky written bit
-	uint32_t unused : 7;		//unused+reserved flags
-	uint32_t frame_address : 20;//physical adress
+    uint32_t accessed : 1;
+    uint32_t dirty : 1;			//sticky written bit
+    uint32_t no_tlb : 1;
+    uint32_t unused : 6;		//unused+reserved flags
+    uint32_t frame_address : 20;//physical adress
 }__attribute__((packed));
 
 struct page_table
@@ -27,17 +28,19 @@ struct page_table
 
 struct page_directory
 {
-	uint32_t tables_physical[1024];
+    uint32_t tables_physical[1024];
     page_table* tables[1024];
-	uint32_t physical_address;
+    uint32_t physical_address;
 }__attribute__((packed));
 
-void					paging_install();
+void					paging_install(uint32_t vbuff, uint32_t vbuff_len);
 /**
  * @brief map_heap Mapps memory for the heap.
  * @return 0 on success. Otherwise returns the highest successfully mapped address.
  */
 uint32_t                map_heap(uint32_t start, uint32_t end);
+void map_id(uint32_t start, uint32_t end);
+void map(uint32_t start, uint32_t end, uint32_t phys);
 int unmap_heap(uint32_t start, uint32_t end);
 page*                   get_page(uint32_t address, uchar_t make, page_directory* dir);
 uint32_t				alloc_frame(page* page, int user, int read_write);

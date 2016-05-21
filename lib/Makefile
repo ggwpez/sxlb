@@ -8,7 +8,7 @@ bin:
 	mkdir -p bin
 
 build-newlib: build-newlib/Makefile
-	cd build-newlib && make all
+	cd build-newlib && make all -j6 CXXFLAGS+='-g' CFLAGS+='-g'
 
 #this is ./configure
 build-newlib/Makefile:
@@ -18,6 +18,9 @@ build-newlib/Makefile:
 #this is newlib install
 bin/i686-sxlb:
 	cd build-newlib && make DESTDIR=~/Code/Projects/sxlb/lib/bin/ install	#care!!!
+
+/bin/posixc.a: build-newlib bin/i686-sxlb
+	$(MAKE) -C $(patsubst /bin/posixc.a, posixc/, $@)
 
 /bin/%.a:
 	$(MAKE) -C $(patsubst /bin/%.a, %/, $@)

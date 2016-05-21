@@ -33,6 +33,8 @@ namespace idt
         faulting_address = faulting_address -(faulting_address %PAGE_SIZE);
         alloc_frame(get_page(faulting_address, 1,kernel_directory), 1, 1);
 
+        //logtINF("PF @0x%x\n", faulting_address);
+
         sprintf_s(kill_msg, 64, "Page fault 0x%x (%s|%s|%s|%s|%s)",
                   faulting_address,
                   err & PROTECTED_NOT_PRESENT ? "Protected" : "Not Present",
