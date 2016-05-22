@@ -27,8 +27,8 @@ namespace system
             syshlt("Double Fault");     //man wtf, are you trying to troll me?
     #endif
 
-        ui::text::set_fc_all(FC_LIGHTGRAY | FC_MOD_INTENSITY);
-        ui::text::set_bc_all(BC_LIGHTBLUE);
+        ui::text::set_fc(FC_LIGHTGRAY | FC_MOD_INTENSITY);
+        ui::text::set_bc(BC_LIGHTBLUE);
         ui::text::clear_screen();
         ui::text::set_cursor(0, 0);
 

@@ -19,6 +19,3 @@ _start:
 
     cli ; falls der Kernel bis hier her kommt, CPU anhalten
     hlt
-
-_kernel_start:
-_kernel_end:

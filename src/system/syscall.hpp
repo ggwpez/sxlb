@@ -22,12 +22,8 @@ namespace system
         &ui::text::write_f,
         &ui::text::write_line_f,        //5
         &ui::text::clear_screen,
-        &ui::text::set_color,
-        &ui::text::set_color_all,
         &ui::text::set_bc,
-        &ui::text::set_bc_all,          //10
         &ui::text::set_fc,
-        &ui::text::set_fc_all,
         &task::poll_key,
         &task::poll_char,
         &task::end,                     //15
@@ -50,6 +46,8 @@ namespace system
         &utils::get_version,
         &system::reboot                 //33
     };
+
+    static_assert(CALL::count == COUNTOF(calls), "Syscall def enum out of sync.");
 
     void init();
     bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg);

@@ -49,9 +49,8 @@ bochsdbg: all
 gdb:
 
 gdb:  all
-	objcopy --only-keep-debug OS.bin OS.sym
 	qemu-system-i386 -hda bin/OS.iso -d cpu_reset -no-reboot -s -S
-	gdbtui < target remote localhost:1234 
+	gdbtui < target remote localhost:1234
 
 qemu: all
 	qemu-system-i386 -hda $(ISO) -d cpu_reset -no-reboot

@@ -18,5 +18,6 @@ namespace memory
     uint32_t k_malloc(uint32_t size, uchar_t align, uint32_t* phys);	//you better care about the return value, and free the memory!
     uint32_t k_free(void* ptr);
     void* memset(void* dest, char val, size_t count);
+    void* memset32(void* dest, int32_t val, size_t count);
     void* memcpy(void* dest, void* source, size_t count);
 }

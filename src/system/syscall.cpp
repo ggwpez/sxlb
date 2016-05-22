@@ -21,7 +21,7 @@ namespace system
 
     bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg)
     {
-        if (state->eax > SYSCNUM_CALL_ENTRYS)
+        if (state->eax > CALL::count)
         {
             sprintf_s(kill_msg, 64, "Invalid SYSCALL number: '%u'", state->eax);
             return true;

@@ -5,66 +5,95 @@ namespace2(ui, text)
     byte_t* vram = 0xb8000;
     bool initialized = false;
     #define CHECK_INIT if (!initialized) return 0;
-    #define VIDEO text_mode.font
-    #define TEXT !text_mode.font
-    #define PUT_C(c) (((uint16_t*)vram)[(text_mode.col + text_mode.row*text_mode.columns)] = text_mode.text_color << 8 | (c & 0xff))
+    #define VIDEO tm.font
+    #define TEXT !tm.font
+    #define PUT_C(c) (((uint16_t*)vram)[(tm.col + tm.row *tm.columns)] = (tm.t_clr << 8) | (c & 0xff))
 
     struct text
     {
         uint16_t columns, rows;
         uint16_t row, col;
         uint8_t tab_size;
-        ubyte_t text_color;
-        rgba_t video_fc, video_bc;
+        clr32_t v_fc, v_bc;
+        ubyte_t t_clr;
+        uint32_t pitch;
+        video::video_init_t vdata;
         Font::Font_info* font;
     }__attribute__((packed));
-    text text_mode;
+    text tm;
 
-    void init(uint16_t pixelW, uint16_t pixelH, rgba_t fc_color, rgba_t bc_color, Font::Font_info* font)
+    clr32_t save_fc, save_bc;
+    clr44_t save_clr;
+
+    void init(video::video_init_t* vdata, clr32_t fc_color, clr32_t bc_color, Font::Font_info* font)
     {
-        text_mode.columns = pixelW / font->distW;
-        text_mode.rows    = pixelH / font->distH;
-        text_mode.col = 0;
-        text_mode.row = 0;
-        text_mode.tab_size = 4;
-        text_mode.video_fc = fc_color;
-        text_mode.video_bc = bc_color;
-        text_mode.font = font;
-        initialized = true;
-        update();
-    };
-
-    void init(uint16_t cols, uint16_t rows, ubyte_t default_color)
-    {
-        text_mode.columns = cols;
-        text_mode.rows = rows;
-        text_mode.col = 0;
-        text_mode.row = 0;
-        text_mode.tab_size = 4;
-        text_mode.text_color = default_color;
-        text_mode.font = nullptr;
-
+        tm.columns = vdata->w / font->distW;
+        tm.rows    = vdata->h / font->distH;
+        tm.col = 0;
+        tm.row = 0;
+        tm.tab_size = 4;
+        tm.v_fc = fc_color;
+        tm.v_bc = bc_color;
+        save_fc = fc_color;
+        save_bc = bc_color;
+        tm.font = font;
+        tm.vdata = *vdata;
+        tm.pitch = vdata->w *tm.font->distH *vdata->bypp;          //bytes per row
+        vram = vdata->fb;
         initialized = true;
         clear_screen();
-        set_fc_all(default_color);
-        set_bc_all(default_color);
+        //update();
+    };
+
+    void init(uint16_t cols, uint16_t rows, clr44_t color)
+    {
+        tm.columns = cols;
+        tm.rows = rows;
+        tm.col = 0;
+        tm.row = 0;
+        tm.tab_size = 4;
+        tm.t_clr = color;
+        save_clr = color;
+        tm.font = nullptr;
+        tm.font = nullptr;
+
+        initialized = true;
+        set_fc(tm.t_clr);
+        set_bc(tm.t_clr);
+        clear_screen();
         update();
     };
 
     void scroll_down()
     {
-        for (int i = 1; i < text_mode.rows; i++)
-            memory::memcpy(vram + (((i-1)* text_mode.columns) << 1), vram + ((i* text_mode.columns)<<1), text_mode.columns << 1);
+        if (VIDEO)
+        {
+            for (uint32_t i = 0; i < tm.rows *tm.pitch; i += tm.pitch)
+            {
+                uint8_t* start = vram +i;
+                uint8_t* end = vram +i +tm.pitch;
 
-        for (int i = 0; i < text_mode.columns << 1; i += 2)
-            *(vram + i +(((text_mode.rows -1)* text_mode.columns) << 1)) = ' ';
+                memory::memcpy(start, end, tm.pitch);
+            }
+
+            video::draw_rect_filled(0, (tm.rows -1) *tm.font->distH, tm.vdata.w, tm.font->distH, tm.v_bc);
+            set_cursor(0, tm.rows -1);
+        }
+        else
+        {
+            for (int i = 1; i < tm.rows; i++)
+                memory::memcpy(vram + (((i -1)* tm.columns) << 1), vram + ((i* tm.columns) << 1), tm.columns << 1);
+
+            for (int i = 0; i < tm.columns << 1; i += 2)
+                *(vram + i +(((tm.rows -1)* tm.columns) << 1)) = ' ';
+        }
     }
 
     void tm_line_feed()
     {
         CHECK_INIT
 
-        text_mode.row++;
+        tm.row++;
         update();
     };
 
@@ -72,7 +101,7 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        text_mode.col = 0;
+        tm.col = 0;
         update();
     };
 
@@ -80,10 +109,10 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        if(!text_mode.tab_size)
+        if(!tm.tab_size)
             return;
 
-        uint16_t num = text_mode.tab_size -(text_mode.col %text_mode.tab_size);
+        uint16_t num = tm.tab_size -(tm.col %tm.tab_size);
         while(num--)
             put_char(' ');
 
@@ -94,27 +123,27 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        if (text_mode.col == 0)
+        if (tm.col == 0)
         {
-            if (text_mode.row == 0)
+            if (tm.row == 0)
             { }	//already pSosition 0/0, nothing to do here
             else
             {
-                text_mode.row--;
-                text_mode.col = text_mode.columns - 1;
+                tm.row--;
+                tm.col = tm.columns - 1;
 
                 if (VIDEO)
-                    video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->W, text_mode.font->H, text_mode.video_bc);
+                    video::draw_rect_filled(tm.col * tm.font->distW, tm.row * tm.font->distH, tm.font->W, tm.font->H, tm.v_bc);
                 else
                     PUT_C(0);
             }
         }
         else
         {
-            text_mode.col--;
+            tm.col--;
 
             if (VIDEO)
-                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
+                video::draw_rect_filled(tm.col * tm.font->distW, tm.row * tm.font->distH, tm.font->distW, tm.font->distH, tm.v_bc);
             else
                 PUT_C(0);
         }
@@ -125,8 +154,8 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        text_mode.row = row;
-        text_mode.col = col;
+        tm.row = row;
+        tm.col = col;
     };
 
     void clear_screen()
@@ -134,24 +163,24 @@ namespace2(ui, text)
         CHECK_INIT
 
         if (VIDEO)
-            video::fill_s(text_mode.video_bc);
+            video::fill_s(tm.v_bc);
         else
         {
-            int32_t i = ((text_mode.columns*text_mode.rows) << 1) - 1;
+            int32_t i = ((tm.columns*tm.rows) << 1) - 1;
             while (i > 0)
             {
-                vram[i--] = text_mode.text_color;
+                vram[i--] = tm.t_clr;
                 vram[i--] = ' ';
             }
         }
         set_cursor(0, 0);
     };
 
-    ubyte_t get_background_color()
+    clr44_t get_background_color()
     {
         CHECK_INIT
 
-        return text_mode.text_color;
+        return tm.t_clr;
     };
 
     void dump_alphabet()
@@ -178,105 +207,65 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        set_cursor(0,line);
+        set_cursor(0, line);
         write(message);
     };
 
     void set_color_reset()
     {
-        set_color(FC_LIGHTGRAY | BC_BLACK);
-    }
-
-    void set_color(uchar_t color)
-    {
-        text_mode.text_color = color;
-    }
-
-    void set_color_all(uchar_t color)
-    {
-        CHECK_INIT
-
-        uint32_t i = 0, end = (text_mode.rows * text_mode.columns) << 1;
-
-        while (i != end)
+        if (VIDEO)
         {
-            vram[++i] == B(00001111);
-            ++i;
+            vm_set_bc(save_bc);
+            vm_set_fc(save_fc);
         }
-
-        text_mode.text_color == color;
+        else
+        {
+            tm_set_bc(save_clr);
+            tm_set_fc(save_clr);
+        }
     }
 
-    void set_bc(uchar_t bc)
+    void set_bc(clr32_t bc)
+    {
+        if (VIDEO)
+            vm_set_bc(bc);
+        else
+            tm_set_bc(CLR_32_8(bc));
+    }
+
+    void vm_set_bc(clr32_t bc)
+    {
+        tm.v_bc = bc;
+    }
+
+    void tm_set_bc(clr44_t bc)
     {
         bc &= B(11110000);
 
-        text_mode.text_color &= B(00001111);
-        text_mode.text_color |= bc;
+        tm.t_clr &= B(00001111);
+        tm.t_clr |= bc;
     }
 
-    void set_bc_all(uchar_t bc)
+    void set_fc(clr32_t fc)
     {
-        CHECK_INIT
+        if (VIDEO)
+            vm_set_fc(fc);
+        else
+            tm_set_fc(CLR_32_4(fc));
+    }
 
-        uint32_t i = 0, end = (text_mode.rows * text_mode.columns) << 1;
-        bc &= B(11110000);
+    void vm_set_fc(clr32_t fc)
+    {
+        tm.v_fc = fc;
+    }
 
-        while (i != end)
-        {
-            ++i;
-            vram[i] &= B(00001111);
-            vram[i] |= bc;
-            ++i;
-        }
-
-        text_mode.text_color &= B(00001111);
-        text_mode.text_color |= bc;
-    };
-
-    void set_fc(uchar_t fc)
+    void tm_set_fc(clr4_t fc)
     {
         fc &= B(00001111);
 
-        text_mode.text_color &= B(11110000);
-        text_mode.text_color |= fc;
+        tm.t_clr &= B(11110000);
+        tm.t_clr |= fc;
     }
-
-    void set_fc_all(uchar_t fc)
-    {
-        CHECK_INIT
-
-        uint32_t i = 0, end = (text_mode.rows * text_mode.columns) << 1;
-        fc &= B(00001111);
-
-        while (i != end)
-        {
-            ++i;
-            vram[i] &= B(11110000);
-            vram[i] |= fc;
-            ++i;
-        }
-
-        text_mode.text_color &= B(11110000);
-        text_mode.text_color |= fc;
-    };
-
-    /*print_arr32, format e.g.: %u, %i, %x*/
-    void write_f_array32(const char* format, char_t* data, uint32_t length, uint32_t struct_size, uint32_t struct_offset)
-    {
-        CHECK_INIT
-
-    #if __CHECKS_NLPTR
-        if (!format ||!data)
-            return;
-    #endif
-
-        for (uint32_t i = 0; i < length; i++)
-        {
-            write_f(format, data[struct_size*i + struct_offset]);
-            put_char(' ');
-        }
-    };
 
     /*printl*/
     void write_line(const char* text)
@@ -290,8 +279,8 @@ namespace2(ui, text)
 
         write(text);
 
-        text_mode.col = 0;
-        text_mode.row++;
+        tm.col = 0;
+        tm.row++;
         update();
     };
 
@@ -310,8 +299,8 @@ namespace2(ui, text)
         v_write_f(args, ap);
         va_end(ap);
 
-        text_mode.col = 0;
-        text_mode.row++;
+        tm.col = 0;
+        tm.row++;
         update();
     };
 
@@ -470,15 +459,15 @@ namespace2(ui, text)
         put_char('\n');
     };
 
-    void put_char(char c, ubyte_t color)
+    void put_char(char c, clr44_t color)
     {
         CHECK_INIT
 
-        ubyte_t tmp = text_mode.text_color;
-        text_mode.text_color = color;
+        ubyte_t tmp = tm.t_clr;
+        tm.t_clr = color;
 
         put_char(c);
-        text_mode.text_color = tmp;
+        tm.t_clr = tmp;
     };
 
     void put_char(char c)
@@ -513,7 +502,7 @@ namespace2(ui, text)
                 {
                     PUT_C('?');
 
-                    text_mode.col++;
+                    tm.col++;
                     update();
                 } break;
             }
@@ -521,21 +510,21 @@ namespace2(ui, text)
         else if (c == ' ')
         {
             /*if (VIDEO)		//overdraw the space
-                video::draw_rect_filled(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font->distW, text_mode.font->distH, text_mode.video_bc);
+                video::draw_rect_filled(tm.col * tm.font->distW, tm.row * tm.font->distH, tm.font->distW, tm.font->distH, tm.v_bc);
             else*/
                 PUT_C(0);
 
-            text_mode.col++;
+            tm.col++;
             update();
         }
         else
         {
             if (VIDEO)      //write to the buffer of the video mode
-                video::draw_char(text_mode.col * text_mode.font->distW, text_mode.row * text_mode.font->distH, text_mode.font, text_mode.video_fc, c - 33);
+                video::draw_char(tm.col *tm.font->distW, tm.row *tm.font->distH, tm.font, tm.v_fc, c - 33);
             else
                 PUT_C(c);
 
-            text_mode.col++;
+            tm.col++;
             update();
         }
     };
@@ -544,21 +533,21 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        cols = text_mode.columns;
-        rows = text_mode.rows;
+        cols = tm.columns;
+        rows = tm.rows;
     };
 
     void set_tab_with(uint8_t columns)
     {
         CHECK_INIT
 
-        text_mode.tab_size = columns;
+        tm.tab_size = columns;
     };
 
     uint8_t get_tab_with()
     {
         CHECK_INIT
-        return text_mode.tab_size;
+        return tm.tab_size;
     };
 
     uint16_t old_pos = 0xffff;
@@ -566,22 +555,22 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        while(text_mode.col >= text_mode.columns)
+        while(tm.col >= tm.columns)
         {
-            text_mode.col-=text_mode.columns;
-            text_mode.row++;
+            tm.col-=tm.columns;
+            tm.row++;
         }
-        if (text_mode.col >= text_mode.columns)
-            text_mode.col = 0;
-        if(text_mode.row >= text_mode.rows)
+        if (tm.col >= tm.columns)
+            tm.col = 0;
+        if(tm.row >= tm.rows)
         {
             scroll_down();
-            text_mode.row = text_mode.rows -1;
+            tm.row = tm.rows -1;
         }
 
         if (TEXT)
         {
-            uint16_t pos = text_mode.col + text_mode.row*text_mode.columns;
+            uint16_t pos = tm.col + tm.row *tm.columns;
 
             if (pos != old_pos)
             {
@@ -599,8 +588,8 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        text_mode.col = col;
-        text_mode.row = row;
+        tm.col = col;
+        tm.row = row;
         update();
     }
 
@@ -608,7 +597,7 @@ namespace2(ui, text)
     {
         CHECK_INIT
 
-        *col = text_mode.col;
-        *row = text_mode.row;
+        *col = tm.col;
+        *row = tm.row;
     }
 }}

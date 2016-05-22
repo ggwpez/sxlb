@@ -5,7 +5,7 @@ namespace2(ui, video)
 {
     struct video_init_t vdata;
 
-    rgba_t bg_color;
+    clr32_t bg_color;
 
     void init(struct video_init_t* data)
     {
@@ -41,7 +41,7 @@ namespace2(ui, video)
                 ui::video::draw_rect_filled(x, y, 10, 10, c += o);
     }
 
-    void inline draw_pixel(uint16_t x, uint16_t y, rgba_t c)
+    void inline draw_pixel(uint16_t x, uint16_t y, clr32_t c)
     {
         if (x >= vdata.w || y >= vdata.h)
             return;
@@ -51,19 +51,19 @@ namespace2(ui, video)
         if (vdata.bypp == 1)
         {
             uint8_t* p = addr;
-            c = clr_32_to_8(c);
+            c = CLR_32_8(c);
             *p = c;
         }
         else if (vdata.bypp == 2)
         {
             uint16_t* p = addr;
-            c = clr_32_to_16(c);
+            c = CLR_32_16(c);
             *(uint16_t*)addr = c;
         }
         else if (vdata.bypp == 3)
         {
             uint32_t* p = addr;
-            c = clr_32_to_24(c);
+            c = CLR_32_24(c);
             *p = (c & 0xffffff) | (*p & 0xff000000);
         }
         else if (vdata.bypp = 4)
@@ -78,14 +78,14 @@ namespace2(ui, video)
         fill_s(0x00000000);
     }
 
-    void fill_s(rgba_t c)
+    void fill_s(clr32_t c)
     {
         for (uint16_t x = 0; x < vdata.w; x++)
             for (uint16_t y = 0; y < vdata.h; y++)
                 draw_pixel(x, y, c);
     }
 
-    void draw_char(uint16_t x, uint16_t y, Font::Font_info* font, rgba_t color, char c)
+    void draw_char(uint16_t x, uint16_t y, Font::Font_info* font, clr32_t color, char c)
     {
         uint8_t* mask = font->mask + c * 11;
         //video::draw_rect_filled(x,y, font->H, font->W, bg_color); 	//whipe out the current letter
@@ -96,7 +96,7 @@ namespace2(ui, video)
                     draw_pixel((font->W - w) + x, y + h, color);
     };
 
-    void draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t heigth, rgba_t color)
+    void draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t heigth, clr32_t color)
     {
         draw_line(x, y, x +width, y, color);
         draw_line(x, y, x, y +heigth, color);
@@ -104,14 +104,14 @@ namespace2(ui, video)
         draw_line(x, y +heigth, x +width, y +heigth, color);
     }
 
-    void draw_rect_filled(uint16_t x, uint16_t y, uint16_t width, uint16_t heigth, rgba_t color)
+    void draw_rect_filled(uint16_t x, uint16_t y, uint16_t width, uint16_t heigth, clr32_t color)
     {
         for (uint16_t px = x; px < x +width; px++)
             for (uint16_t py = y; py < y +heigth; py++)
                 draw_pixel(px, py, color);
     }
 
-    void draw_polygons(uint32_t num_vertices, uint16_t* vertices, rgba_t color)
+    void draw_polygons(uint32_t num_vertices, uint16_t* vertices, clr32_t color)
     {
         for (uint32_t i = 0; i < num_vertices - 1; i++)
         {
@@ -129,14 +129,14 @@ namespace2(ui, video)
             color);
     }
 
-    void draw_triangle(uint16_t* vertices, rgba_t color)
+    void draw_triangle(uint16_t* vertices, clr32_t color)
     {
         draw_line(vertices[0], vertices[1], vertices[2], vertices[3], color);
         draw_line(vertices[2], vertices[3], vertices[4], vertices[5], color);
         draw_line(vertices[4], vertices[5], vertices[0], vertices[1], color);
     }
 
-    void draw_line_h(uint16_t x1, uint32_t x2, uint32_t y, rgba_t color)
+    void draw_line_h(uint16_t x1, uint32_t x2, uint32_t y, clr32_t color)
     {
         if (x2 >= x1)
         {
@@ -150,7 +150,7 @@ namespace2(ui, video)
         }
     }
 
-    void draw_line_v(uint16_t x, uint32_t y1, uint32_t y2, rgba_t color)
+    void draw_line_v(uint16_t x, uint32_t y1, uint32_t y2, clr32_t color)
     {
         if (y2 >= y1)
         {
@@ -165,7 +165,7 @@ namespace2(ui, video)
     }
 
     /*Bresenham alg from: http://www.brackeen.com/vga/source/djgpp20/lines.c.html */
-    void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, rgba_t color)
+    void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, clr32_t color)
     {
         if (x1 == x2)
         {
@@ -223,7 +223,7 @@ namespace2(ui, video)
         }
     }
 
-    void draw_circle(uint16_t xc, uint16_t yc, uint16_t r, rgba_t color)
+    void draw_circle(uint16_t xc, uint16_t yc, uint16_t r, clr32_t color)
     {
         int d,x,y;
         d=3-2*r;

@@ -38,10 +38,10 @@ namespace time
 
 #define logtINF         ui::text::set_color_reset(); logt
 #define logINF          ui::text::set_color_reset(); log
-#define logDBG          ui::text::set_fc(FC_BLUE); logt
-#define logOK           ui::text::set_fc(FC_GREEN); ui::text::write(" [ ok ]");
-#define logWAR          ui::text::set_fc(FC_MAGENTA); logt
-#define logERR          ui::text::set_fc(FC_RED); logt
+#define logDBG          ui::text::set_fc(CLR::BLUE); logt
+#define logOK           ui::text::set_fc(CLR::GREEN); ui::text::write(" [ ok ]");
+#define logWAR          ui::text::set_fc(CLR::RED); logt
+#define logERR          ui::text::set_fc(CLR::ORANGE); logt
 #define logDONE         logOK; ui::text::new_line(); ui::text::set_color_reset();
 #else
 #define logtINF
@@ -52,6 +52,14 @@ namespace time
 #define logERR
 #define logDONE
 #endif
+
+enum CLR : clr32_t
+{
+    RED = 0xff << 16,
+    ORANGE = 0xff << 16 | 0x8c << 8,
+    GREEN = 0xff << 8,
+    BLUE = 0xff
+};
 
 enum background_color : uchar_t
 {
@@ -86,7 +94,7 @@ namespace2(ui, text)
     void		write						(const char_t* text);
     void		update                      ();
     void		put_char					(char c);
-    void		put_char					(char c, ubyte_t color);
+    void		put_char					(char c, clr44_t color);
     void 		get_size                    (uint16_t& cols, uint16_t& rows);
     void		writeline					(const char_t* text);
     void		v_write_f					(const char* args, va_list ap);
@@ -94,33 +102,28 @@ namespace2(ui, text)
     uint8_t		get_tab_with				();
     void		set_tab_with				(uint8_t rows);
     void		clear_screen				();
-    void		init						(uint16_t pixelW, uint16_t pixelH, rgba_t fc_color, rgba_t bc_color, Font::Font_info* font);
-    void		init						(uint16_t cols, uint16_t rows, ubyte_t default_color);
+    void		init						(video::video_init_t* vdata, clr32_t fc_color, clr32_t bc_color, Font::Font_info* font);
+    void		init						(uint16_t cols, uint16_t rows, clr44_t color);
     void        write_line                  (const char* text);
     void		write_line_f				(const char* args, ...);
     uint32_t	write_in_line				(const char* message, unsigned int line);
     void		dump_alphabet				();
     /*e.g.: printf_arr32("%u ", array, array.size, 10, 2). The last parameter can be used to print only the ints from an struct array, then you just give the offset from the base of the struct to the needed int and the size of the struct.*/
-    void		write_f_array32             (const char* format, char_t* data, uint32_t length, uint32_t struct_size, uint32_t struct_offset);
     ubyte_t		get_background_color		();
-    void		set_bc                      (uchar_t background_color);
     /**
      * @brief Overrides the background of the whole screen.
      * @param background_color
      */
-    void		set_bc_all                  (uchar_t background_color);
-    void		set_fc                      (uchar_t foreground_color);
-    /**
-     * @brief Overrides the foreground of the whole screen.
-     * @param foreground_color
-     */
-    void		set_fc_all                  (uchar_t foreground_color);
-    void        set_color_reset             ();
-    void        set_color                   (uchar_t color);
-    void        set_color_all               (uchar_t color);
+    void        vm_set_bc                   (clr32_t bc);
+    void        tm_set_bc                   (clr8_t bc);
+    void        vm_set_fc                   (clr32_t fc);
+    void        tm_set_fc                   (clr4_t fc);
+    void		set_fc                      (uint32_t fc);
+    void        set_bc                      (uint32_t bc);
     void		write_f                     (const char* args, ...);
     void		set_cursor                  (uint16_t row, uint16_t col);
     void		get_cursor                  (uint16_t* row, uint16_t* col);
+    void        set_color_reset             ();
     void		new_line					();
     void        tm_tab                      ();
     void        tm_backspace                ();

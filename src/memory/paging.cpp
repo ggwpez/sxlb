@@ -22,7 +22,7 @@ extern "C"
     extern copy_page_physical(LPTR arg0, LPTR arg1);
 }
 
-uint32_t placement_address = _2MiB;
+uint32_t placement_address = _8MiB;
 
 uint32_t k_malloc_no_heap(uint32_t size, uchar_t align, uint32_t* phys)
 {

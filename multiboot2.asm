@@ -11,6 +11,8 @@ ARCH        equ	    0x0
 HDRLEN      equ	    mbh_end -mbh
 CHECKSUM    equ	    -(MAGIC + ARCH + HDRLEN)
 
+[section .multiboot]
+
 mbh:
     dd   MAGIC
     dd   ARCH

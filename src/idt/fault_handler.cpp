@@ -31,7 +31,7 @@ namespace idt
             return nullptr_handler(state, kill_msg);
 
         faulting_address = faulting_address -(faulting_address %PAGE_SIZE);
-        alloc_frame(get_page(faulting_address, 1,kernel_directory), 1, 1);
+        alloc_frame(get_page(faulting_address, 1, kernel_directory), 1, 1);
 
         //logtINF("PF @0x%x\n", faulting_address);
 

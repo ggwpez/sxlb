@@ -34,6 +34,13 @@ namespace memory
         return dest;
     };
 
+    void* memset32(void* dest, int32_t val, size_t count)
+    {
+        int32_t* temp = (int32_t*)dest;
+        for (; count != 0; count--) *(temp++) = val;
+        return dest;
+    }
+
     void* memcpy(void* dest, void* source, size_t count)
     {
         while (count--)

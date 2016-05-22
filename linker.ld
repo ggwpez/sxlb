@@ -6,6 +6,7 @@ ENTRY(_start)
    kernel image. */
 SECTIONS
 {
+	_kernel_start = .;
 	/* Begin putting sections at 1 MiB, a conventional place for kernels to be
 	   loaded at by the bootloader. */
 	. = 1M;
@@ -36,9 +37,8 @@ SECTIONS
 	{
 		*(COMMON)
 		*(.bss)
-		*(.bootstrap_stack)
 	}
-
+	_kernel_end = .;
 	/* The compiler may produce other sections, by default it will put them in
 	   a segment with the same name. Simply add stuff here as needed. */
 }

@@ -29,7 +29,6 @@ extern "C"
 void init(void* mbi, uint32_t magic)
 {
     finit
-
     ui::video::video_init_t vdata;
     logtINF("boot:\n");
     mb::init(mbi, magic, &vdata);
@@ -37,9 +36,7 @@ void init(void* mbi, uint32_t magic)
     if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
     {
         ui::video::init(&vdata);
-        ui::text::init(vdata.w, vdata.h, 0xff << 8, 102 << 8 | 102, &Font::Lucidia_Console);
-        ui::text::clear_screen();
-        //ui::video::fill_s(102 << 8 | 102);
+        ui::text::init(&vdata, 0xc0c0c0, 102 << 8 | 128, &Font::Lucidia_Console);//102 << 8 | 128
     }
     else if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
     {
@@ -68,13 +65,29 @@ void init(void* mbi, uint32_t magic)
     vfs::fs_node_t* initrd = initrd::fs_install(&data_start);
     logtINF("vfs:\n");
     vfs::init(initrd);
+    logtINF("finit\n");
     //logtINF("window manager:\n");
     //ui::window::init();
 
+    logtINF("kernel end @%u\n", system::kernel_end_address());
     for (int i = 0; i < 80; ++i) { logINF("="); } logINF("\n");
     logtINF("Kernel loaded. Press any key to continue.\n");
     io::keyboard::get_char();
     ui::text::clear_screen();
+}
+
+void test()
+{
+    vfs::fs_node_t* file = vfs::resolve_path(nullptr, "/initrd/splash.ppm");
+    if (!file)
+        return;
+    LPTR buffer = memory::k_malloc(file->length, 0, nullptr);
+    if (!buffer)
+        return;
+    vfs::read(file, 0, file->length, buffer);
+
+    for (int i = 0; i < file->length; i++)
+        putc(((uint8_t*)buffer)[i]);
 }
 
 void sig_test()
@@ -97,16 +110,7 @@ int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
 
-    /*#define s 10
-    uint32_t mems[s];
-    for (int i = 0; i < s; i++)
-        mems[i] = memory::k_malloc(100, 0, 0);
-    for (int i = 0; i < s; i++)
-        memory::k_free(mems[i]);*/
-
-    //printfl("Test ended");
-
-    char* argv[] = { "/initrd/ene.dat", /*"cat initrd/nasm.dat",*/ nullptr };
+    char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
     //printfl("Starting task:");
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);

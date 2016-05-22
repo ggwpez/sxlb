@@ -140,7 +140,8 @@ HEADERS += \
     src/modules/module.hpp \
     src/boot/multiboot.hpp \
     src/memory/liballoc.hpp \
-    src/ui/video.hpp
+    src/ui/video.hpp \
+    src/picture.h
 
 DISTFILES += \
     boot.S
