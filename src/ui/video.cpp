@@ -7,38 +7,20 @@ namespace2(ui, video)
 
     clr32_t bg_color;
 
-    void init(struct video_init_t* data)
+    void init(video_init_t& data)
     {
-        vdata = *data;
+        vdata = data;
     }
 
     void update()
     {
-        if (0)
+        /*if (0)
         {	//wait for vertical retrace
             while ((io::asm_inb(0x03da) & 0x08));
             while (!(io::asm_inb(0x03da) & 0x08));
-        }
+        }*/
 
         //memory::memcpy(vram, zbuffer, 64000);
-    }
-
-    int p(int b, int e)
-    {
-        int res = 1;
-        while (e--)
-            res *= b;
-
-        return res;
-    }
-
-    void test()
-    {
-        int c = 0;
-        int o = p(2, vdata.bpp) / ((vdata.w /10) *(vdata.h /10));
-        for (int x = 0; x < 800; x += 10)
-            for (int y = 0; y < 600; y += 10)
-                ui::video::draw_rect_filled(x, y, 10, 10, c += o);
     }
 
     void inline draw_pixel(uint16_t x, uint16_t y, clr32_t c)

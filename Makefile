@@ -48,7 +48,7 @@ bochsdbg: all
 
 gdb:
 
-gdb:  all
+gdb: all
 	qemu-system-i386 -hda bin/OS.iso -d cpu_reset -no-reboot -s -S
 	gdbtui < target remote localhost:1234
 

@@ -33,7 +33,7 @@ namespace2(ui, video)
         uint8_t type;
     };
 
-    void init(video_init_t* data);
+    void init(video_init_t& data);
     void clr();
     void draw_char(uint16_t x, uint16_t y, Font::Font_info* font, clr32_t color, char c);
     void fill_s(clr32_t c);

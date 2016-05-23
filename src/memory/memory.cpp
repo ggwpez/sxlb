@@ -43,8 +43,32 @@ namespace memory
 
     void* memcpy(void* dest, void* source, size_t count)
     {
-        while (count--)
-            *(byte_t*)dest++ = *(byte_t*)source++;
+        if (!(((uint32_t)dest & B(111)) | ((uint32_t)source & B(111)) | (count & B(111))))      //8 byte aligned, thats also faster on IA32, due to better optimized instructions and less while loop
+        {
+            count >>= 3;
+
+            while (count--)
+               *(((qword_t*&)dest))++ = *(((qword_t*&)source)++);
+        }
+        else if (!(((uint32_t)dest & B(11)) | ((uint32_t)source & B(11)) | (count & B(11))))    //4 byte alinged
+        {
+            count >>= 2;
+
+            while (count--)
+               *(((dword_t*&)dest))++ = *(((dword_t*&)source)++);
+        }
+        else if (!(((uint32_t)dest & 1) | ((uint32_t)source & 1) | (count & 1)))                //2 byte alinged
+        {
+            count >>= 1;
+
+            while (count--)
+               *(((word_t*&)dest))++ = *(((word_t*&)source)++);
+        }
+        else                                                                                    //not alinged, use byte copy
+        {
+            while (count--)
+               *(byte_t*)dest++ = *(byte_t*)source++;
+        }
 
         return dest;
     };

@@ -35,7 +35,7 @@ void init(void* mbi, uint32_t magic)
 
     if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
     {
-        ui::video::init(&vdata);
+        //ui::video::init(&vdata);
         ui::text::init(&vdata, 0xc0c0c0, 102 << 8 | 128, &Font::Lucidia_Console);//102 << 8 | 128
     }
     else if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
@@ -72,22 +72,8 @@ void init(void* mbi, uint32_t magic)
     logtINF("kernel end @%u\n", system::kernel_end_address());
     for (int i = 0; i < 80; ++i) { logINF("="); } logINF("\n");
     logtINF("Kernel loaded. Press any key to continue.\n");
-    io::keyboard::get_char();
-    ui::text::clear_screen();
-}
-
-void test()
-{
-    vfs::fs_node_t* file = vfs::resolve_path(nullptr, "/initrd/splash.ppm");
-    if (!file)
-        return;
-    LPTR buffer = memory::k_malloc(file->length, 0, nullptr);
-    if (!buffer)
-        return;
-    vfs::read(file, 0, file->length, buffer);
-
-    for (int i = 0; i < file->length; i++)
-        putc(((uint8_t*)buffer)[i]);
+    //io::keyboard::get_char();
+    //ui::text::clear_screen();
 }
 
 void sig_test()
@@ -109,6 +95,17 @@ void shut_down();
 int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
+
+    int a = 1000, s = 0;
+    while (a--)
+    {
+        s = time::get_ms();
+        logtINF("%u\n", s -time::get_ms());
+    }
+    int e = time::get_ms();
+    ui::text::clear_screen();
+    printfl("took: %u ms", e);
+    stop
 
     char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
     //printfl("Starting task:");

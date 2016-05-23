@@ -3,11 +3,12 @@
 namespace2(ui, text)
 {
     byte_t* vram = 0xb8000;
+    byte_t* zbuff = nullptr;
     bool initialized = false;
     #define CHECK_INIT if (!initialized) return 0;
     #define VIDEO tm.font
     #define TEXT !tm.font
-    #define PUT_C(c) (((uint16_t*)vram)[(tm.col + tm.row *tm.columns)] = (tm.t_clr << 8) | (c & 0xff))
+    #define PUT_C(c) (((uint16_t*)zbuff)[(tm.col + tm.row *tm.columns)] = (tm.t_clr << 8) | (c & 0xff))
 
     struct text
     {
@@ -40,9 +41,15 @@ namespace2(ui, text)
         tm.vdata = *vdata;
         tm.pitch = vdata->w *tm.font->distH *vdata->bypp;          //bytes per row
         vram = vdata->fb;
+        zbuff = memory::k_malloc(vdata->len, 0, NULL);
+
+        vdata->fb = zbuff;
+        video::init(*vdata);
+        vdata->fb = vram;
+
         initialized = true;
         clear_screen();
-        //update();
+        update();
     };
 
     void init(uint16_t cols, uint16_t rows, clr44_t color)
@@ -57,6 +64,7 @@ namespace2(ui, text)
         tm.font = nullptr;
         tm.font = nullptr;
 
+        zbuff = vram;                                               //textmode is unbuffered
         initialized = true;
         set_fc(tm.t_clr);
         set_bc(tm.t_clr);
@@ -68,24 +76,16 @@ namespace2(ui, text)
     {
         if (VIDEO)
         {
-            for (uint32_t i = 0; i < tm.rows *tm.pitch; i += tm.pitch)
-            {
-                uint8_t* start = vram +i;
-                uint8_t* end = vram +i +tm.pitch;
-
-                memory::memcpy(start, end, tm.pitch);
-            }
+            memory::memcpy(zbuff, zbuff +tm.pitch, tm.pitch *(tm.rows -1));
 
             video::draw_rect_filled(0, (tm.rows -1) *tm.font->distH, tm.vdata.w, tm.font->distH, tm.v_bc);
-            set_cursor(0, tm.rows -1);
         }
         else
         {
-            for (int i = 1; i < tm.rows; i++)
-                memory::memcpy(vram + (((i -1)* tm.columns) << 1), vram + ((i* tm.columns) << 1), tm.columns << 1);
+            memory::memcpy(zbuff, zbuff +(tm.columns << 1), (tm.columns *(tm.rows -1)) << 1);
 
             for (int i = 0; i < tm.columns << 1; i += 2)
-                *(vram + i +(((tm.rows -1)* tm.columns) << 1)) = ' ';
+                *(zbuff + i +(((tm.rows -1)* tm.columns) << 1)) = ' ';
         }
     }
 
@@ -95,6 +95,7 @@ namespace2(ui, text)
 
         tm.row++;
         update();
+        sync();
     };
 
     void tm_carriage_return()
@@ -169,8 +170,8 @@ namespace2(ui, text)
             int32_t i = ((tm.columns*tm.rows) << 1) - 1;
             while (i > 0)
             {
-                vram[i--] = tm.t_clr;
-                vram[i--] = ' ';
+                zbuff[i--] = tm.t_clr;
+                zbuff[i--] = ' ';
             }
         }
         set_cursor(0, 0);
@@ -583,6 +584,17 @@ namespace2(ui, text)
             }
         }
     };
+
+    void sync()
+    {
+        if (VIDEO)
+        {
+            /*while ((io::asm_inb(0x03da) & 0x08));
+            while (!(io::asm_inb(0x03da) & 0x08));*/
+
+            memory::memcpy(vram, zbuff, /*tm.vdata.w *tm.vdata.h *tm.vdata.bypp*/tm.vdata.len);
+        }
+    }
 
     void set_cursor(uint16_t col, uint16_t row)
     {

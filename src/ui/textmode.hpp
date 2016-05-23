@@ -93,6 +93,7 @@ namespace2(ui, text)
     extern bool initialized;
     void		write						(const char_t* text);
     void		update                      ();
+    void        sync                        ();
     void		put_char					(char c);
     void		put_char					(char c, clr44_t color);
     void 		get_size                    (uint16_t& cols, uint16_t& rows);
