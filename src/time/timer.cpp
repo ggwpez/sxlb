@@ -39,9 +39,9 @@ namespace time
 
         int32_t divisor = 1193182 / hz;                 /* Calculate our divisor */
 
-        io::asm_outb(0x43, 0x36);                       /* Set our command byte 0x36 */
-        io::asm_outb(0x40, divisor & 0xFF);             /* Set low byte of divisor */
-        io::asm_outb(0x40, (divisor >> 8) & 0xff);      /* Set high byte of divisor */
+        system::outb(0x43, 0x36);                       /* Set our command byte 0x36 */
+        system::outb(0x40, divisor & 0xFF);             /* Set low byte of divisor */
+        system::outb(0x40, (divisor >> 8) & 0xff);      /* Set high byte of divisor */
         logINF("(%u hz)", hz); logDONE;
     };
 

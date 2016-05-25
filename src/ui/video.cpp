@@ -1,5 +1,4 @@
 #include "video.hpp"
-#include "../io/hwaccess.hpp"
 #include "../system/system.hpp"
 
 namespace2(ui, video)

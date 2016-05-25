@@ -2,7 +2,7 @@
 
 #include "../types.hpp"
 #include "../sprintf.hpp"
-#include "../io/hwaccess.hpp"
+#include "../system/cpu_port.hpp"
 #include "../convert.hpp"
 #include "../ui/video.hpp"
 

@@ -1,5 +1,6 @@
 #include "fault_handler.hpp"
 #include "idt.hpp"
+#include "../system/cpu.hpp"
 
 #define PROTECTED_NOT_PRESENT   B(00000001)
 #define WRITE_NOT_READ          B(00000010)
@@ -35,7 +36,7 @@ namespace idt
     {
         char buffer[64];
         uint32_t err = state->error;
-        uint32_t faulting_address = io::asm_get_register_ctrl(2);
+        uint32_t faulting_address = system::cpu_get_register_ctrl(2);
 
         if (!faulting_address)
             return nullptr_handler(state);

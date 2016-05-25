@@ -301,10 +301,10 @@ namespace2(ui, text)
             {
                 old_pos = pos;
 
-                io::asm_outb(0x3D4, 0x0F);
-                io::asm_outb(0x3D5, (ubyte_t)(pos & 0xFF));
-                io::asm_outb(0x3D4, 0x0E);
-                io::asm_outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
+                system::outb(0x3D4, 0x0F);
+                system::outb(0x3D5, (ubyte_t)(pos & 0xFF));
+                system::outb(0x3D4, 0x0E);
+                system::outb(0x3D5, (ubyte_t)((pos >> 8) & 0xFF));
             }
         }
     };
@@ -315,8 +315,8 @@ namespace2(ui, text)
         {
             if (vsync)
             {
-                while ((io::asm_inb(0x03da) & 0x08));
-                while (!(io::asm_inb(0x03da) & 0x08));
+                while ((system::inb(0x03da) & 0x08));
+                while (!(system::inb(0x03da) & 0x08));
             }
 
             memory::memcpy(vram, zbuff, tm.vdata.len);

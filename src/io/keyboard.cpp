@@ -1,5 +1,5 @@
 #include "keyboard.hpp"
-#include "hwaccess.hpp"
+#include "../system/cpu_port.hpp"
 #include "../task/task.hpp"
 #include "../idt/idt.hpp"
 #include "syskey_handler.hpp"
@@ -42,20 +42,20 @@ namespace2(io, keyboard)
     void flush()
     {
         logtINF("flushing keyboard queue...");
-        while (io::asm_inb(0x64) & 1)       //clear buffer
-            io::asm_inb(0x60);
+        while (system::inb(0x64) & 1)       //clear buffer
+            system::inb(0x60);
         logDONE;
     }
 
     key_state_t get_key()
     {
-        //while (!(io::asm_inb(0x64) & 1)); //called by interrupt, so no checking needed
-        uint8_t code = io::asm_inb(0x60), key = code & B(01111111);
+        //while (!(io::inb(0x64) & 1)); //called by interrupt, so no checking needed
+        uint8_t code = system::inb(0x60), key = code & B(01111111);
         bool pressed = !(code & B(10000000));               //sing bit indicates if the key was pressed or released
 
-        uchar_t port_value = io::asm_inb(0x61);	//Let the keyboard know, that we got it
-        io::asm_outb(0x61, port_value | 0x80);	// 0->1
-        io::asm_outb(0x61, port_value &~0x80);	// 1->0
+        uchar_t port_value = system::inb(0x61);	//Let the keyboard know, that we got it
+        system::outb(0x61, port_value | 0x80);	// 0->1
+        system::outb(0x61, port_value &~0x80);	// 1->0
 
         if (code == 0xe0 || code == 0xe1 || code == 0xe2)
             return 0;

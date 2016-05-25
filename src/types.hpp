@@ -29,7 +29,7 @@ extern "C" { extern void nop(); }
 #define cli_hlt asm("cli"); asm("hlt");
 #define stop asm("jmp .");
 #define finit asm("finit"); \
-    io::asm_set_register_ctrl(0, io::asm_get_register_ctrl(0) | (1 << 5));
+    system::cpu_set_register_ctrl(0, system::cpu_get_register_ctrl(0) | (1 << 5));
 
 #define USER_RPL 0
 
@@ -76,6 +76,8 @@ static_assert(sizeof(int64_t) == 8, "Typesize wrong. (int64_t)");
     0##x >> 10 & 0040 | \
     0##x >> 12 & 0100 | \
     0##x >> 14 & 0200)
+
+#define BIT(x) (1 << x)
 
 #define PAGE_SIZE	0x1000
 #define PAGES_P_TABLE 1024

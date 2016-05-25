@@ -31,7 +31,6 @@ SOURCES += \
     src/memory/heap_he.cpp \
     src/memory/memory.cpp \
     src/memory/paging.cpp \
-    src/system/hwaccess.cpp \
     src/system/syscall.cpp \
     src/system/system.cpp \
     src/task/task.cpp \
@@ -68,7 +67,10 @@ SOURCES += \
     src/task/mutex.cpp \
     src/ui/print.cpp \
     src/ui/vbuff.cpp \
-    src/interproc/mutex.cpp
+    src/interproc/mutex.cpp \
+    src/system/cpu.cpp \
+    src/system/cmos.cpp \
+    src/system/cpu_port.cpp
 
 OTHER_FILES += \
     boot.asm \
@@ -109,7 +111,6 @@ HEADERS += \
     src/memory/heap_he.hpp \
     src/memory/memory.hpp \
     src/memory/paging.hpp \
-    src/system/hwaccess.hpp \
     src/system/syscall.hpp \
     src/system/system.hpp \
     src/task/task.hpp \
@@ -148,7 +149,10 @@ HEADERS += \
     src/picture.h \
     src/task/mutex.hpp \
     src/ui/vbuff.hpp \
-    src/interproc/mutex.hpp
+    src/interproc/mutex.hpp \
+    src/system/cpu.hpp \
+    src/system/cmos.hpp \
+    src/system/cpu_port.hpp
 
 DISTFILES += \
     boot.S

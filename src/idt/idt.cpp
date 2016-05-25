@@ -5,7 +5,7 @@
 #pragma error This is 32bit asm code, but you assume its 64bit.
 #endif
 
-using namespace io;
+using namespace system;
 namespace idt
 {
     const uchar_t* idt_isr_messages[32] =
@@ -76,8 +76,8 @@ namespace idt
         else
             state = isr_handler(state);
 
-        if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }      //send all ok too master and slave PIC
-        asm_outb(0x20, 0x20);
+        if (state->int_no >= 40) { outb(0xA0, 0x20); }      //send all ok too master and slave PIC
+        outb(0x20, 0x20);
 
         return state;
     };
@@ -137,19 +137,19 @@ namespace idt
     void irq_remap()
     {
         logtINF("remapping pic1...(to 40)");
-        asm_outb(0x20, 0x11);	//master PIC command-port
-        asm_outb(0xA0, 0x11);	//slave  PIC command-port
+        outb(0x20, 0x11);	//master PIC command-port
+        outb(0xA0, 0x11);	//slave  PIC command-port
 
         //Set data Vectors
-        asm_outb(0x21, 0x20);	//master PIC data-port
-        asm_outb(0xA1, 0x28);	//slave PIC  data-port
+        outb(0x21, 0x20);	//master PIC data-port
+        outb(0xA1, 0x28);	//slave PIC  data-port
 
-        asm_outb(0x21, 0x04);
-        asm_outb(0xA1, 0x02);
-        asm_outb(0x21, 0x01);
-        asm_outb(0xA1, 0x01);
-        asm_outb(0x21, 0x00);
-        asm_outb(0xA1, 0x00);
+        outb(0x21, 0x04);
+        outb(0xA1, 0x02);
+        outb(0x21, 0x01);
+        outb(0xA1, 0x01);
+        outb(0x21, 0x00);
+        outb(0xA1, 0x00);
         logDONE;
     };
 
