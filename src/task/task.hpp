@@ -54,6 +54,7 @@ namespace task
 
     bool            create(uint32_t entry_point, uint32_t argc, LPTR argv, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
+    void            yield();
     void            end(uint32_t status) __attribute__((noreturn));
     void            end_noret() __attribute__((noreturn));   //without return code argument, default 0
     bool            kill(uint32_t pid);

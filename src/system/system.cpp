@@ -2,12 +2,14 @@
 
 extern "C"
 {
-/*ASM call to test, if the CPU supports CPUID.*/
-extern uint32_t CPU_CPUID_supported();
-/*ASM call to for CPUID_CPU_COMPANY_NAME.*/
-extern void CPU_CPUID_request_00000000h(char_t* string);
-/*ASM call to for CPUID_CPU_COMPANY_NAME.*/
-extern void CPU_CPUID_request_00000001h(char_t* flags_out);
+    /*ASM call to test, if the CPU supports CPUID.*/
+    extern uint32_t CPU_CPUID_supported();
+    /*ASM call to for CPUID_CPU_COMPANY_NAME.*/
+    extern void CPU_CPUID_request_00000000h(char_t* string);
+    /*ASM call to for CPUID_CPU_COMPANY_NAME.*/
+    extern void CPU_CPUID_request_00000001h(char_t* flags_out);
+    /*Check if VM86-mode is supported*/
+    extern bool CPU_VM86_avail();
 }
 extern uint32_t kernel_end;
 
@@ -93,7 +95,7 @@ namespace system
 
     static bool tested = false;
     static bool result = false;
-    void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer)
+    void sxlb_system_cpuid_info(CPUID_REQUEST_TYPE request_test, char_t* buffer)
     {
     #if __CHECKS_NLPTR
         if (!buffer)
@@ -133,6 +135,11 @@ namespace system
             }
         }
     };
+
+    bool cpu_vm86_avail()
+    {
+        return CPU_VM86_avail();
+    }
 
     extern "C"
     {

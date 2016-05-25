@@ -26,38 +26,26 @@ namespace idt
     idt_ptr idt_r;		//Interrupt register
     gdt::tss_entry tss;
 
-    void isr_handler(task::cpu_state_t* state)
+
+    task::cpu_state_t* isr_handler(task::cpu_state_t* state)
     {
-        bool(*handler)(task::cpu_state_t* state, char* kill_msg) = isr_functions[state->int_no];
+        isr_delegate handler = isr_functions[state->int_no];
 
         char buffer[128] = { 0 };
-        char kill_msg[64];
         if (handler)
         {
-            if (handler(state, kill_msg))     //handler says kill, so it dies
-            {
-                if (task::multitasking_get() )//&& task::get_rpl() != 0)
-                {
-                    printfl("Task '%u' killed for '%s'.", task::get_pid(), kill_msg);
-                    task::end(-1);
-                }
-                else
-                {
-                    sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, kill_msg);
-                    syshlt(buffer);	//halts the system
-                }
-            }
+            return handler(state);
         }
         else
         {
-            if (task::multitasking_get() )//&& task::get_rpl() != 0)
+            if (task::multitasking_get())
             {
-                printfl("Task '%u' killed for '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
+                printfl("Task '%u' killed for unhandled '%s'.", task::get_pid(), idt_isr_messages[state->int_no]);
                 task::end(-1);                    //no handler, and it dies too
             }
             else
             {
-                sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
+                sprintf_s(buffer, COUNTOF(buffer), "unhandled ISR #%u: %s", state->int_no, idt_isr_messages[state->int_no]);
                 syshlt(buffer);	//halts the system
             }
         }
@@ -72,7 +60,7 @@ namespace idt
             state_new = task::schedule(state);
         }
 
-        void(*handler)(task::cpu_state_t* state) = irq_functions[state->int_no - 32];
+        irq_delegate handler = irq_functions[state->int_no - 32];
 
         if (handler)
             handler(state);
@@ -86,7 +74,7 @@ namespace idt
         if (state->int_no >= 32 && state->int_no < 48)
             state = irq_handler(state);
         else
-            isr_handler(state);
+            state = isr_handler(state);
 
         if (state->int_no >= 40) { asm_outb(0xA0, 0x20); }      //send all ok too master and slave PIC
         asm_outb(0x20, 0x20);
@@ -112,6 +100,22 @@ namespace idt
         logDONE;
         return 1;
     };
+
+
+    void critical(task::cpu_state_t *state, char* msg)
+    {
+        if (task::multitasking_get())//&& task::get_rpl() != 0)
+        {
+            printfl("Task '%u' killed for '%s'.", task::get_pid(), msg);
+            task::end(-1);
+        }
+        else
+        {
+            char buffer[128];
+            sprintf_s(buffer, COUNTOF(buffer), "ISR #%u: %s", state->int_no, msg);
+            syshlt(buffer);	//halts the system
+        }
+    }
 
     int unload()
     {
@@ -152,7 +156,7 @@ namespace idt
     /*Calls the constructor for all IRS and IRQ*/
     void irq_install()
     {
-        logtINF("setting isrs vectors...(0-31,127)");
+        logtINF("setting isrs vectors...(0-31,126,127)");
         entry_set_data(0, (uint32_t)isr0, 0x08, 0x8E);
         entry_set_data(1, (uint32_t)isr1, 0x08, 0x8E);
         entry_set_data(2, (uint32_t)isr2, 0x08, 0x8E);
@@ -186,6 +190,7 @@ namespace idt
         entry_set_data(30, (uint32_t)isr30, 0x08, 0x8E);
         entry_set_data(31, (uint32_t)isr31, 0x08, 0x8E);
 
+        entry_set_data(126,(uint32_t)isr126,0x08, 0x8E);    //will be rescheduling interrupt
         entry_set_data(127,(uint32_t)isr127,0x08, 0x8E);    //hopefully syscalls
         logDONE;
         irq_remap();
@@ -220,16 +225,16 @@ namespace idt
         idt[index].flags =  flags | 0x60;
     };
 
-    void isr_register_event_handler(uchar_t event_number, bool(*event_handler)(task::cpu_state_t* state, char* kill_msg))
+    void isr_register_event_handler(uchar_t event_number, isr_delegate handler)
     {
 #if __CHECKS_NLPTR
-        if (!event_handler)
+        if (!handler)
             syshlt("IDT event register!");
 #endif
         if (event_number > 127)
             return;
 
-        isr_functions[event_number] = event_handler;
+        isr_functions[event_number] = handler;
     };
 
     void isr_del_event_handler(uchar_t event_number)
@@ -240,19 +245,19 @@ namespace idt
         isr_functions[event_number] = NULL;
     };
 
-    void irq_register_event_handler(uchar_t event_number, void(*event_handler)(task::cpu_state_t* state))
+    void irq_register_event_handler(uchar_t event_number, irq_delegate handler)
     {
 #if __CHECKS_NLPTR
-        if (!event_handler)
+        if (!handler)
             syshlt("IDT event register!");
 #endif
-        if (event_number > 15)
+        if (event_number > 127)
         {
             syshlt("registered irq number too hight");
             return;
         }
 
-        irq_functions[event_number] = event_handler;
+        irq_functions[event_number] = handler;
     };
 
     void irq_del_event_handler(uchar_t event_number)

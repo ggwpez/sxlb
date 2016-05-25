@@ -50,5 +50,5 @@ namespace system
     static_assert(CALL::count == COUNTOF(calls), "Syscall def enum out of sync.");
 
     void init();
-    bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg);
+    task::cpu_state_t* syscall_event_handler(task::cpu_state_t* state);
 }

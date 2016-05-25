@@ -1,5 +1,6 @@
 #include "video.hpp"
 #include "../io/hwaccess.hpp"
+#include "../system/system.hpp"
 
 namespace2(ui, video)
 {
@@ -207,32 +208,32 @@ namespace2(ui, video)
 
     void draw_circle(uint16_t xc, uint16_t yc, uint16_t r, clr32_t color)
     {
-        int d,x,y;
-        d=3-2*r;
-        x=0;
-        y=r;
+        int d, x, y;
+        d =3 -2 *r;
+        x = 0;
+        y = r;
 
         while(x<=y)
         {
-            draw_pixel(xc+x,yc+y,color);
-            draw_pixel(xc-y,yc-x,color);
-            draw_pixel(xc+y,yc-x,color);
-            draw_pixel(xc-y,yc+x,color);
-            draw_pixel(xc+y,yc+x,color);
-            draw_pixel(xc-x,yc-y,color);
-            draw_pixel(xc+x,yc-y,color);
-            draw_pixel(xc-x,yc+y,color);
+            draw_pixel(xc +x, yc +y,color);
+            draw_pixel(xc -y, yc -x,color);
+            draw_pixel(xc +y, yc -x,color);
+            draw_pixel(xc -y, yc +x,color);
+            draw_pixel(xc +y, yc +x,color);
+            draw_pixel(xc -x, yc -y,color);
+            draw_pixel(xc +x, yc -y,color);
+            draw_pixel(xc -x, yc +y,color);
 
-            if(d<=0)
+            if(d <= 0)
             {
-                d=d+4*x+6;
+                d = d +4 *x +6;
             }
             else
             {
-                d=d+4*x-4*y+10;
-                y=y-1;
+                d = d +4 *x -4 *y +10;
+                y = y -1;
             }
-                x=x+1;
+            x = x +1;
         }
     }
 }}

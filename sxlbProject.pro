@@ -64,7 +64,11 @@ SOURCES += \
     src/boot/multiboot.cpp \
     src/memory/liballoc.cpp \
     src/memory/liballoc_he.cpp \
-    src/ui/video.cpp
+    src/ui/video.cpp \
+    src/task/mutex.cpp \
+    src/ui/print.cpp \
+    src/ui/vbuff.cpp \
+    src/interproc/mutex.cpp
 
 OTHER_FILES += \
     boot.asm \
@@ -141,7 +145,10 @@ HEADERS += \
     src/boot/multiboot.hpp \
     src/memory/liballoc.hpp \
     src/ui/video.hpp \
-    src/picture.h
+    src/picture.h \
+    src/task/mutex.hpp \
+    src/ui/vbuff.hpp \
+    src/interproc/mutex.hpp
 
 DISTFILES += \
     boot.S

@@ -87,10 +87,30 @@ enum foreground_color : uchar_t
     FC_MOD_INTENSITY	= 8			//modifier-bit for more intense symols
 };
 
+#define CHECK_INIT if (!initialized) return 0;
+#define VIDEO tm.font
+#define TEXT !tm.font
+#define PUT_C(c) (((uint16_t*)zbuff)[(tm.col + tm.row *tm.columns)] = (tm.t_clr << 8) | (c & 0xff))
+
 namespace2(ui, text)
 {
+    struct text
+    {
+        uint16_t columns, rows;
+        uint16_t row, col;
+        uint8_t tab_size;
+        clr32_t v_fc, v_bc;
+        ubyte_t t_clr;
+        uint32_t pitch;
+        video::video_init_t vdata;
+        Font::Font_info* font;
+    }__attribute__((packed));
+
+    extern text tm;
+    extern byte_t* zbuff;
     extern byte_t* vram;
     extern bool initialized;
+
     void		write						(const char_t* text);
     void		update                      ();
     void        sync                        ();
@@ -128,4 +148,6 @@ namespace2(ui, text)
     void		new_line					();
     void        tm_tab                      ();
     void        tm_backspace                ();
+    void        tm_line_feed                ();
+    void        tm_carriage_return          ();
 }}

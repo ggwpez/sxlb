@@ -117,11 +117,11 @@ namespace mb
                     vdata->h = tagfb->common.framebuffer_height;
                     vdata->pitch = tagfb->common.framebuffer_pitch;
                     vdata->fb = fb;
-                    vdata->len = vdata->w *vdata->h +(vdata->h *vdata->pitch);
+                    vdata->len = vdata->h *vdata->pitch;        // why the hell *2 ??? (wont work without)
                     vdata->type = tagfb->common.framebuffer_type;
 
                     logtINF("Resolution: %ux%ux%u aka %u byte\n", vdata->w, vdata->h, vdata->bpp, vdata->bypp);
-                    logtINF("FB @0x%x,  len: 0x%x, pitch= 0x%x, type: %s\n", fb, vdata->len, vdata->pitch,
+                    logtINF("FB @0x%x,  len: 0x%x, pitch: 0x%x, type: %s\n", fb, vdata->len, vdata->pitch,
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT ? "EGA_TEXT" :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED  ? "INDEXED"  :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB      ? "RGB" : "UNKNOWN");

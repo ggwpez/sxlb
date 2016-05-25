@@ -54,7 +54,10 @@ void init(void* mbi, uint32_t magic)
     time::init();
 
     logtINF("vmm:\n");
+    if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
+        vdata.fb = vdata.len = 0;
     memory::init(vdata.fb, vdata.len);
+
     logtINF("sys:\n");
     system::init();
     logtINF("keyboard:\n");
@@ -72,8 +75,8 @@ void init(void* mbi, uint32_t magic)
     logtINF("kernel end @%u\n", system::kernel_end_address());
     for (int i = 0; i < 80; ++i) { logINF("="); } logINF("\n");
     logtINF("Kernel loaded. Press any key to continue.\n");
-    //io::keyboard::get_char();
-    //ui::text::clear_screen();
+    io::keyboard::get_char();
+    ui::text::clear_screen();
 }
 
 void sig_test()
@@ -96,21 +99,11 @@ int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
 
-    int a = 1000, s = 0;
-    while (a--)
-    {
-        s = time::get_ms();
-        logtINF("%u\n", s -time::get_ms());
-    }
-    int e = time::get_ms();
-    ui::text::clear_screen();
-    printfl("took: %u ms", e);
-    stop
-
     char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
-    //printfl("Starting task:");
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
+
+    //task::create()
 
     task::multitasking_set(true);
     TASK_SWITCH

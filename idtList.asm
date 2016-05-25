@@ -16,6 +16,13 @@ extern _ir_event_handler
 	jmp ir_common_stub
 %endmacro
 
+[global  _isr126]
+_isr126:
+	cli
+	push 0
+	push 126
+	jmp ir_common_stub
+
 [global  _isr127]
 _isr127:
 	cli

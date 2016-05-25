@@ -1,8 +1,9 @@
 [BITS 32]
-SECTION .text
-[global _CPU_CPUID_supported]
-[global _CPU_CPUID_request_00000000h]
-[global _CPU_CPUID_request_00000001h]
+[SECTION .text]
+[GLOBAL _CPU_CPUID_supported]
+[GLOBAL _CPU_CPUID_request_00000000h]
+[GLOBAL _CPU_CPUID_request_00000001h]
+[GLOBAL _CPU_VM86_avail]
 
 _CPU_CPUID_supported:
 	pushfd			;push EFLAGS to stack
@@ -19,7 +20,7 @@ _CPU_CPUID_supported:
 	pop eax			;move EFLAGS to eax
 	shr eax, 21		;check for 21. bit
 	and eax, 1		;"
-ret
+    ret
 
 _CPU_CPUID_request_00000000h:
 	push ebp		;set up stack frame
@@ -56,4 +57,10 @@ _CPU_CPUID_request_00000001h:
 
 	mov esp, ebp    ;restore stack frame
 	pop ebp			;"
+ret
+
+_CPU_VM86_avail:
+    xor eax, eax
+    smsw    ax
+    and     eax, 1           ;CR0.PE bit
 ret

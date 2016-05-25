@@ -19,12 +19,16 @@ namespace system
                 edi=%u", state->eax, state->ebx, state->ecx, state->edx, state->esi, state->edi);
     }
 
-    bool syscall_event_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* syscall_event_handler(task::cpu_state_t* state)
     {
         if (state->eax > CALL::count)
         {
-            sprintf_s(kill_msg, 64, "Invalid SYSCALL number: '%u'", state->eax);
-            return true;
+            char buffer[64];
+
+            sprintf_s(buffer, sizeof(buffer), "Invalid SYSCALL number: '%u'", state->eax);
+            idt::critical(state, buffer);
+
+            return state;
         }
 
         void* address = calls[state->eax];
@@ -42,6 +46,6 @@ namespace system
         state->eax = ret;       /*dont return the value, you must write it in the state of the task, otherwiese the old
                                  *eax value would be poped in _irp_tail and would end up without return value.*/
 
-        return false;           //tell the idt that this interrupt is not deadly for a task
+        return state;           //tell the idt that this interrupt is not deadly for a task
     }
 }

@@ -19,6 +19,7 @@ extern uint32_t CPU_CPUID_test();
 /*ASM call to perform a CPUID request.*/
 extern void CPU_CPUID_request(CPUID_REQUEST_TYPE request_type, char_t* string);
 
+
 namespace system
 {
     void reboot();
@@ -28,9 +29,11 @@ namespace system
     void sxlb_system_halt(char_t* error_msg) __attribute__((noreturn));
 
     /*Call to get information about the CPU*/
-    void sxlb_system_cpu_info(CPUID_REQUEST_TYPE request_test, char_t* buffer);
-    /*Returns the address, where the kernel ends.*/
+    void sxlb_system_cpuid_info(CPUID_REQUEST_TYPE request_test, char_t* buffer);
 
+    bool cpu_vm86_avail();
+
+    /*Returns the address, where the kernel ends.*/
     uint32_t kernel_start_address();
     uint32_t kernel_end_address();
 }

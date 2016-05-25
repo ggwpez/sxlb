@@ -23,7 +23,7 @@
 //#define assert(expr) ((expr) ? (void)0 : (syshlt("Assertion failed: " #expr ", file " __FILE__ ", line " __LINE__);))
 #define assert(e)
 #define NAME_MAX 255
-#define TASK_SWITCH __asm__ __volatile__("int $32");
+#define TASK_SWITCH __asm__ volatile("int $32");//task::yield();
 #define hlt asm("hlt");
 extern "C" { extern void nop(); }
 #define cli_hlt asm("cli"); asm("hlt");

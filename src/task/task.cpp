@@ -16,9 +16,18 @@ namespace task
     void idle_create();
     bool remove_from_list(task_t* target);
 
+    cpu_state_t* test_yield(cpu_state_t* cpu)
+    {
+        logtINF("Resched called\n");
+        return schedule(cpu);
+
+        return cpu;
+    }
+
     void init()
     {
         idle_create();
+        //idt::isr_register_event_handler(126, test_yield);
         logtINF("finalizing tasking...");
         actual_task = start_task = idle_task;
 
@@ -389,6 +398,11 @@ namespace task
             return start_task;
         else
             return t->next;
+    }
+
+    void yield()
+    {
+        __asm__ __volatile__("int $48");
     }
 
     bool activated = false;

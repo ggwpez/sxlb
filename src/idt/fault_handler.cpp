@@ -1,4 +1,5 @@
 #include "fault_handler.hpp"
+#include "idt.hpp"
 
 #define PROTECTED_NOT_PRESENT   B(00000001)
 #define WRITE_NOT_READ          B(00000010)
@@ -9,33 +10,43 @@
 namespace idt
 {
     //no interrupt equivalent
-    bool nullptr_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* nullptr_handler(task::cpu_state_t* state)
     {
-        sprintf_s(kill_msg, 64, "Nullptr access");
-        return true;
+        char buffer[64];
+
+        sprintf_s(buffer, sizeof(buffer), "Nullptr access");
+        idt::critical(state, buffer);
+
+        return state;
     }
 
-    bool zerodiv_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* zerodiv_handler(task::cpu_state_t* state)
     {
-        sprintf_s(kill_msg, 64, "Division by zero");
-        return true;
+        char buffer[64];
+
+        sprintf_s(buffer, 64, "Division by zero");
+        idt::critical(state, buffer);
+
+        return state;
     }
 
     //14
-    bool pf_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* pf_handler(task::cpu_state_t* state)
     {
+        char buffer[64];
         uint32_t err = state->error;
         uint32_t faulting_address = io::asm_get_register_ctrl(2);
 
         if (!faulting_address)
-            return nullptr_handler(state, kill_msg);
+            return nullptr_handler(state);
 
         faulting_address = faulting_address -(faulting_address %PAGE_SIZE);
         alloc_frame(get_page(faulting_address, 1, kernel_directory), 1, 1);
+        //map_id(faulting_address, faulting_address +PAGE_SIZE);
 
         //logtINF("PF @0x%x\n", faulting_address);
 
-        sprintf_s(kill_msg, 64, "Page fault 0x%x (%s|%s|%s|%s|%s)",
+        sprintf_s(buffer, sizeof(buffer), "Page fault 0x%x (%s|%s|%s|%s|%s)",
                   faulting_address,
                   err & PROTECTED_NOT_PRESENT ? "Protected" : "Not Present",
                   err & WRITE_NOT_READ ? "Write" : "Read",
@@ -43,27 +54,41 @@ namespace idt
                   err & RESERVED ? "Reserved" : "0",
                   err & EXECUTION_PROHIBITED ? "Exec illegal" : "0");
 
-        return false;
+        //idt::critical(state, buffer);
+
+        return state;
     }
 
     //13
-    bool gpf_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* gpf_handler(task::cpu_state_t* state)
     {
-        sprintf_s(kill_msg, 25, "General Protection fault");
-        return true;
+        char buffer[64];
+
+        sprintf_s(buffer, sizeof(buffer), "General Protection fault");
+        idt::critical(state, buffer);
+
+        return state;
     }
 
     //2
-    bool nmi_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* nmi_handler(task::cpu_state_t* state)
     {
-        sprintf_s(kill_msg, 64, "NMI: Severe hardware failure.");
-        return true;
+        char buffer[64];
+
+        sprintf_s(buffer, sizeof(buffer), "NMI: Severe hardware failure.");
+        idt::critical(state, buffer);
+
+        return state;
     }
 
     //8
-    bool df_handler(task::cpu_state_t* state, char* kill_msg)
+    task::cpu_state_t* df_handler(task::cpu_state_t* state)
     {
-        sprintf_s(kill_msg, 64, "Double fault");
-        return true;
+        char buffer[64];
+
+        sprintf_s(buffer, sizeof(buffer), "Double fault");
+        idt::critical(state, buffer);
+
+        return state;
     }
 }

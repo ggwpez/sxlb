@@ -203,6 +203,8 @@ void map_id(uint32_t start, uint32_t end)
 
 void map(uint32_t start, uint32_t end, uint32_t phys)
 {
+    if (start == end || end < start)
+        return;
     if (phys << 20)
     {
         logERR("id_map: 'phys' not 4096 bit aligned!\n");
@@ -211,10 +213,10 @@ void map(uint32_t start, uint32_t end, uint32_t phys)
 
     phys = phys /PAGE_SIZE;                                         //there are only 20 bytes place, so get compfty
 
-    uint32_t t_start = (start -(start % PAGE_SIZE *PAGES_P_TABLE)) >> 22,                                   //round down
+    uint32_t t_start = (start -(start % (PAGE_SIZE *PAGES_P_TABLE))) >> 22,                                 //round down
              t_end   = (end   +((PAGE_SIZE *PAGES_P_TABLE) -(end   % PAGE_SIZE *PAGES_P_TABLE))) >> 22;     //round up
 
-    for (uint32_t i = t_start; i < t_end; i++)
+    for (uint32_t i = t_start; i <= t_end; i++)
     {
         kernel_directory->tables[i] = k_malloc_no_heap(sizeof(page_table), PAGE_SIZE, NULL);
         kernel_directory->tables_physical[i] = (uint32_t)kernel_directory->tables[i] | 1 | 2;
