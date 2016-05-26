@@ -152,7 +152,8 @@ HEADERS += \
     src/interproc/mutex.hpp \
     src/system/cpu.hpp \
     src/system/cmos.hpp \
-    src/system/cpu_port.hpp
+    src/system/cpu_port.hpp \
+    src/ui/VESA.hpp
 
 DISTFILES += \
     boot.S

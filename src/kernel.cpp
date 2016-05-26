@@ -93,13 +93,6 @@ void sig_test()
     task::end(0);
 }
 
-test()
-{
-    system::cpu_dump_all_config();
-
-    printfl("\nCR0: 0x%x\nCR4: 0x%x", system::cpu_get_register_ctrl(0), system::cpu_get_register_ctrl(4));
-}
-
 bool running = true;
 void idle();
 void shut_down();
@@ -107,7 +100,7 @@ int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
 
-    test();
+    system::cpu_dump_all_config();
     stop
 
     char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };

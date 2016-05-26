@@ -1,11 +1,10 @@
 [BITS 32]
 [SECTION .text]
-[GLOBAL _CPU_CPUID_supported]
-[GLOBAL _CPU_CPUID_request_00000000h]
-[GLOBAL _CPU_CPUID_request_00000001h]
-[GLOBAL _CPU_VM86_avail]
+[GLOBAL _asm_CPUID_supported]
+[GLOBAL _asm_CPUID_get_vendor]
+[GLOBAL _asm_CPUID_get_feature]
 
-_CPU_CPUID_supported:
+_asm_CPUID_supported:
 	pushfd			;push EFLAGS to stack
 	pop eax			;pop it to eax
 
@@ -20,9 +19,43 @@ _CPU_CPUID_supported:
 	pop eax			;move EFLAGS to eax
 	shr eax, 21		;check for 21. bit
 	and eax, 1		;"
-    ret
+ret
 
-_CPU_CPUID_request_00000000h:
+_asm_CPUID_get_feature:
+	mov edx, dword [esp+4]			;get the register number
+	
+	mov eax, 1		;1 for CPUID_GETFEATURES
+
+	cmp dl, 1		;which register do you desire?
+	je .r_ebx
+	cmp dl, 2
+	je .r_ecx
+	cmp dl, 3
+	je .r_edx
+	jmp .bogus
+
+.r_ebx:				;callee-saved
+	push ebx
+	cpuid
+	mov eax, ebx
+	pop ebx
+ret
+
+.r_ecx:
+	cpuid
+	mov eax, ecx
+ret
+
+.r_edx:
+	cpuid
+	mov eax, edx
+ret
+
+.bogus
+	mov eax, -1
+ret
+
+_asm_CPUID_get_vendor:
 	push ebp		;set up stack frame
 	mov ebp, esp	;"
 
@@ -39,28 +72,4 @@ _CPU_CPUID_request_00000000h:
 
 	mov esp, ebp    ;restore stack frame
 	pop ebp			;"
-ret
-
-_CPU_CPUID_request_00000001h:
-	push ebp		;set up stack frame
-	mov ebp, esp	;"
-
-	mov eax, 1
-	cpuid
-
-	mov ecx, dword [ebp+8]	;get string pointer
-
-	mov [ecx],		eax
-	mov [ecx+4],	ebx
-	mov [ecx+8],	ecx
-	mov [ecx+12],	edx
-
-	mov esp, ebp    ;restore stack frame
-	pop ebp			;"
-ret
-
-_CPU_VM86_avail:
-    xor eax, eax
-    smsw    ax
-    and     eax, 1           ;CR0.PE bit
 ret

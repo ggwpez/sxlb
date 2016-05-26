@@ -1,5 +1,6 @@
 #include "multiboot.hpp"
 #include "../ui/textmode.hpp"
+#include "../ui/VESA.hpp"
 
 #define assert(is, must, name) if (is != must) { logERR("Actual value for %s: 0x%x differs from 0x%x\n", name, is, must); } else { logtINF("%s = 0x%x", name, is);logDONE; }
 
@@ -67,8 +68,12 @@ namespace mb
                 case MULTIBOOT_TAG_TYPE_VBE:
                 {
                     multiboot_tag_vbe* tagvbe = (multiboot_tag_vbe*)tag;
+                    ui::video::VESA_info_t* block = (ui::video::VESA_info_t*)&tagvbe->vbe_control_info;
+                    ui::video::VESA_mode_info_t* mode = (ui::video::VESA_mode_info_t*)&tagvbe->vbe_mode_info;
 
-                    logtINF("VBE mode: 0x%x\n", tagvbe->vbe_mode);
+                    logtINF("VESA mode: PMode-fptr: 0x%x\n", mode->real_fptr);
+                    logtINF("VESA info: Type: %s %u.%u, Mem: %M\n", block->vesa_signature, block->vesa_version_h, block->vesa_version_l, block->memory *_64KiB);
+                    logtINF("VESA OEM: Vendor: 0x%x, Product: 0x%x, Product Rev: 0x%x, Software rev: 0x%x\n", block->oem_vendor_name_ptr, block->oem_product_name_ptr, block->oem_product_rev_ptr, block->oem_software_rev);
                 }
                 break;
                 case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
@@ -120,8 +125,8 @@ namespace mb
                     vdata->len = vdata->h *vdata->pitch;        // why the hell *2 ??? (wont work without)
                     vdata->type = tagfb->common.framebuffer_type;
 
-                    logtINF("Resolution: %ux%ux%u aka %u byte\n", vdata->w, vdata->h, vdata->bpp, vdata->bypp);
-                    logtINF("FB @0x%x,  len: 0x%x, pitch: 0x%x, type: %s\n", fb, vdata->len, vdata->pitch,
+                    logtINF("Resolution: %ux%ux%u\n", vdata->w, vdata->h, vdata->bpp, vdata->bypp);
+                    logtINF("FB @0x%x, len: 0x%x, pitch: 0x%x, type: %s\n", fb, vdata->len, vdata->pitch,
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT ? "EGA_TEXT" :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED  ? "INDEXED"  :
                             vdata->type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB      ? "RGB" : "UNKNOWN");
