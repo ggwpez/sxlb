@@ -34,7 +34,6 @@ SOURCES += \
     src/system/syscall.cpp \
     src/system/system.cpp \
     src/task/task.cpp \
-    src/time/timer.cpp \
     src/ui/textmode.cpp \
     src/user/test.cpp \
     src/convert.cpp \
@@ -70,7 +69,9 @@ SOURCES += \
     src/interproc/mutex.cpp \
     src/system/cpu.cpp \
     src/system/cmos.cpp \
-    src/system/cpu_port.cpp
+    src/system/cpu_port.cpp \
+    src/time/PIC.cpp \
+    src/ui/vdriver.cpp
 
 OTHER_FILES += \
     boot.asm \
@@ -114,7 +115,6 @@ HEADERS += \
     src/system/syscall.hpp \
     src/system/system.hpp \
     src/task/task.hpp \
-    src/time/timer.hpp \
     src/ui/textmode.hpp \
     src/user/test.hpp \
     src/array_or.hpp \
@@ -153,7 +153,10 @@ HEADERS += \
     src/system/cpu.hpp \
     src/system/cmos.hpp \
     src/system/cpu_port.hpp \
-    src/ui/VESA.hpp
+    src/ui/VESA.hpp \
+    src/time/PIC.hpp \
+    src/time/time.hpp \
+    src/ui/vdriver.hpp
 
 DISTFILES += \
     boot.S

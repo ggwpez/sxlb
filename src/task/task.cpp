@@ -1,5 +1,5 @@
 #include "task.hpp"
-#include "../time/timer.hpp"
+#include "../time/PIC.hpp"
 #include "../string.hpp"
 
 namespace task
@@ -16,9 +16,9 @@ namespace task
     void idle_create();
     bool remove_from_list(task_t* target);
 
-    cpu_state_t* test_yield(cpu_state_t* cpu)
+    cpu_state_t* rescheduling_handler(cpu_state_t* cpu)     //used for yield
     {
-        logtINF("Resched called\n");
+        logtINF("RESCHED\n");
         return schedule(cpu);
 
         return cpu;
@@ -27,7 +27,7 @@ namespace task
     void init()
     {
         idle_create();
-        //idt::isr_register_event_handler(126, test_yield);
+        idt::isr_register_event_handler(126, rescheduling_handler);
         logtINF("finalizing tasking...");
         actual_task = start_task = idle_task;
 
@@ -111,7 +111,7 @@ namespace task
 
     uint32_t get_spawn_time()
     {
-        return get_ticks() - actual_task->spawn_time;
+        return get_ticks() - actual_task->spawn_ticks;
     }
 
     task_t* get_task()
@@ -303,7 +303,8 @@ namespace task
         task->ss = data_segment;
         task->rpl = privileg;
         task->running = true;
-        task->spawn_time = get_ticks();
+        task->spawn_ticks = get_ticks();
+        task->wakeup_time = 0;
 
         task->next = actual_task->next;
         actual_task->next = task;
@@ -400,9 +401,15 @@ namespace task
             return t->next;
     }
 
-    void yield()
+    void inline yield()
     {
-        __asm__ __volatile__("int $48");
+        __asm__ __volatile__("int $127");
+    }
+
+    void sleep(uint32_t ms)
+    {
+        actual_task->wakeup_time = get_ticks() +ms *mHZ;
+        yield();
     }
 
     bool activated = false;
@@ -423,6 +430,11 @@ namespace task
 
             if (actual_task->running)
                 break;
+            else if (actual_task->wakeup_time >= get_ticks())     //task well-rested?
+            {
+                actual_task->wakeup_time = 0;
+                break;
+            }
 
             if (actual_task == started_at)  //all tasks are paused, resume the idle task
             {

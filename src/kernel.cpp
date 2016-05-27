@@ -3,7 +3,7 @@
 #include "ui/video.hpp"
 #include "idt/idt.hpp"
 #include "types.hpp"
-#include "time/timer.hpp"
+#include "time/PIC.hpp"
 #include "convert.hpp"
 
 #include "fs/initrd.hpp"
@@ -52,7 +52,7 @@ void init(void* mbi, uint32_t magic)
     idt::load();
     sti
     logtINF("pic:\n");
-    time::init();
+    time::pic::init();
 
     logtINF("vmm:\n");
     if (vdata.type == MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT)
@@ -93,6 +93,36 @@ void sig_test()
     task::end(0);
 }
 
+void t1()
+{
+    while (1)
+    {
+        ui::text::set_fc(0xff << 16);
+        printf("A");
+        task::sleep(1000);
+    }
+}
+
+void t2()
+{
+    while (1)
+    {
+        ui::text::set_fc(0xff <<  8);
+        printf("B");
+    }
+}
+
+void t3()
+{
+    while (1)
+    {
+        cli
+        ui::text::set_fc(0xff <<  0);
+        printf("C");
+        sti
+    }
+}
+
 bool running = true;
 void idle();
 void shut_down();
@@ -100,17 +130,18 @@ int32_t main(void* ptr, uint32_t magic)
 {
     init(ptr, magic);
 
-    system::cpu_dump_all_config();
-    stop
-
     char* argv[] = { "/initrd/bash.dat", /*"cat initrd/nasm.dat",*/ nullptr };
     execve(nullptr, argv[0], argv, nullptr);
     //task::create(&sig_test, 0,0, 0);
 
     //task::create()
+    //task::create(t1, 0, nullptr, 0);
+    //task::create(t2, 0, nullptr, 0);
+    //task::create(t3, 0, nullptr, 0);
+
 
     task::multitasking_set(true);
-    TASK_SWITCH
+    task::yield();
 
     printfl("done");
     idle();

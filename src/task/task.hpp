@@ -54,7 +54,8 @@ namespace task
 
     bool            create(uint32_t entry_point, uint32_t argc, LPTR argv, ubyte_t privileg);
     cpu_state_t*    schedule(cpu_state_t* cpu);
-    void            yield();
+    void inline     yield();
+    void            sleep(uint32_t ms);
     void            end(uint32_t status) __attribute__((noreturn));
     void            end_noret() __attribute__((noreturn));   //without return code argument, default 0
     bool            kill(uint32_t pid);
@@ -93,7 +94,7 @@ namespace task
         uchar_t rpl;
         vfs::fs_node_t* working_dir;
 
-        uint32_t spawn_time;
+        uint32_t spawn_ticks, wakeup_time;
         io::keyboard::key_queue_t* key_queue;
 
         task_t* next;

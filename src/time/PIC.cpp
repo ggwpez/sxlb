@@ -1,6 +1,6 @@
-#include "timer.hpp"
+#include "PIC.hpp"
 
-namespace time
+namespace2 (time, pic)
 {
     uint32_t ticks = 0;
 
@@ -58,5 +58,4 @@ namespace time
         idt::irq_del_event_handler(0);
         //idt::irq_del_event_handler(7);
     };
-}
-
+}}

@@ -27,13 +27,13 @@
 #define printf_arr32
 #endif
 
-namespace time
+namespace2 (time, pic)
 {
     extern uint32_t get_ms();
-}
+}}
 
 #ifdef LOG
-#define logt ui::text::write_f("[ %u ms ] ", time::get_ms()); ui::text::write_f
+#define logt ui::text::write_f("[ %u ms ] ", time::pic::get_ms()); ui::text::write_f
 #define log  ui::text::write_f
 
 #define logtINF         ui::text::set_color_reset(); logt

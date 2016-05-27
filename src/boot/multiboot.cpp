@@ -22,7 +22,7 @@ namespace mb
             switch (tag->type)
             {
                 case MULTIBOOT_TAG_TYPE_CMDLINE:
-                    logtINF ("Command line = %s\n",
+                    logtINF("Args = {%s}\n",
                     ((struct multiboot_tag_string *) tag)->string);
                     break;
                 case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME:

@@ -7,7 +7,9 @@
 //#include "date.hpp"
 
 #define HZ 1000
-namespace time
+#define mHZ (HZ /1000)
+
+namespace2 (time, pic)
 {
     void init();
     void uninstall();
@@ -15,7 +17,7 @@ namespace time
     uint32_t get_seconds();
     uint32_t get_ms();
     extern uint32_t ticks;
-    #define get_ticks() ::time::ticks;
+    #define get_ticks() (::time::pic::ticks)
 
     /*Don't use.*/
     void set_frequenze(int32_t hz);
@@ -25,4 +27,4 @@ namespace time
     void uninstall_event_handler();
     /*Don't use.*/
     void install_event_handler();
-}
+}}

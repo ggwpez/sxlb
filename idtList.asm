@@ -16,7 +16,7 @@ extern _ir_event_handler
 	jmp ir_common_stub
 %endmacro
 
-[global  _isr126]
+[global  _isr126]	    ;Rescheduling interrupt
 _isr126:
 	cli
 	push 0
